@@ -66,6 +66,13 @@ class MSE(Base):
     pin_code = Column(String(10))
     nic_code = Column(String(10))
     language = Column(String(10), default="en")
+    gender_owner = Column(
+        Enum("male", "female", "other", name="gender_owner"), nullable=True
+    )
+    turnover_band = Column(
+        Enum("micro", "small", "medium", name="turnover_band"), nullable=True
+    )
+    products = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     classifications = relationship("ClassificationResult", back_populates="mse")
@@ -121,11 +128,11 @@ class MatchResult(Base):
     composite_score = Column(Float, nullable=False)
 
     # Factor breakdown
-    domain_score = Column(Float, default=0.0)       # D – 0.35 weight
-    geo_score = Column(Float, default=0.0)           # G – 0.20 weight
-    commission_score = Column(Float, default=0.0)    # C – 0.15 weight
-    history_score = Column(Float, default=0.0)       # H – 0.20 weight
-    sentiment_score = Column(Float, default=0.0)     # S – 0.10 weight
+    domain_score = Column(Float, default=0.0)
+    geo_score = Column(Float, default=0.0)
+    commission_score = Column(Float, default=0.0)
+    history_score = Column(Float, default=0.0)
+    sentiment_score = Column(Float, default=0.0)
 
     confidence_band = Column(
         Enum("green", "yellow", "red", name="confidence_band"), nullable=False

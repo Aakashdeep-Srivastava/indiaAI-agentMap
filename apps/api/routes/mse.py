@@ -23,6 +23,9 @@ class MSECreate(BaseModel):
     pin_code: Optional[str] = None
     nic_code: Optional[str] = None
     language: str = "en"
+    gender_owner: Optional[str] = None
+    turnover_band: Optional[str] = None
+    products: Optional[str] = None
 
 
 class MSEResponse(BaseModel):
@@ -35,6 +38,9 @@ class MSEResponse(BaseModel):
     pin_code: Optional[str]
     nic_code: Optional[str]
     language: str
+    gender_owner: Optional[str]
+    turnover_band: Optional[str]
+    products: Optional[str]
     created_at: datetime
 
     model_config = {"from_attributes": True}
