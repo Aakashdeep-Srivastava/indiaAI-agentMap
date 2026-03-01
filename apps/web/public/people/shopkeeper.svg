@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 480" fill="none">
+  <g opacity="0.85">
+    <!-- Shopkeeper with cap & stall -->
+    <ellipse cx="108" cy="474" rx="42" ry="6" fill="#D5D9E8"/>
+    <!-- Shoes -->
+    <path d="M74 448 Q68 454 70 464 Q74 474 82 474 L96 474 Q102 474 102 464 L98 448" fill="#2D1B0E"/>
+    <path d="M116 448 Q110 454 112 464 Q116 474 124 474 L138 474 Q144 474 144 464 L140 448" fill="#2D1B0E"/>
+    <!-- Pants -->
+    <path d="M78 280 L70 448 L102 448 L94 280" fill="#2D3348"/>
+    <path d="M122 280 L114 448 L146 448 L138 280" fill="#2D3348"/>
+    <line x1="86" y1="300" x2="85" y2="440" stroke="#1a1f30" strokeWidth="1" opacity="0.2"/>
+    <line x1="128" y1="300" x2="127" y2="440" stroke="#1a1f30" strokeWidth="1" opacity="0.2"/>
+    <!-- Shirt -->
+    <path d="M60 118 Q60 104 78 96 L138 96 Q156 104 156 118 L160 288 Q160 296 152 296 L64 296 Q56 296 56 288 Z" fill="#1B4FCC"/>
+    <!-- Buttons -->
+    <circle cx="108" cy="140" r="3" fill="white" opacity="0.35"/>
+    <circle cx="108" cy="170" r="3" fill="white" opacity="0.35"/>
+    <circle cx="108" cy="200" r="3" fill="white" opacity="0.35"/>
+    <circle cx="108" cy="230" r="3" fill="white" opacity="0.35"/>
+    <!-- Collar -->
+    <path d="M88 96 L98 118 L108 102" fill="#0d2664"/>
+    <path d="M128 96 L118 118 L108 102" fill="#0d2664"/>
+    <!-- Pocket -->
+    <rect x="120" y="132" width="22" height="24" rx="3" fill="none" stroke="white" strokeWidth="1" opacity="0.2"/>
+    <!-- Belt -->
+    <rect x="60" y="274" width="96" height="12" rx="3" fill="#3D2B1F"/>
+    <rect x="100" y="274" width="16" height="12" rx="2" fill="#8B6914"/>
+    <!-- Arms -->
+    <path d="M54 122 L38 128 Q26 136 22 152 L16 254 Q16 264 26 266 L40 266 Q50 264 50 254 L54 158" fill="#E8BF9C"/>
+    <path d="M162 122 L176 128 Q186 136 190 152 L196 254 Q196 264 186 266 L174 266 Q164 264 164 254 L162 158" fill="#E8BF9C"/>
+    <!-- Hands -->
+    <path d="M16 254 Q8 260 12 272 Q16 282 28 280 L40 280 Q52 280 52 268 Q52 260 40 254" fill="#E8BF9C"/>
+    <path d="M164 254 Q156 260 160 272 Q164 282 176 280 L186 280 Q198 280 196 268 Q196 260 186 254" fill="#E8BF9C"/>
+    <!-- Neck -->
+    <rect x="92" y="74" width="32" height="28" rx="6" fill="#E8BF9C"/>
+    <!-- Head -->
+    <ellipse cx="108" cy="48" rx="36" ry="40" fill="#E8BF9C"/>
+    <!-- Hair -->
+    <path d="M72 42 Q72 10 108 4 Q144 10 144 42 Q142 32 108 24 Q74 32 72 42 Z" fill="#2C1810"/>
+    <path d="M72 42 L68 58" stroke="#2C1810" strokeWidth="5"/>
+    <path d="M144 42 L148 58" stroke="#2C1810" strokeWidth="5"/>
+    <!-- Gandhi cap -->
+    <path d="M72 36 Q72 12 108 6 Q144 12 144 36" fill="white"/>
+    <path d="M68 36 L148 36" stroke="#E4E7F1" strokeWidth="6" strokeLinecap="round"/>
+    <!-- Face -->
+    <path d="M86 38 Q94 34 102 38" stroke="#5D4030" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <path d="M114 38 Q122 34 130 38" stroke="#5D4030" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <ellipse cx="94" cy="46" rx="8" ry="5.5" fill="white"/>
+    <ellipse cx="122" cy="46" rx="8" ry="5.5" fill="white"/>
+    <circle cx="96" cy="46" r="4" fill="#3D2B1F"/>
+    <circle cx="124" cy="46" r="4" fill="#3D2B1F"/>
+    <circle cx="97" cy="45" r="1.3" fill="white"/>
+    <circle cx="125" cy="45" r="1.3" fill="white"/>
+    <path d="M104 50 Q108 60 112 50" stroke="#C4A07A" strokeWidth="1.5" fill="none"/>
+    <path d="M90 66 Q108 76 126 66" stroke="#8B6A4A" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <!-- Counter / Stall -->
+    <rect x="0" y="268" width="66" height="42" rx="6" fill="#FFA942"/>
+    <rect x="0" y="260" width="66" height="14" rx="4" fill="#E8680C"/>
+    <!-- Goods -->
+    <rect x="8" y="246" width="16" height="20" rx="3" fill="#FFD700"/>
+    <rect x="30" y="250" width="12" height="16" rx="3" fill="#138808"/>
+    <circle cx="54" cy="254" r="8" fill="#FF6633"/>
+  </g>
+</svg>

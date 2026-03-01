@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 480" fill="none">
+  <g opacity="0.85">
+    <!-- Artisan/weaver with fabric roll -->
+    <ellipse cx="100" cy="474" rx="40" ry="6" fill="#D5D9E8"/>
+    <!-- Sandals -->
+    <path d="M64 448 Q58 454 62 466 Q64 474 74 474 L90 474 Q96 474 96 466 L92 448" fill="#7A5C2E"/>
+    <path d="M108 448 Q102 454 106 466 Q108 474 118 474 L134 474 Q140 474 140 466 L136 448" fill="#7A5C2E"/>
+    <!-- Pants -->
+    <path d="M70 280 L60 448 L96 448 L88 280" fill="#5D4E37"/>
+    <path d="M116 280 L106 448 L140 448 L132 280" fill="#5D4E37"/>
+    <!-- Kurta (green) -->
+    <path d="M54 118 Q54 104 72 96 L130 96 Q148 104 148 118 L150 288 Q150 296 142 296 L58 296 Q50 296 50 288 Z" fill="#138808"/>
+    <line x1="100" y1="104" x2="100" y2="280" stroke="#0F6A06" strokeWidth="1.5" opacity="0.35"/>
+    <path d="M84 96 L100 124 L116 96" stroke="#0F6A06" strokeWidth="2" fill="none"/>
+    <!-- Border -->
+    <rect x="50" y="270" width="100" height="10" rx="2" fill="#FFD700" opacity="0.2"/>
+    <!-- Arms -->
+    <path d="M48 122 L32 128 Q20 136 16 152 L10 248 Q10 258 20 260 L34 260 Q44 258 44 248 L48 158" fill="#A87242"/>
+    <path d="M154 122 L168 128 Q178 136 182 152 L188 248 Q188 258 178 260 L166 260 Q156 258 156 248 L154 158" fill="#A87242"/>
+    <!-- Hands -->
+    <path d="M10 248 Q2 254 6 266 Q10 276 22 274 L36 274 Q46 274 46 264 Q46 254 34 248" fill="#A87242"/>
+    <path d="M156 248 Q148 254 152 266 Q156 276 168 274 L180 274 Q190 274 188 264 Q188 254 178 248" fill="#A87242"/>
+    <!-- Fabric roll in arms -->
+    <ellipse cx="100" cy="258" rx="58" ry="22" fill="#FF9933"/>
+    <ellipse cx="100" cy="258" rx="58" ry="22" fill="none" stroke="#E8680C" strokeWidth="2"/>
+    <!-- Fabric stripes -->
+    <line x1="54" y1="252" x2="54" y2="264" stroke="#C0392B" strokeWidth="2" opacity="0.4"/>
+    <line x1="70" y1="248" x2="70" y2="268" stroke="#1B4FCC" strokeWidth="2" opacity="0.4"/>
+    <line x1="86" y1="244" x2="86" y2="272" stroke="#138808" strokeWidth="2" opacity="0.4"/>
+    <line x1="114" y1="244" x2="114" y2="272" stroke="#C0392B" strokeWidth="2" opacity="0.4"/>
+    <line x1="130" y1="248" x2="130" y2="268" stroke="#FFD700" strokeWidth="2" opacity="0.4"/>
+    <line x1="146" y1="252" x2="146" y2="264" stroke="#1B4FCC" strokeWidth="2" opacity="0.4"/>
+    <!-- Neck -->
+    <rect x="86" y="74" width="28" height="28" rx="5" fill="#A87242"/>
+    <!-- Head -->
+    <ellipse cx="100" cy="48" rx="34" ry="38" fill="#A87242"/>
+    <!-- Hair -->
+    <path d="M66 40 Q66 8 100 2 Q134 8 134 40 Q132 28 100 22 Q68 28 66 40 Z" fill="#1a1f30"/>
+    <!-- Face -->
+    <path d="M80 38 Q88 34 96 38" stroke="#5D3A1F" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <path d="M106 38 Q114 34 122 38" stroke="#5D3A1F" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <ellipse cx="88" cy="48" rx="7.5" ry="5.5" fill="white"/>
+    <ellipse cx="114" cy="48" rx="7.5" ry="5.5" fill="white"/>
+    <circle cx="90" cy="48" r="4" fill="#2C1810"/>
+    <circle cx="116" cy="48" r="4" fill="#2C1810"/>
+    <circle cx="91" cy="47" r="1.3" fill="white"/>
+    <circle cx="117" cy="47" r="1.3" fill="white"/>
+    <path d="M96 52 Q100 62 104 52" stroke="#8B6038" strokeWidth="1.5" fill="none"/>
+    <!-- Mustache -->
+    <path d="M84 66 Q92 62 100 64 Q108 62 116 66" stroke="#1a1f30" strokeWidth="3" fill="none" strokeLinecap="round"/>
+    <path d="M90 72 Q100 78 110 72" stroke="#6B4226" strokeWidth="2" fill="none" strokeLinecap="round"/>
+  </g>
+</svg>

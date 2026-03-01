@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 480" fill="none">
+  <g opacity="0.85">
+    <!-- Professional woman with blazer & laptop bag -->
+    <ellipse cx="96" cy="474" rx="36" ry="6" fill="#D5D9E8"/>
+    <!-- Heels -->
+    <path d="M64 448 Q60 454 62 466 Q64 474 74 474 L88 474 Q94 474 94 466 L90 448" fill="#1a1f30"/>
+    <rect x="76" y="468" width="6" height="8" rx="2" fill="#1a1f30"/>
+    <path d="M104 448 Q100 454 102 466 Q104 474 114 474 L128 474 Q134 474 134 466 L130 448" fill="#1a1f30"/>
+    <rect x="116" y="468" width="6" height="8" rx="2" fill="#1a1f30"/>
+    <!-- Pants -->
+    <path d="M66 280 L60 448 L94 448 L86 280" fill="#2D3348"/>
+    <path d="M108 280 L100 448 L134 448 L126 280" fill="#2D3348"/>
+    <line x1="78" y1="300" x2="76" y2="440" stroke="#1a1f30" strokeWidth="1" opacity="0.2"/>
+    <line x1="116" y1="300" x2="114" y2="440" stroke="#1a1f30" strokeWidth="1" opacity="0.2"/>
+    <!-- Blazer -->
+    <path d="M52 118 Q52 104 70 96 L122 96 Q140 104 140 118 L144 288 Q144 296 136 296 L56 296 Q48 296 48 288 Z" fill="#0B1437"/>
+    <!-- Lapels -->
+    <path d="M80 96 L68 136 L84 128 Z" fill="#162050"/>
+    <path d="M112 96 L124 136 L108 128 Z" fill="#162050"/>
+    <!-- Buttons -->
+    <circle cx="96" cy="186" r="3.5" fill="#4A5170"/>
+    <circle cx="96" cy="216" r="3.5" fill="#4A5170"/>
+    <!-- White shirt -->
+    <path d="M80 98 L86 128 L96 112 L106 128 L112 98" fill="white"/>
+    <!-- Pocket -->
+    <rect x="110" y="152" width="18" height="4" rx="2" fill="#4A5170" opacity="0.3"/>
+    <!-- Belt -->
+    <rect x="52" y="274" width="88" height="10" rx="3" fill="#2C1810"/>
+    <rect x="90" y="274" width="12" height="10" rx="2" fill="#8B6914"/>
+    <!-- Arms -->
+    <path d="M46 120 L32 126 Q20 134 16 150 L10 244 Q10 254 20 256 L32 256 Q42 254 42 244 L46 154" fill="#FADCC8"/>
+    <path d="M146 120 L158 126 Q168 134 172 150 L178 244 Q178 254 168 256 L158 256 Q148 254 148 244 L146 154" fill="#FADCC8"/>
+    <!-- Hands -->
+    <path d="M10 244 Q2 250 6 262 Q10 272 22 270 L34 270 Q44 270 44 258 Q44 250 32 244" fill="#FADCC8"/>
+    <path d="M148 244 Q140 250 144 262 Q148 272 160 270 L170 270 Q180 270 178 258 Q178 250 168 244" fill="#FADCC8"/>
+    <!-- Laptop bag -->
+    <rect x="0" y="252" width="36" height="28" rx="5" fill="#2D3348"/>
+    <rect x="10" y="248" width="16" height="6" rx="2" fill="#4A5170"/>
+    <!-- Neck -->
+    <rect x="82" y="74" width="28" height="28" rx="5" fill="#FADCC8"/>
+    <!-- Head -->
+    <ellipse cx="96" cy="46" rx="32" ry="38" fill="#FADCC8"/>
+    <!-- Hair (professional bob) -->
+    <path d="M62 40 Q62 8 96 2 Q130 8 130 40 L134 62 Q134 68 128 66 L128 42 Q128 14 96 8 Q64 14 64 42 L64 62 Q64 68 58 66 Z" fill="#1a1f30"/>
+    <!-- Hairband -->
+    <path d="M62 30 Q96 22 130 30" stroke="#0B1437" strokeWidth="4" fill="none"/>
+    <!-- Glasses -->
+    <rect x="72" y="40" width="20" height="14" rx="7" fill="none" stroke="#4A5170" strokeWidth="2.5"/>
+    <rect x="100" y="40" width="20" height="14" rx="7" fill="none" stroke="#4A5170" strokeWidth="2.5"/>
+    <line x1="92" y1="47" x2="100" y2="47" stroke="#4A5170" strokeWidth="2"/>
+    <line x1="72" y1="47" x2="62" y2="44" stroke="#4A5170" strokeWidth="1.5"/>
+    <line x1="120" y1="47" x2="130" y2="44" stroke="#4A5170" strokeWidth="1.5"/>
+    <!-- Eyes -->
+    <ellipse cx="82" cy="48" rx="5.5" ry="4" fill="white"/>
+    <ellipse cx="110" cy="48" rx="5.5" ry="4" fill="white"/>
+    <circle cx="84" cy="48" r="3" fill="#3D6B5E"/>
+    <circle cx="112" cy="48" r="3" fill="#3D6B5E"/>
+    <circle cx="85" cy="47" r="1" fill="white"/>
+    <circle cx="113" cy="47" r="1" fill="white"/>
+    <!-- Eyebrows -->
+    <path d="M74 38 Q82 34 90 38" stroke="#4A3020" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <path d="M102 38 Q110 34 118 38" stroke="#4A3020" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <!-- Nose -->
+    <path d="M93 52 Q96 62 99 52" stroke="#E8C4A0" strokeWidth="1.2" fill="none"/>
+    <!-- Lips -->
+    <path d="M86 66 Q96 62 106 66" stroke="#C07060" strokeWidth="2" fill="#D88878" opacity="0.4"/>
+    <path d="M86 66 Q96 72 106 66" stroke="#C07060" strokeWidth="1.5" fill="#C87868" opacity="0.3"/>
+    <!-- Earrings -->
+    <circle cx="62" cy="54" r="3.5" fill="#FFD700"/>
+    <circle cx="130" cy="54" r="3.5" fill="#FFD700"/>
+  </g>
+</svg>

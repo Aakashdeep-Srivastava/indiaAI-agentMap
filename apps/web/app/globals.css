@@ -3,7 +3,267 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --brand-900: #0B1437;
+    --brand-800: #0d2664;
+    --brand-500: #1B4FCC;
+    --saffron-500: #E8680C;
+    --saffron-400: #FFA942;
+  }
+
   body {
-    @apply bg-slate-50 text-navy-800 antialiased;
+    @apply bg-surface-50 text-brand-900 antialiased;
+    font-family: "DM Sans", sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Plus Jakarta Sans", sans-serif;
+  }
+
+  code, .font-mono {
+    font-family: "JetBrains Mono", monospace;
+  }
+}
+
+@layer components {
+  /* Jali lattice background pattern */
+  .bg-jali {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(27, 79, 204, 0.04) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  /* Tricolour accent bar */
+  .tricolour-bar {
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      #FF9933 0%, #FF9933 33.33%,
+      #FFFFFF 33.33%, #FFFFFF 66.66%,
+      #138808 66.66%, #138808 100%
+    );
+  }
+
+  /* Premium glass card */
+  .glass-card {
+    @apply rounded-2xl border border-surface-200 bg-white shadow-card;
+    backdrop-filter: blur(8px);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .glass-card:hover {
+    @apply shadow-card-hover;
+    transform: translateY(-1px);
+  }
+
+  /* Premium input */
+  .input-field {
+    @apply w-full rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm text-brand-900
+      placeholder:text-surface-400
+      focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-3
+      text-sm font-semibold text-white shadow-sm
+      hover:bg-brand-600 active:bg-brand-700
+      disabled:opacity-50 disabled:cursor-not-allowed;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    transition: all 0.2s ease;
+  }
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 4px 16px rgba(27, 79, 204, 0.25);
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-surface-200
+      bg-white px-5 py-3 text-sm font-medium text-brand-900
+      hover:bg-surface-50 hover:border-surface-300
+      disabled:opacity-40 disabled:cursor-not-allowed;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    transition: all 0.2s ease;
+  }
+
+  /* Saffron accent button */
+  .btn-saffron {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3
+      text-sm font-semibold text-white shadow-sm
+      disabled:opacity-50 disabled:cursor-not-allowed;
+    background: linear-gradient(135deg, #E8680C 0%, #FFA942 100%);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    transition: all 0.2s ease;
+  }
+  .btn-saffron:hover:not(:disabled) {
+    box-shadow: 0 4px 16px rgba(232, 104, 12, 0.3);
+    filter: brightness(1.05);
+  }
+
+  /* Stagger animation delays */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.10s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.20s; }
+  .stagger-5 { animation-delay: 0.25s; }
+
+  /* Footer people — varied movement types */
+  .footer-float-1 { animation: footer-sway 4s ease-in-out infinite; }
+  .footer-float-2 { animation: footer-bounce 3s ease-in-out infinite 0.3s; }
+  .footer-float-3 { animation: footer-float 3.5s ease-in-out infinite 0.6s; }
+  .footer-float-4 { animation: footer-tilt 4.5s ease-in-out infinite; }
+  .footer-float-5 { animation: footer-bounce 3.2s ease-in-out infinite 0.8s; }
+  .footer-float-6 { animation: footer-sway 4.2s ease-in-out infinite 0.5s; }
+
+  /* Footer logo glow + breathe */
+  .footer-logo-animate {
+    animation: footer-logo-glow 3.5s ease-in-out infinite;
+  }
+
+  /* Voice input button */
+  .voice-btn {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl
+      transition-all duration-200;
+  }
+  .voice-btn-idle {
+    @apply bg-brand-500 text-white hover:bg-brand-600;
+    box-shadow: 0 2px 8px rgba(27, 79, 204, 0.2);
+  }
+  .voice-btn-idle:hover {
+    box-shadow: 0 4px 16px rgba(27, 79, 204, 0.3);
+  }
+  .voice-btn-recording {
+    @apply bg-saffron-500 text-white;
+    box-shadow: 0 0 0 0 rgba(232, 104, 12, 0.4);
+    animation: voice-pulse 1.5s ease-in-out infinite;
+  }
+  .voice-btn-processing {
+    @apply bg-surface-200 text-surface-500 cursor-wait;
+  }
+
+  /* Pulsing ring for recording state */
+  .voice-pulse-ring {
+    @apply absolute inset-0 rounded-xl;
+    box-shadow: 0 0 0 0 rgba(232, 104, 12, 0.4);
+    animation: voice-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Sathi chat typing indicator dots */
+  .typing-dot {
+    @apply inline-block h-2 w-2 rounded-full bg-brand-500/50;
+    animation: typing-bounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot-2 {
+    animation-delay: 0.15s;
+  }
+  .typing-dot-3 {
+    animation-delay: 0.3s;
+  }
+
+  /* Magic-fill glow when Sathi fills a form field */
+  .magic-fill {
+    animation: magic-fill-glow 2.5s ease-out;
+    border-color: #E8680C !important;
+  }
+
+  /* Sathi chat scroll area */
+  .sathi-chat-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(27, 79, 204, 0.15) transparent;
+  }
+  .sathi-chat-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+  .sathi-chat-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sathi-chat-scroll::-webkit-scrollbar-thumb {
+    background: rgba(27, 79, 204, 0.15);
+    border-radius: 4px;
+  }
+}
+
+/* Float up-down */
+@keyframes footer-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Sway left-right */
+@keyframes footer-sway {
+  0%, 100% { transform: translateX(0px) rotate(0deg); }
+  25% { transform: translateX(4px) rotate(0.5deg); }
+  75% { transform: translateX(-4px) rotate(-0.5deg); }
+}
+
+/* Gentle bounce */
+@keyframes footer-bounce {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  40% { transform: translateY(-8px) scale(1.01); }
+  60% { transform: translateY(-6px) scale(1.005); }
+}
+
+/* Subtle tilt */
+@keyframes footer-tilt {
+  0%, 100% { transform: rotate(0deg) translateY(0px); }
+  30% { transform: rotate(1deg) translateY(-5px); }
+  70% { transform: rotate(-1deg) translateY(-3px); }
+}
+
+/* Typing indicator bounce */
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Magic-fill glow animation */
+@keyframes magic-fill-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(232, 104, 12, 0.4), 0 0 8px rgba(232, 104, 12, 0.2);
+    border-color: #E8680C;
+    background-color: #FFF8F0;
+  }
+  40% {
+    box-shadow: 0 0 0 4px rgba(232, 104, 12, 0.1), 0 0 16px rgba(232, 104, 12, 0.1);
+    background-color: #FFFDF9;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(232, 104, 12, 0), 0 0 0 rgba(232, 104, 12, 0);
+    border-color: #E4E7F1;
+    background-color: #FFFFFF;
+  }
+}
+
+/* Voice recording pulse */
+@keyframes voice-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(232, 104, 12, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(232, 104, 12, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 104, 12, 0); }
+}
+
+/* Logo breathe + glow */
+@keyframes footer-logo-glow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 12px rgba(27, 79, 204, 0.15)) drop-shadow(0 0 4px rgba(232, 104, 12, 0.1));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 28px rgba(27, 79, 204, 0.4)) drop-shadow(0 0 12px rgba(232, 104, 12, 0.2));
+  }
+}
+
+@layer utilities {
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #1B4FCC 0%, #5a82ed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-saffron {
+    background: linear-gradient(135deg, #E8680C 0%, #FFA942 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

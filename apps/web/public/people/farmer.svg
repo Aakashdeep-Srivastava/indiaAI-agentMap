@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 480" fill="none">
+  <g opacity="0.85">
+    <!-- Farmer with turban & basket -->
+    <ellipse cx="100" cy="474" rx="40" ry="6" fill="#D5D9E8"/>
+    <!-- Feet -->
+    <path d="M72 448 L68 468 Q68 476 78 476 L92 476 Q98 476 98 468 L94 448" fill="#7A5C2E"/>
+    <path d="M106 448 L102 468 Q102 476 112 476 L126 476 Q132 476 132 468 L128 448" fill="#7A5C2E"/>
+    <!-- Legs -->
+    <path d="M76 280 L68 448 L98 448 L90 280" fill="#F0E8D8"/>
+    <path d="M110 280 L102 448 L132 448 L124 280" fill="#F0E8D8"/>
+    <!-- Kurta -->
+    <path d="M56 120 Q56 104 72 98 L128 98 Q144 104 144 120 L148 288 Q148 296 140 296 L60 296 Q52 296 52 288 Z" fill="#F5EFE0"/>
+    <line x1="100" y1="106" x2="100" y2="288" stroke="#DDD4C2" strokeWidth="1.2" opacity="0.5"/>
+    <path d="M84 98 L100 126 L116 98" stroke="#CFC2A8" strokeWidth="2" fill="none"/>
+    <!-- Vest -->
+    <path d="M76 104 L76 230 L94 230 L94 104" fill="#8B6914" opacity="0.35"/>
+    <path d="M106 104 L106 230 L124 230 L124 104" fill="#8B6914" opacity="0.35"/>
+    <!-- Arms -->
+    <path d="M52 124 L38 128 Q28 134 24 148 L18 248 Q18 258 26 260 L38 260 Q46 258 46 248 L52 152" fill="#D4A574"/>
+    <path d="M148 124 L160 128 Q170 134 174 148 L180 248 Q180 258 172 260 L160 260 Q152 258 152 248 L148 152" fill="#D4A574"/>
+    <!-- Hands -->
+    <path d="M18 248 Q12 254 14 264 Q18 274 28 272 L38 272 Q48 272 48 262 Q48 254 38 248" fill="#D4A574"/>
+    <path d="M152 248 Q146 254 148 264 Q152 274 162 272 L172 272 Q182 272 180 262 Q180 254 172 248" fill="#D4A574"/>
+    <!-- Neck -->
+    <rect x="86" y="78" width="28" height="26" rx="6" fill="#D4A574"/>
+    <!-- Head -->
+    <ellipse cx="100" cy="52" rx="34" ry="38" fill="#D4A574"/>
+    <!-- Turban -->
+    <path d="M62 40 Q62 6 100 0 Q138 6 138 40" fill="#FF9933"/>
+    <path d="M66 36 Q66 12 100 6 Q134 12 134 36" fill="#E8680C"/>
+    <path d="M70 32 Q70 16 100 10 Q130 16 130 32" fill="#FFA942"/>
+    <path d="M74 28 Q74 18 100 14 Q126 18 126 28" fill="#FF9933"/>
+    <path d="M136 34 Q144 38 142 52 Q140 58 136 56" fill="#FF9933" opacity="0.6"/>
+    <!-- Face -->
+    <path d="M80 42 Q86 38 92 42" stroke="#5D3A1F" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <path d="M108 42 Q114 38 120 42" stroke="#5D3A1F" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <ellipse cx="86" cy="50" rx="7" ry="5" fill="white"/>
+    <ellipse cx="114" cy="50" rx="7" ry="5" fill="white"/>
+    <circle cx="88" cy="50" r="3.5" fill="#3D2B1F"/>
+    <circle cx="116" cy="50" r="3.5" fill="#3D2B1F"/>
+    <circle cx="88.8" cy="49" r="1.2" fill="white"/>
+    <circle cx="116.8" cy="49" r="1.2" fill="white"/>
+    <path d="M96 54 Q100 64 104 54" stroke="#B88A64" strokeWidth="1.5" fill="none"/>
+    <path d="M82 70 Q90 66 100 68 Q110 66 118 70" stroke="#3D2B1F" strokeWidth="3" fill="none" strokeLinecap="round"/>
+    <path d="M88 76 Q100 82 112 76" stroke="#8B5A3A" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <!-- Basket -->
+    <path d="M0 232 Q0 218 20 214 L50 214 Q62 218 62 232 L58 256 Q58 262 50 262 L12 262 Q4 262 4 256 Z" fill="#8B6914"/>
+    <path d="M8 226 L54 226 M8 238 L54 238 M8 250 L54 250" stroke="#6B4C12" strokeWidth="1.2" opacity="0.4"/>
+    <circle cx="18" cy="210" r="9" fill="#FF6633"/>
+    <circle cx="36" cy="208" r="9" fill="#138808"/>
+    <circle cx="28" cy="202" r="8" fill="#FFD700"/>
+  </g>
+</svg>

@@ -14,51 +14,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen font-sans">
-        {/* ── Government-themed header bar ─────────────────────────── */}
-        <header className="bg-navy-800 text-white">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-navy-800 text-sm font-bold">
-                AI
-              </div>
-              <div>
-                <h1 className="text-lg font-semibold leading-tight">
-                  AgentMap AI
-                </h1>
-                <p className="text-xs text-slate-300">
-                  Sovereign ONDC Mapping Layer
-                </p>
-              </div>
-            </div>
-            <nav className="flex items-center gap-6 text-sm">
-              <a href="/" className="hover:text-saffron-500 transition-colors">
-                Dashboard
-              </a>
-              <a
-                href="/register"
-                className="hover:text-saffron-500 transition-colors"
-              >
-                Register MSE
-              </a>
-            </nav>
-          </div>
-
-          {/* Tricolour accent strip */}
-          <div className="flex h-1">
-            <div className="flex-1 bg-orange-500" />
-            <div className="flex-1 bg-white" />
-            <div className="flex-1 bg-green-600" />
-          </div>
-        </header>
-
-        <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
-
-        <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-          AgentMap AI v0.1 — IndiaAI Innovation Challenge 2026 — Sovereign AI
-          Compliant (DPDP Act 2023)
-        </footer>
-      </body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-screen">{children}</body>
     </html>
   );
 }

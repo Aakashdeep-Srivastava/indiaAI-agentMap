@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 480" fill="none">
+  <g opacity="0.85">
+    <!-- Delivery person with package -->
+    <ellipse cx="100" cy="474" rx="42" ry="6" fill="#D5D9E8"/>
+    <!-- Sneakers -->
+    <path d="M66 448 Q58 454 62 464 Q66 474 78 474 L94 474 Q102 474 102 464 L98 448" fill="#1a1f30"/>
+    <path d="M56 462 L102 462" stroke="white" strokeWidth="2"/>
+    <path d="M112 448 Q104 454 108 464 Q112 474 124 474 L140 474 Q148 474 148 464 L144 448" fill="#1a1f30"/>
+    <path d="M102 462 L148 462" stroke="white" strokeWidth="2"/>
+    <!-- Pants -->
+    <path d="M72 280 L62 448 L102 448 L90 280" fill="#2D3348"/>
+    <path d="M118 280 L108 448 L148 448 L136 280" fill="#2D3348"/>
+    <!-- Polo uniform -->
+    <path d="M56 118 Q56 104 76 96 L132 96 Q152 104 152 118 L156 288 Q156 296 148 296 L60 296 Q52 296 52 288 Z" fill="#2563EB"/>
+    <!-- Collar -->
+    <path d="M86 96 L96 118 L106 100" fill="#1E40AF"/>
+    <path d="M122 96 L112 118 L106 100" fill="#1E40AF"/>
+    <!-- Stripe -->
+    <rect x="56" y="190" width="100" height="4" rx="2" fill="white" opacity="0.12"/>
+    <!-- Logo patch -->
+    <rect x="118" y="128" width="22" height="16" rx="3" fill="white" opacity="0.18"/>
+    <!-- Belt -->
+    <rect x="56" y="274" width="96" height="10" rx="3" fill="#1a1f30"/>
+    <!-- Left arm down -->
+    <path d="M50 122 L34 128 Q22 136 18 152 L12 254 Q12 264 22 266 L34 266 Q44 264 44 254 L50 158" fill="#C9935E"/>
+    <!-- Right arm raised holding box -->
+    <path d="M158 122 L170 118 Q180 114 186 104 L198 62 Q202 52 196 48 L190 52 Q184 56 180 68 L168 106 L158 120" fill="#C9935E"/>
+    <!-- Left hand -->
+    <path d="M12 254 Q4 260 8 272 Q12 282 24 280 L36 280 Q48 280 48 268 Q48 260 36 254" fill="#C9935E"/>
+    <!-- Right hand grip -->
+    <path d="M190 44 Q184 40 180 46 Q176 52 182 56 L196 56 Q202 56 202 48 Q202 42 196 40" fill="#C9935E"/>
+    <!-- Package -->
+    <rect x="162" y="16" width="56" height="44" rx="6" fill="#FFA942"/>
+    <rect x="162" y="16" width="56" height="10" rx="4" fill="#E8680C"/>
+    <rect x="184" y="26" width="12" height="34" rx="2" fill="#E8680C" opacity="0.35"/>
+    <!-- Neck -->
+    <rect x="86" y="74" width="30" height="28" rx="6" fill="#C9935E"/>
+    <!-- Head -->
+    <ellipse cx="102" cy="48" rx="36" ry="40" fill="#C9935E"/>
+    <!-- Cap -->
+    <path d="M66 38 Q66 10 102 4 Q138 10 138 38" fill="#2563EB"/>
+    <rect x="64" y="36" width="74" height="8" rx="3" fill="#1D4ED8"/>
+    <!-- Bill -->
+    <path d="M64 40 L48 46 Q42 50 48 52 L68 46" fill="#1D4ED8"/>
+    <!-- Face -->
+    <path d="M82 38 Q90 34 98 38" stroke="#5D3A1F" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <path d="M108 38 Q116 34 124 38" stroke="#5D3A1F" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <ellipse cx="90" cy="48" rx="7.5" ry="5.5" fill="white"/>
+    <ellipse cx="116" cy="48" rx="7.5" ry="5.5" fill="white"/>
+    <circle cx="92" cy="48" r="4" fill="#3D2B1F"/>
+    <circle cx="118" cy="48" r="4" fill="#3D2B1F"/>
+    <circle cx="93" cy="47" r="1.3" fill="white"/>
+    <circle cx="119" cy="47" r="1.3" fill="white"/>
+    <path d="M98 52 Q102 62 106 52" stroke="#A87A48" strokeWidth="1.5" fill="none"/>
+    <path d="M88 66 Q102 76 116 66" stroke="#7A5230" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <!-- Teeth -->
+    <path d="M96 68 L108 68" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  </g>
+</svg>
