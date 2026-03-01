@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm install:*)",
+      "Bash(python -c \"import ast; [ast.parse\\(open\\(f\\).read\\(\\)\\) for f in [''main.py'',''database.py'',''routes/mse.py'',''routes/classify.py'',''routes/match.py'',''routes/health.py'',''services/classifier.py'',''services/matcher.py'',''services/explainer.py'']]; print\\(''All Python files parse OK''\\)\")",
+      "Bash(docker:*)",
+      "Bash(pip install:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)",
+      "Bash(git status:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(python3 -c \" import zipfile, xml.etree.ElementTree as ET, sys, re doc = zipfile.ZipFile\\(r''C:/Users/aakas/Downloads/AgentMapAI_PRD.docx''\\) tree = ET.parse\\(doc.open\\(''word/document.xml''\\)\\) ns = {''w'': ''http://schemas.openxmlformats.org/wordprocessingml/2006/main''} text = [] for p in tree.findall\\(''.//w:p'', ns\\): line = ''''.join\\(n.text for n in p.findall\\(''.//w:t'', ns\\) if n.text\\) text.append\\(line\\) print\\(''\\\\n''.join\\(text\\)\\) \")",
+      "Bash(ls:*)",
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(npx next:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)",
+      "Bash(wmic process:*)",
+      "Bash(xargs -I{} taskkill //F //PID {})",
+      "Bash(npx kill-port:*)",
+      "Bash(psql:*)",
+      "Bash(where psql:*)",
+      "Bash(uvicorn main:app:*)",
+      "Bash(pip show:*)",
+      "Bash(DATABASE_URL=\"postgresql://agentmap:agentmap_dev@localhost:5432/agentmap\" uvicorn main:app:*)",
+      "Bash(npm run:*)",
+      "Bash(powershell:*)",
+      "Bash(rm:*)",
+      "Bash(NEXT_PUBLIC_API_URL=http://localhost:8010 npm run:*)"
+    ]
+  }
+}
