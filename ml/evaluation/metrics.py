@@ -1,10 +1,14 @@
 """Evaluation metrics for AgentMap AI.
 
-Implements NDCG@3, MRR (Mean Reciprocal Rank), and Top-k Accuracy as
-specified in the PRD for benchmarking classification and matching quality.
+Implements NDCG@3, MRR (Mean Reciprocal Rank), Top-k Accuracy, and
+classification metrics (accuracy, precision, recall, F1, AUC-ROC,
+confusion matrix) as specified in the PRD.
 """
 
 import numpy as np
+
+
+# ── Ranking Metrics ──────────────────────────────────────────────────
 
 
 def accuracy_at_k(y_true: list[int], y_pred_ranked: list[list[int]], k: int = 1) -> float:
@@ -91,6 +95,132 @@ def confidence_band_distribution(scores: list[float]) -> dict[str, int]:
         else:
             bands["red"] += 1
     return bands
+
+
+# ── Classification Metrics ───────────────────────────────────────────
+
+
+def classification_metrics(
+    y_true: list[int],
+    y_pred: list[int],
+    y_prob: np.ndarray | None = None,
+    label_names: list[str] | None = None,
+) -> dict:
+    """Compute comprehensive classification metrics.
+
+    Args:
+        y_true: Ground truth label indices.
+        y_pred: Predicted label indices.
+        y_prob: Optional (n_samples, n_classes) probability array for AUC-ROC.
+        label_names: Optional class names for reporting.
+
+    Returns:
+        Dict with accuracy, precision_macro, recall_macro, f1_macro, f1_weighted,
+        confusion_matrix, classification_report, and optionally auc_roc.
+    """
+    from sklearn.metrics import (
+        accuracy_score,
+        classification_report,
+        confusion_matrix,
+        f1_score,
+        precision_score,
+        recall_score,
+    )
+
+    y_true_arr = np.array(y_true)
+    y_pred_arr = np.array(y_pred)
+
+    result = {
+        "accuracy": float(accuracy_score(y_true_arr, y_pred_arr)),
+        "precision_macro": float(precision_score(y_true_arr, y_pred_arr, average="macro", zero_division=0)),
+        "recall_macro": float(recall_score(y_true_arr, y_pred_arr, average="macro", zero_division=0)),
+        "f1_macro": float(f1_score(y_true_arr, y_pred_arr, average="macro", zero_division=0)),
+        "f1_weighted": float(f1_score(y_true_arr, y_pred_arr, average="weighted", zero_division=0)),
+        "confusion_matrix": confusion_matrix(y_true_arr, y_pred_arr).tolist(),
+        "classification_report": classification_report(
+            y_true_arr, y_pred_arr,
+            target_names=label_names,
+            zero_division=0,
+            output_dict=True,
+        ),
+    }
+
+    # AUC-ROC (one-vs-rest) if probabilities are provided
+    if y_prob is not None:
+        try:
+            from sklearn.metrics import roc_auc_score
+            from sklearn.preprocessing import label_binarize
+
+            n_classes = y_prob.shape[1]
+            y_true_bin = label_binarize(y_true_arr, classes=list(range(n_classes)))
+
+            if n_classes == 2:
+                result["auc_roc"] = float(roc_auc_score(y_true_bin, y_prob[:, 1]))
+            else:
+                result["auc_roc"] = float(
+                    roc_auc_score(y_true_bin, y_prob, average="macro", multi_class="ovr")
+                )
+        except Exception:
+            result["auc_roc"] = None
+    else:
+        result["auc_roc"] = None
+
+    return result
+
+
+def print_confusion_matrix(cm: list[list[int]], label_names: list[str]) -> None:
+    """Print a formatted ASCII confusion matrix."""
+    n = len(label_names)
+    max_label = max(len(l) for l in label_names)
+    col_width = max(5, max_label + 1)
+
+    # Header
+    header = " " * (max_label + 2) + "".join(f"{l:>{col_width}}" for l in label_names)
+    print("\n  Confusion Matrix:")
+    print(f"  {'─' * len(header)}")
+    print(f"  {header}")
+    print(f"  {'─' * len(header)}")
+
+    for i, row in enumerate(cm):
+        row_str = f"  {label_names[i]:<{max_label + 2}}" + "".join(f"{v:>{col_width}}" for v in row)
+        print(row_str)
+
+    print(f"  {'─' * len(header)}")
+
+
+def print_classification_report(metrics: dict, label_names: list[str] | None = None) -> None:
+    """Print a formatted classification report from metrics dict."""
+    print("\n" + "=" * 55)
+    print("  VargBot — Classification Evaluation Report")
+    print("=" * 55)
+    print(f"  Accuracy:         {metrics['accuracy']:.4f}")
+    print(f"  Precision (macro): {metrics['precision_macro']:.4f}")
+    print(f"  Recall (macro):    {metrics['recall_macro']:.4f}")
+    print(f"  F1 (macro):        {metrics['f1_macro']:.4f}")
+    print(f"  F1 (weighted):     {metrics['f1_weighted']:.4f}")
+    if metrics.get("auc_roc") is not None:
+        print(f"  AUC-ROC (macro):   {metrics['auc_roc']:.4f}")
+    print("-" * 55)
+
+    # Per-class report
+    report = metrics.get("classification_report", {})
+    if report and label_names:
+        print(f"\n  {'Class':<12} {'Prec':>8} {'Recall':>8} {'F1':>8} {'Support':>8}")
+        print(f"  {'─' * 44}")
+        for name in label_names:
+            cls = report.get(name, {})
+            print(
+                f"  {name:<12} {cls.get('precision', 0):>8.4f} {cls.get('recall', 0):>8.4f} "
+                f"{cls.get('f1-score', 0):>8.4f} {int(cls.get('support', 0)):>8}"
+            )
+
+    if label_names and "confusion_matrix" in metrics:
+        print_confusion_matrix(metrics["confusion_matrix"], label_names)
+
+    print("=" * 55)
+
+
+# ── Legacy report ────────────────────────────────────────────────────
 
 
 def print_evaluation_report(
