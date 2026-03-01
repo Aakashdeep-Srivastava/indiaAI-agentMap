@@ -124,6 +124,9 @@ INSERT INTO snps (name, subscriber_id, domain_codes, geo_coverage, commission_pc
 
 -- ── MSE Registration Table ───────────────────────────────────────────
 
+CREATE TYPE gender_owner AS ENUM ('male', 'female', 'other');
+CREATE TYPE turnover_band AS ENUM ('micro', 'small', 'medium');
+
 CREATE TABLE IF NOT EXISTS mses (
     id SERIAL PRIMARY KEY,
     udyam_number VARCHAR(30) UNIQUE NOT NULL,
@@ -134,31 +137,34 @@ CREATE TABLE IF NOT EXISTS mses (
     pin_code VARCHAR(10),
     nic_code VARCHAR(10),
     language VARCHAR(10) DEFAULT 'en',
+    gender_owner gender_owner,
+    turnover_band turnover_band,
+    products TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Sample MSEs (20 for immediate testing)
-INSERT INTO mses (udyam_number, name, description, district, state, pin_code, nic_code, language) VALUES
-    ('UDYAM-MH-01-0000001', 'Shree Ganesh Kirana Store', 'Wholesale and retail of grocery items including rice, dal, atta, spices, cooking oil, sugar, and daily provision essentials for local customers', 'Pune', 'Maharashtra', '411001', '4711', 'hi'),
-    ('UDYAM-UP-02-0000002', 'Varanasi Handloom Sarees', 'Traditional Banarasi silk saree weaving and handloom cotton textile manufacturing for domestic and export markets', 'Varanasi', 'Uttar Pradesh', '221001', '1312', 'hi'),
-    ('UDYAM-KA-03-0000003', 'Bangalore Mobile Repair Hub', 'Mobile phone repair, laptop servicing, and sales of electronic accessories including chargers, cables and screen protectors', 'Bangalore Urban', 'Karnataka', '560001', '9511', 'en'),
-    ('UDYAM-RJ-04-0000004', 'Jaipur Blue Pottery Works', 'Handcrafted blue pottery, ceramic home décor items, and traditional Rajasthani handicraft products', 'Jaipur', 'Rajasthan', '302001', '2393', 'hi'),
-    ('UDYAM-KL-05-0000005', 'Kerala Ayurveda Naturals', 'Manufacturing of ayurvedic herbal medicines, organic wellness products, and traditional health supplements', 'Ernakulam', 'Kerala', '682001', '2100', 'ml'),
-    ('UDYAM-GJ-06-0000006', 'Surat Textile Traders', 'Wholesale distribution of polyester fabric, dress materials, and ready-made garments for retail chains', 'Surat', 'Gujarat', '395001', '1410', 'gu'),
-    ('UDYAM-TN-07-0000007', 'Chennai Electronics Plaza', 'Retail and wholesale of LED lighting, fans, electrical switches, and home appliances', 'Chennai', 'Tamil Nadu', '600001', '2740', 'ta'),
-    ('UDYAM-WB-08-0000008', 'Kolkata Steel Utensils', 'Manufacturing and wholesale of stainless steel kitchen utensils, cookware, and household vessels', 'Kolkata', 'West Bengal', '700001', '2599', 'bn'),
-    ('UDYAM-MP-09-0000009', 'Indore Organic Store', 'Retail of organic food products, honey, herbal tea, and natural health supplements', 'Indore', 'Madhya Pradesh', '452001', '4729', 'hi'),
-    ('UDYAM-MH-10-0000010', 'Nashik Grape Grocery', 'Wholesale grape distribution, dry fruit trading, and grocery provision supply to hotels and restaurants', 'Nashik', 'Maharashtra', '422001', '4630', 'mr'),
-    ('UDYAM-AP-11-0000011', 'Tirupati Cotton Weavers', 'Handloom cotton fabric weaving and garment stitching for local and online retail', 'Tirupati', 'Andhra Pradesh', '517501', '1312', 'te'),
-    ('UDYAM-DL-12-0000012', 'Delhi Computer Solutions', 'Computer repair, assembly, networking solutions, and IT peripheral sales', 'New Delhi', 'Delhi', '110001', '9511', 'hi'),
-    ('UDYAM-AS-13-0000013', 'Assam Bamboo Crafts', 'Traditional bamboo basket weaving, home décor, and eco-friendly bamboo products', 'Guwahati', 'Assam', '781001', '1629', 'as'),
-    ('UDYAM-UK-14-0000014', 'Rishikesh Yoga Wellness', 'Yoga accessories, meditation equipment, and ayurvedic wellness product retail', 'Dehradun', 'Uttarakhand', '248001', '3240', 'hi'),
-    ('UDYAM-BR-15-0000015', 'Patna Spice Emporium', 'Wholesale trading of spices, masala powders, turmeric, and condiments sourced from local farmers', 'Patna', 'Bihar', '800001', '1079', 'hi'),
-    ('UDYAM-OD-16-0000016', 'Odisha Terracotta Art', 'Traditional terracotta pottery, clay sculptures, and decorative art pieces from Odisha', 'Puri', 'Odisha', '752001', '2393', 'or'),
-    ('UDYAM-PB-17-0000017', 'Ludhiana Hosiery Works', 'Knitted garments, woolen hosiery, and winter wear manufacturing for wholesale distribution', 'Ludhiana', 'Punjab', '141001', '1430', 'pa'),
-    ('UDYAM-TG-18-0000018', 'Hyderabad Pearl Jewels', 'Traditional pearl jewellery, fashion accessories, and decorative items retail', 'Hyderabad', 'Telangana', '500001', '3212', 'te'),
-    ('UDYAM-HR-19-0000019', 'Gurgaon Smart Appliances', 'Smart home devices, IoT sensors, LED panels, and energy-efficient electrical appliances', 'Gurgaon', 'Haryana', '122001', '2750', 'hi'),
-    ('UDYAM-KA-20-0000020', 'Mysore Sandalwood Products', 'Natural sandalwood oil, incense sticks, and herbal beauty products manufacturing', 'Mysore', 'Karnataka', '570001', '2029', 'kn');
+INSERT INTO mses (udyam_number, name, description, district, state, pin_code, nic_code, language, gender_owner, turnover_band, products) VALUES
+    ('UDYAM-MH-01-0000001', 'Shree Ganesh Kirana Store', 'Wholesale and retail of grocery items including rice, dal, atta, spices, cooking oil, sugar, and daily provision essentials for local customers', 'Pune', 'Maharashtra', '411001', '4711', 'hi', 'male', 'micro', 'Rice, Dal, Atta, Spices, Cooking Oil'),
+    ('UDYAM-UP-02-0000002', 'Varanasi Handloom Sarees', 'Traditional Banarasi silk saree weaving and handloom cotton textile manufacturing for domestic and export markets', 'Varanasi', 'Uttar Pradesh', '221001', '1312', 'hi', 'female', 'small', 'Banarasi Silk Sarees, Cotton Textiles, Dupattas'),
+    ('UDYAM-KA-03-0000003', 'Bangalore Mobile Repair Hub', 'Mobile phone repair, laptop servicing, and sales of electronic accessories including chargers, cables and screen protectors', 'Bangalore Urban', 'Karnataka', '560001', '9511', 'en', 'male', 'micro', 'Mobile Repair, Laptop Servicing, Chargers, Screen Protectors'),
+    ('UDYAM-RJ-04-0000004', 'Jaipur Blue Pottery Works', 'Handcrafted blue pottery, ceramic home décor items, and traditional Rajasthani handicraft products', 'Jaipur', 'Rajasthan', '302001', '2393', 'hi', 'female', 'micro', 'Blue Pottery, Ceramic Decor, Handicrafts'),
+    ('UDYAM-KL-05-0000005', 'Kerala Ayurveda Naturals', 'Manufacturing of ayurvedic herbal medicines, organic wellness products, and traditional health supplements', 'Ernakulam', 'Kerala', '682001', '2100', 'ml', 'male', 'small', 'Ayurvedic Medicines, Organic Products, Health Supplements'),
+    ('UDYAM-GJ-06-0000006', 'Surat Textile Traders', 'Wholesale distribution of polyester fabric, dress materials, and ready-made garments for retail chains', 'Surat', 'Gujarat', '395001', '1410', 'gu', 'male', 'medium', 'Polyester Fabric, Dress Materials, Ready-made Garments'),
+    ('UDYAM-TN-07-0000007', 'Chennai Electronics Plaza', 'Retail and wholesale of LED lighting, fans, electrical switches, and home appliances', 'Chennai', 'Tamil Nadu', '600001', '2740', 'ta', 'male', 'small', 'LED Lighting, Fans, Electrical Switches, Home Appliances'),
+    ('UDYAM-WB-08-0000008', 'Kolkata Steel Utensils', 'Manufacturing and wholesale of stainless steel kitchen utensils, cookware, and household vessels', 'Kolkata', 'West Bengal', '700001', '2599', 'bn', 'male', 'small', 'Steel Utensils, Cookware, Household Vessels'),
+    ('UDYAM-MP-09-0000009', 'Indore Organic Store', 'Retail of organic food products, honey, herbal tea, and natural health supplements', 'Indore', 'Madhya Pradesh', '452001', '4729', 'hi', 'female', 'micro', 'Organic Food, Honey, Herbal Tea, Supplements'),
+    ('UDYAM-MH-10-0000010', 'Nashik Grape Grocery', 'Wholesale grape distribution, dry fruit trading, and grocery provision supply to hotels and restaurants', 'Nashik', 'Maharashtra', '422001', '4630', 'mr', 'male', 'small', 'Grapes, Dry Fruits, Grocery Provisions'),
+    ('UDYAM-AP-11-0000011', 'Tirupati Cotton Weavers', 'Handloom cotton fabric weaving and garment stitching for local and online retail', 'Tirupati', 'Andhra Pradesh', '517501', '1312', 'te', 'female', 'micro', 'Cotton Fabric, Handloom Garments'),
+    ('UDYAM-DL-12-0000012', 'Delhi Computer Solutions', 'Computer repair, assembly, networking solutions, and IT peripheral sales', 'New Delhi', 'Delhi', '110001', '9511', 'hi', 'male', 'micro', 'Computer Repair, Assembly, Networking, Peripherals'),
+    ('UDYAM-AS-13-0000013', 'Assam Bamboo Crafts', 'Traditional bamboo basket weaving, home décor, and eco-friendly bamboo products', 'Guwahati', 'Assam', '781001', '1629', 'as', 'female', 'micro', 'Bamboo Baskets, Home Decor, Eco-friendly Products'),
+    ('UDYAM-UK-14-0000014', 'Rishikesh Yoga Wellness', 'Yoga accessories, meditation equipment, and ayurvedic wellness product retail', 'Dehradun', 'Uttarakhand', '248001', '3240', 'hi', 'other', 'micro', 'Yoga Accessories, Meditation Equipment, Ayurvedic Products'),
+    ('UDYAM-BR-15-0000015', 'Patna Spice Emporium', 'Wholesale trading of spices, masala powders, turmeric, and condiments sourced from local farmers', 'Patna', 'Bihar', '800001', '1079', 'hi', 'male', 'small', 'Spices, Masala Powders, Turmeric, Condiments'),
+    ('UDYAM-OD-16-0000016', 'Odisha Terracotta Art', 'Traditional terracotta pottery, clay sculptures, and decorative art pieces from Odisha', 'Puri', 'Odisha', '752001', '2393', 'or', 'female', 'micro', 'Terracotta Pottery, Clay Sculptures, Art Pieces'),
+    ('UDYAM-PB-17-0000017', 'Ludhiana Hosiery Works', 'Knitted garments, woolen hosiery, and winter wear manufacturing for wholesale distribution', 'Ludhiana', 'Punjab', '141001', '1430', 'pa', 'male', 'medium', 'Knitted Garments, Woolen Hosiery, Winter Wear'),
+    ('UDYAM-TG-18-0000018', 'Hyderabad Pearl Jewels', 'Traditional pearl jewellery, fashion accessories, and decorative items retail', 'Hyderabad', 'Telangana', '500001', '3212', 'te', 'female', 'micro', 'Pearl Jewellery, Fashion Accessories, Decorative Items'),
+    ('UDYAM-HR-19-0000019', 'Gurgaon Smart Appliances', 'Smart home devices, IoT sensors, LED panels, and energy-efficient electrical appliances', 'Gurgaon', 'Haryana', '122001', '2750', 'hi', 'male', 'small', 'Smart Home Devices, IoT Sensors, LED Panels'),
+    ('UDYAM-KA-20-0000020', 'Mysore Sandalwood Products', 'Natural sandalwood oil, incense sticks, and herbal beauty products manufacturing', 'Mysore', 'Karnataka', '570001', '2029', 'kn', 'female', 'micro', 'Sandalwood Oil, Incense Sticks, Herbal Beauty Products');
 
 -- ── Classification Results ───────────────────────────────────────────
 
