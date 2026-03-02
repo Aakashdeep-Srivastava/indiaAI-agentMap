@@ -1,21 +1,26 @@
 """Test fixtures for AgentMap AI integration tests.
 
-Uses a dedicated PostgreSQL test database (agentmap_test) with per-test
-transaction rollback for isolation.
+Uses the Neon DB with per-test transaction rollback for isolation.
+No separate test database needed — each test runs in a rolled-back transaction.
 """
 
 import json
 import os
+import sys
+from pathlib import Path
 
 import pytest
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
+from dotenv import load_dotenv
 
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "postgresql://agentmap:agentmap_dev@localhost:5432/agentmap_test",
-)
+# Load .env from the api directory
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
+if not TEST_DATABASE_URL:
+    raise RuntimeError("DATABASE_URL not set — check apps/api/.env")
 
 
 # ── Database lifecycle ───────────────────────────────────────────────
@@ -23,23 +28,8 @@ TEST_DATABASE_URL = os.getenv(
 
 @pytest.fixture(scope="session")
 def test_engine():
-    """Create the agentmap_test database and tables once per session."""
-    admin_url = os.getenv(
-        "DATABASE_URL",
-        "postgresql://agentmap:agentmap_dev@localhost:5432/agentmap",
-    )
-    admin_engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
-    with admin_engine.connect() as conn:
-        # Terminate existing connections to the test DB
-        conn.execute(text(
-            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
-            "WHERE datname = 'agentmap_test' AND pid <> pg_backend_pid()"
-        ))
-        conn.execute(text("DROP DATABASE IF EXISTS agentmap_test"))
-        conn.execute(text("CREATE DATABASE agentmap_test"))
-    admin_engine.dispose()
-
-    engine = create_engine(TEST_DATABASE_URL)
+    """Create tables once per session using the shared Neon DB."""
+    engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
     from database import Base
     Base.metadata.create_all(bind=engine)
@@ -47,16 +37,6 @@ def test_engine():
     yield engine
 
     engine.dispose()
-
-    # Cleanup
-    admin_engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
-    with admin_engine.connect() as conn:
-        conn.execute(text(
-            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
-            "WHERE datname = 'agentmap_test' AND pid <> pg_backend_pid()"
-        ))
-        conn.execute(text("DROP DATABASE IF EXISTS agentmap_test"))
-    admin_engine.dispose()
 
 
 @pytest.fixture(scope="function")
@@ -149,7 +129,6 @@ def seed_mse(db_session):
         state="Maharashtra",
         pin_code="411001",
         language="en",
-        gender_owner="male",
         turnover_band="micro",
         products="Turmeric, Cumin, Spice Powders",
     )

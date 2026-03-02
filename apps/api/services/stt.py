@@ -1,10 +1,34 @@
-"""Speech-to-Text service — Sarvam Saras STT (mock for PoC)."""
+"""Speech-to-Text service — Sarvam Saras STT."""
 
+import logging
 import os
 import random
+import re
+from pathlib import Path
 
-USE_MOCK_STT = os.getenv("USE_MOCK_STT", "true").lower() == "true"
+from dotenv import load_dotenv
+
+# Ensure .env is loaded before reading keys
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
+logger = logging.getLogger(__name__)
+
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
+GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+
+from services.gemini_limiter import gemini_limiter
+
+USE_MOCK_STT = os.getenv("USE_MOCK_STT", "false" if (SARVAM_API_KEY or GEMINI_API_KEY) else "true").lower() == "true"
+
+_stt_chain = []
+if SARVAM_API_KEY:
+    _stt_chain.append("Sarvam")
+if GEMINI_API_KEY:
+    _stt_chain.append("Gemini")
+_stt_chain.append("Mock")
+logger.info(f"STT chain: {' → '.join(_stt_chain)}")
 
 # Mock transcription responses per language + field type
 _MOCK_RESPONSES: dict[str, dict[str, list[str]]] = {
@@ -123,15 +147,146 @@ _MOCK_RESPONSES: dict[str, dict[str, list[str]]] = {
 }
 
 
+def _detect_language_from_text(text: str) -> str:
+    """Detect language from text using Devanagari script detection."""
+    devanagari_chars = re.findall(r'[\u0900-\u097F]', text)
+    return "hi" if len(devanagari_chars) >= 2 else "en"
+
+
+def _convert_to_wav(audio_bytes: bytes, filename: str) -> bytes | None:
+    """Convert webm/opus audio to WAV using ffmpeg (if available)."""
+    import shutil
+    import subprocess
+    import tempfile
+
+    if filename.endswith(".wav"):
+        return None  # already WAV
+
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        logger.warning("ffmpeg not found — sending raw audio to Sarvam (may fail)")
+        return None
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as inp:
+            inp.write(audio_bytes)
+            inp_path = inp.name
+        out_path = inp_path.replace(".webm", ".wav")
+
+        subprocess.run(
+            [ffmpeg, "-y", "-i", inp_path, "-ar", "16000", "-ac", "1", "-f", "wav", out_path],
+            capture_output=True, timeout=10,
+        )
+        with open(out_path, "rb") as f:
+            wav_data = f.read()
+
+        os.unlink(inp_path)
+        os.unlink(out_path)
+        logger.info(f"Converted {len(audio_bytes)} bytes webm → {len(wav_data)} bytes wav")
+        return wav_data
+    except Exception as e:
+        logger.warning(f"Audio conversion failed: {e}")
+        return None
+
+
+async def _transcribe_gemini(audio_bytes: bytes, language: str) -> dict | None:
+    """Transcribe audio using Gemini multimodal API with shared rate limiting."""
+    if not GEMINI_API_KEY:
+        return None
+
+    import base64
+    import httpx
+
+    b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
+    lang_label = {"en": "English", "hi": "Hindi"}.get(language, "Hindi or English")
+
+    for model in GEMINI_MODELS:
+        # Check rate limit before calling
+        if not await gemini_limiter.acquire(model, max_wait=8.0):
+            logger.info(f"Gemini STT {model}: rate limited, trying next model...")
+            continue
+
+        try:
+            url = f"{GEMINI_BASE}/{model}:generateContent?key={GEMINI_API_KEY}"
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.post(
+                    url,
+                    headers={"Content-Type": "application/json"},
+                    json={
+                        "contents": [{
+                            "role": "user",
+                            "parts": [
+                                {"inline_data": {"mime_type": "audio/webm", "data": b64_audio}},
+                                {"text": f"Transcribe this audio exactly as spoken. The speaker may use {lang_label}, Hinglish, or code-mixed language. Return ONLY the transcription text, nothing else."},
+                            ],
+                        }],
+                        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 500},
+                    },
+                )
+                if resp.status_code == 429:
+                    gemini_limiter.mark_429(model)
+                    logger.warning(f"Gemini STT {model} got 429 despite limiter, trying next...")
+                    continue
+                resp.raise_for_status()
+                data = resp.json()
+                transcript = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                logger.info(f"Gemini STT ({model}) result: '{transcript[:100]}'")
+                return {
+                    "text": transcript,
+                    "language": language,
+                    "confidence": 0.90,
+                    "engine": f"gemini-{model}",
+                    "is_mock": False,
+                }
+        except Exception as e:
+            logger.error(f"Gemini STT {model} failed: {e}")
+            continue
+
+    return None
+
+
 async def transcribe_audio(
     audio_bytes: bytes,
     language: str = "en",
     field_hint: str = "description",
+    filename: str = "audio.webm",
+    content_type: str = "audio/webm",
 ) -> dict:
-    """Transcribe audio to text. Uses mock in PoC, Sarvam Saras in production."""
-    if USE_MOCK_STT or not SARVAM_API_KEY:
-        return _transcribe_mock(language, field_hint)
-    return await _transcribe_sarvam(audio_bytes, language, field_hint)
+    """Transcribe audio. Chain: Sarvam → Gemini → Mock."""
+    is_auto = language == "auto"
+    effective_lang = "en" if is_auto else language
+
+    logger.info(f"STT request: {len(audio_bytes)} bytes, lang={language}, file={filename}, type={content_type}")
+
+    if USE_MOCK_STT:
+        logger.warning("Using MOCK STT (forced by env)")
+        if is_auto:
+            effective_lang = random.choice(["en", "hi"])
+        result = _transcribe_mock(effective_lang, field_hint)
+        result["detected_language"] = _detect_language_from_text(result["text"])
+        return result
+
+    # 1. Try Sarvam Saras STT
+    if SARVAM_API_KEY:
+        result = await _transcribe_sarvam(audio_bytes, effective_lang, field_hint, filename, content_type)
+        if result.get("engine") != "mock-fallback":
+            result["detected_language"] = _detect_language_from_text(result["text"])
+            return result
+        logger.info("Sarvam STT failed, trying Gemini...")
+
+    # 2. Try Gemini multimodal STT
+    gemini_result = await _transcribe_gemini(audio_bytes, effective_lang)
+    if gemini_result and gemini_result.get("text"):
+        gemini_result["detected_language"] = _detect_language_from_text(gemini_result["text"])
+        return gemini_result
+
+    # 3. Last resort: mock
+    logger.warning("All STT engines failed, using mock")
+    if is_auto:
+        effective_lang = random.choice(["en", "hi"])
+    result = _transcribe_mock(effective_lang, field_hint)
+    result["detected_language"] = _detect_language_from_text(result["text"])
+    return result
 
 
 def _transcribe_mock(language: str, field_hint: str) -> dict:
@@ -152,8 +307,10 @@ async def _transcribe_sarvam(
     audio_bytes: bytes,
     language: str,
     field_hint: str,
+    filename: str = "audio.webm",
+    content_type: str = "audio/webm",
 ) -> dict:
-    """Call Sarvam Saras STT API (production path)."""
+    """Call Sarvam Saras STT API."""
     import httpx
 
     lang_map = {
@@ -161,23 +318,48 @@ async def _transcribe_sarvam(
         "kn": "kn-IN", "bn": "bn-IN", "mr": "mr-IN", "gu": "gu-IN",
     }
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        resp = await client.post(
-            "https://api.sarvam.ai/speech-to-text",
-            headers={"api-subscription-key": SARVAM_API_KEY},
-            files={"file": ("audio.wav", audio_bytes, "audio/wav")},
-            data={
-                "language_code": lang_map.get(language, "en-IN"),
-                "model": "saarika:v2",
-            },
-        )
-        resp.raise_for_status()
-        result = resp.json()
+    lang_code = lang_map.get(language, "en-IN")
+    logger.info(f"Calling Sarvam STT: {len(audio_bytes)} bytes, lang={lang_code}, file={filename}")
 
-    return {
-        "text": result.get("transcript", ""),
-        "language": language,
-        "confidence": result.get("confidence", 0.0),
-        "engine": "sarvam-saras",
-        "is_mock": False,
-    }
+    # Convert webm/opus to WAV for Sarvam API compatibility
+    wav_bytes = _convert_to_wav(audio_bytes, filename)
+    if wav_bytes:
+        send_bytes = wav_bytes
+        send_name = "audio.wav"
+        send_type = "audio/wav"
+    else:
+        send_bytes = audio_bytes
+        send_name = filename
+        send_type = content_type
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                "https://api.sarvam.ai/speech-to-text",
+                headers={"api-subscription-key": SARVAM_API_KEY},
+                files={"file": (send_name, send_bytes, send_type)},
+                data={
+                    "language_code": lang_code,
+                    "model": "saarika:v2.5",
+                },
+            )
+            if resp.status_code != 200:
+                logger.error(f"Sarvam STT HTTP {resp.status_code}: {resp.text[:500]}")
+                resp.raise_for_status()
+            result = resp.json()
+
+        transcript = result.get("transcript", "")
+        logger.info(f"Sarvam STT result: '{transcript[:100]}' (confidence={result.get('confidence', 0)})")
+
+        return {
+            "text": transcript,
+            "language": language,
+            "confidence": result.get("confidence", 0.0),
+            "engine": "sarvam-saras",
+            "is_mock": False,
+        }
+    except Exception as e:
+        logger.error(f"Sarvam STT FAILED: {e} — falling back to mock")
+        result = _transcribe_mock(language, field_hint)
+        result["engine"] = "mock-fallback"
+        return result

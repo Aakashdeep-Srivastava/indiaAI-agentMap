@@ -64,13 +64,11 @@ def test_register_mse_minimal_fields(client):
 def test_register_mse_with_enum_fields(client):
     payload = _mse_payload(
         udyam_number="UDYAM-ENUM-001",
-        gender_owner="female",
         turnover_band="small",
     )
     resp = client.post("/mse/", json=payload)
     assert resp.status_code == 201
     data = resp.json()
-    assert data["gender_owner"] == "female"
     assert data["turnover_band"] == "small"
 
 

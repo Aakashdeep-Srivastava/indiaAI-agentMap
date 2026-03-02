@@ -10,8 +10,11 @@ from routes.classify import router as classify_router
 from routes.match import router as match_router
 from routes.health import router as health_router
 from routes.stt import router as stt_router
+from routes.ocr import router as ocr_router
+from routes.tts import router as tts_router
 from routes.domains import router as domains_router
 from routes.audit import router as audit_router
+from routes.ner import router as ner_router
 from services.classifier import init_classifier
 
 
@@ -42,5 +45,8 @@ app.include_router(mse_router, prefix="/mse", tags=["MSE"])
 app.include_router(classify_router, prefix="/classify", tags=["Classification"])
 app.include_router(match_router, prefix="/match", tags=["Matching"])
 app.include_router(stt_router, prefix="/stt", tags=["STT"])
+app.include_router(ocr_router, prefix="/ocr", tags=["OCR"])
+app.include_router(tts_router, prefix="/tts", tags=["TTS"])
 app.include_router(domains_router, prefix="/domains", tags=["Domains"])
 app.include_router(audit_router, prefix="/audit", tags=["Audit"])
+app.include_router(ner_router, prefix="/ner", tags=["NER"])

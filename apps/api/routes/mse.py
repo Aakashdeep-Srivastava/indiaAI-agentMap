@@ -23,8 +23,8 @@ class MSECreate(BaseModel):
     pin_code: Optional[str] = None
     nic_code: Optional[str] = None
     language: str = "en"
-    gender_owner: Optional[str] = None
     turnover_band: Optional[str] = None
+    mobile_number: Optional[str] = None
     products: Optional[str] = None
 
 
@@ -38,8 +38,8 @@ class MSEResponse(BaseModel):
     pin_code: Optional[str]
     nic_code: Optional[str]
     language: str
-    gender_owner: Optional[str]
     turnover_band: Optional[str]
+    mobile_number: Optional[str]
     products: Optional[str]
     created_at: datetime
 
@@ -55,7 +55,12 @@ def register_mse(payload: MSECreate, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=409, detail="MSE with this Udyam number already exists")
 
-    mse = MSE(**payload.model_dump())
+    data = payload.model_dump()
+    # Convert empty strings to None for enum/nullable fields
+    for key in ("turnover_band", "nic_code"):
+        if key in data and data[key] == "":
+            data[key] = None
+    mse = MSE(**data)
     db.add(mse)
     db.flush()
 

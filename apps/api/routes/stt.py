@@ -18,8 +18,10 @@ async def transcribe(
 ):
     """Transcribe an audio file to text using Sarvam Saras STT (mock for PoC)."""
     audio_bytes = await file.read()
+    filename = file.filename or "audio.webm"
+    content_type = file.content_type or "audio/webm"
 
-    result = await transcribe_audio(audio_bytes, language, field_hint)
+    result = await transcribe_audio(audio_bytes, language, field_hint, filename, content_type)
 
     db.add(AuditLog(
         action="stt_transcribe",
