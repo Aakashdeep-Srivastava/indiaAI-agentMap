@@ -47,9 +47,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['"Plus Jakarta Sans"', "sans-serif"],
-        body: ['"DM Sans"', "sans-serif"],
-        mono: ['"JetBrains Mono"', "monospace"],
+        display: ["var(--font-display)", "sans-serif"],
+        body: ["var(--font-body)", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
       boxShadow: {
         glow: "0 0 20px rgba(27, 79, 204, 0.15)",
@@ -90,6 +90,14 @@ const config: Config = {
           "50%": { boxShadow: "0 0 0 8px rgba(232, 104, 12, 0)" },
           "100%": { boxShadow: "0 0 0 0 rgba(232, 104, 12, 0)" },
         },
+        "orb-idle-pulse": {
+          "0%, 100%": { boxShadow: "0 4px 24px rgba(27, 79, 204, 0.3), 0 0 0 0 rgba(27, 79, 204, 0.15)" },
+          "50%": { boxShadow: "0 4px 32px rgba(27, 79, 204, 0.4), 0 0 0 12px rgba(27, 79, 204, 0)" },
+        },
+        "orb-listening-pulse": {
+          "0%, 100%": { boxShadow: "0 4px 32px rgba(232, 104, 12, 0.4)", transform: "scale(1)" },
+          "50%": { boxShadow: "0 4px 40px rgba(232, 104, 12, 0.5)", transform: "scale(1.03)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out forwards",
@@ -99,6 +107,8 @@ const config: Config = {
         "pulse-dot": "pulse-dot 2s ease-in-out infinite",
         "chakra-spin": "chakra-spin 12s linear infinite",
         "voice-pulse": "voice-pulse 1.5s ease-in-out infinite",
+        "orb-idle": "orb-idle-pulse 2.5s ease-in-out infinite",
+        "orb-listening": "orb-listening-pulse 1.5s ease-in-out infinite",
       },
     },
   },

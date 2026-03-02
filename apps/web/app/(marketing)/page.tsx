@@ -1,143 +1,92 @@
+import Link from "next/link";
+
 export default function LandingPage() {
   return (
     <div>
       {/* ═══════════════════════════════════════════════════════════════
-          SECTION 1 — HERO (vibrant gradient, Criteo-style)
+          SECTION 1 — HERO (SASC-style: full-bleed dark, left-aligned)
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden text-white" style={{
-        background: "linear-gradient(135deg, #0B1437 0%, #1B4FCC 35%, #3B6FE0 55%, #5A4FCC 75%, #1B4FCC 100%)",
-      }}>
-        {/* Mesh overlays for depth */}
+      <section className="relative z-0 mx-4 min-h-[92vh] overflow-hidden rounded-b-[2rem] bg-brand-900 sm:mx-6 lg:mx-8">
+        {/* Rich dark background — works standalone, enhanced with hero-bg.jpg if present */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "url('/hero-bg.jpg'), linear-gradient(135deg, #060a1e 0%, #0B1437 30%, #1a2a5e 60%, #0d1c4a 100%)",
+            backgroundSize: "cover, cover",
+            backgroundPosition: "center 40%, center",
+          }}
+        />
+        {/* Dark overlay for legibility */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30" />
+        {/* Warm glow accent (bottom-right, like ambient light in SASC) */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 30% 20%, rgba(91,120,240,0.4) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(90,79,204,0.3) 0%, transparent 50%), radial-gradient(ellipse at 10% 80%, rgba(27,79,204,0.4) 0%, transparent 40%), radial-gradient(ellipse at 90% 10%, rgba(59,111,224,0.3) 0%, transparent 40%)",
+              "radial-gradient(ellipse at 75% 80%, rgba(232,104,12,0.08) 0%, transparent 50%), radial-gradient(ellipse at 20% 30%, rgba(27,79,204,0.1) 0%, transparent 50%)",
           }}
         />
-        {/* Subtle noise texture */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
-            backgroundSize: "20px 20px",
-          }}
-        />
+        {/* Bottom vignette */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
-        {/* Hero content — large centered text */}
-        <div className="relative z-10 mx-auto max-w-7xl px-6 pb-16 pt-20 text-center sm:pt-24 lg:pt-28 lg:pb-20">
-          <h1 className="mx-auto max-w-5xl font-display text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-[4.25rem] lg:leading-[1.08]">
-            Make every MSE onboarding smarter.
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-lg text-lg text-white/60">
-            Powered by Sovereign AI.
-          </p>
-
-          {/* Trust logos — big & bold like Criteo */}
-          <div className="mt-14 flex flex-wrap items-center justify-center gap-x-14 gap-y-6 px-4">
-            {[
-              { name: "ONDC", style: "text-2xl font-extrabold tracking-tight" },
-              { name: "NSIC", style: "text-xl font-bold tracking-wide" },
-              { name: "IndiaAI", style: "text-2xl font-extrabold italic" },
-              { name: "TEAM", style: "text-xl font-bold tracking-widest uppercase" },
-              { name: "DPDP 2023", style: "text-lg font-bold tracking-wide" },
-            ].map((item) => (
-              <span
-                key={item.name}
-                className={`font-display text-white/40 ${item.style}`}
-              >
-                {item.name}
+        {/* Hero content — left-aligned */}
+        <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl items-end px-6 pb-20 pt-32 sm:items-center sm:pb-0 sm:pt-0">
+          <div className="max-w-3xl">
+            {/* Pill badge */}
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 backdrop-blur-sm">
+              <svg className="h-3.5 w-3.5 text-saffron-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span className="text-xs font-medium text-white/80">
+                Built for India&apos;s 6.3 crore MSMEs
               </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Curved bottom edge — wave transition to white */}
-        <div className="relative z-10">
-          <svg
-            viewBox="0 0 1440 80"
-            fill="none"
-            preserveAspectRatio="none"
-            className="block h-12 w-full sm:h-16 md:h-20"
-          >
-            <path
-              d="M0 40 Q360 80 720 40 Q1080 0 1440 40 L1440 80 L0 80 Z"
-              fill="white"
-            />
-          </svg>
-        </div>
-      </section>
-
-      {/* ── Floating persona tabs (overlapping hero bottom) ──── */}
-      <section className="-mt-6 relative z-20 mx-auto max-w-7xl px-6 sm:-mt-8">
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-surface-200 bg-surface-200 shadow-card sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              icon: (
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-              ),
-              title: "MSE Owners",
-              desc: "Register in your language and get matched instantly",
-              color: "text-brand-500",
-              bg: "bg-brand-50",
-            },
-            {
-              icon: (
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M2 12h20" />
-                  <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-                </svg>
-              ),
-              title: "Network Partners",
-              desc: "Receive pre-verified, accurately matched sellers",
-              color: "text-saffron-500",
-              bg: "bg-orange-50",
-            },
-            {
-              icon: (
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              ),
-              title: "NSIC Officers",
-              desc: "AI-assisted review with full audit trail",
-              color: "text-emerald-600",
-              bg: "bg-emerald-50",
-            },
-            {
-              icon: (
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2" />
-                  <line x1="8" y1="21" x2="16" y2="21" />
-                  <line x1="12" y1="17" x2="12" y2="21" />
-                </svg>
-              ),
-              title: "Developers",
-              desc: "API-first platform with ONDC integration",
-              color: "text-brand-900",
-              bg: "bg-surface-50",
-            },
-          ].map((item) => (
-            <div key={item.title} className="flex items-start gap-3 bg-white p-5">
-              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.bg} ${item.color}`}>
-                {item.icon}
-              </div>
-              <div>
-                <h3 className="font-display text-sm font-bold text-brand-900">
-                  {item.title}
-                </h3>
-                <p className="mt-0.5 text-xs leading-relaxed text-surface-500">
-                  {item.desc}
-                </p>
-              </div>
             </div>
-          ))}
+
+            {/* Main heading */}
+            <h1 className="font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.5rem]">
+              AI that{" "}
+              <em className="not-italic" style={{
+                fontFamily: "'Plus Jakarta Sans', serif",
+                fontStyle: "italic",
+                color: "transparent",
+                backgroundImage: "linear-gradient(135deg, #FFA942 0%, #E8680C 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                paddingRight: "0.05em",
+              }}>
+                bridges
+              </em>{" "}
+              Bharat&apos;s Businesses.
+            </h1>
+
+            {/* Subtitle */}
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/50 sm:text-lg">
+              The sovereign AI platform that onboards MSEs to ONDC — through
+              voice, in any Indian language. From registration to matching,
+              everything in one place.
+            </p>
+
+            {/* CTA buttons */}
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3 text-sm font-semibold text-brand-900 shadow-lg transition-all hover:bg-surface-50 hover:shadow-xl"
+              >
+                Get Started
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+              <Link
+                href="/match"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-7 py-3 text-sm font-medium text-white/80 transition-all hover:border-white/40 hover:text-white"
+              >
+                Dashboard
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -178,13 +127,13 @@ export default function LandingPage() {
                 We classify your products and find the best selling
                 partner for your location and category — no forms, no jargon.
               </p>
-              <a
+              <Link
                 href="/register"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-500 transition-colors hover:text-brand-700"
               >
                 Register now
                 <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-              </a>
+              </Link>
             </div>
 
             {/* SNPs */}
@@ -207,13 +156,13 @@ export default function LandingPage() {
                 matched to your domain and geography. Fewer mismatches,
                 fewer re-assignments, faster onboarding.
               </p>
-              <a
+              <Link
                 href="/match"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron-500 transition-colors hover:text-saffron-700"
               >
                 View matches
                 <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-              </a>
+              </Link>
             </div>
 
             {/* NSIC */}
@@ -234,13 +183,13 @@ export default function LandingPage() {
                 cases. Every recommendation comes with a clear confidence
                 indicator, full audit trail, and override controls.
               </p>
-              <a
+              <Link
                 href="/review"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-800"
               >
                 Review queue
                 <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -343,12 +292,12 @@ export default function LandingPage() {
                   MSEs complete onboarding in under 8 minutes — in their
                   own language.&rdquo;
                 </p>
-                <a
+                <Link
                   href="/register"
                   className="btn-saffron mt-6 !w-fit !py-2.5 !px-6 !text-xs"
                 >
                   Try it yourself
-                </a>
+                </Link>
               </div>
 
               {/* Right — before/after list */}
@@ -581,9 +530,9 @@ export default function LandingPage() {
                   through smarter, AI-powered partner matching.
                 </p>
               </div>
-              <a href="/register" className="btn-saffron shrink-0 !py-3 !px-8">
+              <Link href="/register" className="btn-saffron shrink-0 !py-3 !px-8">
                 Register Now
-              </a>
+              </Link>
             </div>
           </div>
         </div>

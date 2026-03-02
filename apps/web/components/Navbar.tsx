@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Navbar() {
   const [visible, setVisible] = useState(true);
@@ -30,20 +31,20 @@ export default function Navbar() {
           : "-translate-y-full opacity-0"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/15 bg-white/8 px-5 py-2.5 backdrop-blur-2xl shadow-lg shadow-black/10">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-5 py-2.5 backdrop-blur-2xl shadow-lg shadow-black/10">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5">
           <Image
-            src="/logo.svg"
+            src="/logo.webp"
             alt="AgentMap AI"
-            width={34}
-            height={34}
-            className="h-[34px] w-[34px]"
+            width={32}
+            height={32}
+            className="h-8 w-8 invert brightness-200 drop-shadow-[0_0_10px_rgba(255,169,66,0.5)]"
           />
           <span className="font-display text-lg font-bold leading-tight tracking-tight text-saffron-400">
             AgentMap<span className="text-white">AI</span>
           </span>
-        </a>
+        </Link>
 
         {/* Center nav */}
         <nav className="hidden items-center gap-1 md:flex">
@@ -54,31 +55,23 @@ export default function Navbar() {
             { label: "Solutions", href: "/#solutions" },
             { label: "About", href: "/#about" },
           ].map((item) => (
-            <a
+            <Link
               key={item.label}
               href={item.href}
               className="rounded-lg px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-4">
-          <a
-            href="/match"
-            className="hidden text-sm font-medium text-white/70 transition-colors hover:text-white sm:block"
-          >
-            Dashboard
-          </a>
-          <a
-            href="/register"
-            className="rounded-xl bg-saffron-500 px-5 py-2 text-xs font-semibold text-white transition-all hover:bg-saffron-600"
-          >
-            Register MSE
-          </a>
-        </div>
+        {/* Right action — single CTA */}
+        <Link
+          href="/register"
+          className="rounded-xl bg-saffron-500 px-5 py-2 text-xs font-semibold text-white transition-all hover:bg-saffron-600"
+        >
+          Get Started
+        </Link>
       </div>
     </header>
   );

@@ -3,10 +3,24 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { DomainPredictionCard } from "@/components/DomainPredictionCard";
-import { TaxonomyBrowser } from "@/components/TaxonomyBrowser";
-import { ClassificationHistory } from "@/components/ClassificationHistory";
-import VoiceInput from "@/components/VoiceInput";
+import dynamic from "next/dynamic";
+
+const DomainPredictionCard = dynamic(
+  () => import("@/components/DomainPredictionCard").then((m) => ({ default: m.DomainPredictionCard })),
+  { ssr: false }
+);
+const TaxonomyBrowser = dynamic(
+  () => import("@/components/TaxonomyBrowser").then((m) => ({ default: m.TaxonomyBrowser })),
+  { ssr: false }
+);
+const ClassificationHistory = dynamic(
+  () => import("@/components/ClassificationHistory").then((m) => ({ default: m.ClassificationHistory })),
+  { ssr: false }
+);
+const VoiceInput = dynamic(
+  () => import("@/components/VoiceInput"),
+  { ssr: false }
+);
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 

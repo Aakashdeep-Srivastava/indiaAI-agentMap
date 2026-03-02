@@ -63,7 +63,7 @@ export default function FooterIllustration() {
             {/* CENTER — Animated Logo (big) */}
             <div className="flex flex-col items-center self-center footer-logo-animate px-2 sm:px-6">
               <Image
-                src="/logo.svg"
+                src="/logo.webp"
                 alt="AgentMap AI"
                 width={200}
                 height={200}

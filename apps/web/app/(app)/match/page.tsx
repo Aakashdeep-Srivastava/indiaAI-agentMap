@@ -2,8 +2,17 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { ConfidenceBadge } from "@/components/ConfidenceBadge";
-import { SNPCard } from "@/components/SNPCard";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const ConfidenceBadge = dynamic(
+  () => import("@/components/ConfidenceBadge").then((m) => ({ default: m.ConfidenceBadge })),
+  { ssr: false }
+);
+const SNPCard = dynamic(
+  () => import("@/components/SNPCard").then((m) => ({ default: m.SNPCard })),
+  { ssr: false }
+);
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -214,12 +223,12 @@ export default function DashboardPage() {
 
           {/* CTA to Review Queue */}
           <div className="flex justify-center pt-2">
-            <a href="/review" className="btn-primary inline-flex">
+            <Link href="/review" className="btn-primary inline-flex">
               View in Review Queue
               <svg className="ml-1.5 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
               </svg>
-            </a>
+            </Link>
           </div>
         </section>
       )}

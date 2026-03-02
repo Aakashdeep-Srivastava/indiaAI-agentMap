@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -76,9 +77,9 @@ export default function ReviewPage() {
           <p className="font-display text-sm font-medium text-surface-400">
             No MSEs registered yet
           </p>
-          <a href="/register" className="btn-saffron mt-4 inline-flex !text-xs !py-2">
+          <Link href="/register" className="btn-saffron mt-4 inline-flex !text-xs !py-2">
             Register First MSE
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="glass-card overflow-hidden !rounded-2xl !p-0">

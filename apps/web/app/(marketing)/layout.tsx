@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import FooterIllustration from "@/components/FooterIllustration";
 
@@ -37,12 +38,12 @@ export default function MarketingLayout({
                   { label: "Audit Trail", href: "/audit" },
                 ].map((item) => (
                   <li key={item.label}>
-                    <a
+                    <Link
                       href={item.href}
                       className="text-sm text-surface-500 transition-colors hover:text-brand-500"
                     >
                       {item.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -116,7 +117,7 @@ export default function MarketingLayout({
             {/* Logo + copyright */}
             <div className="flex items-center gap-2.5">
               <Image
-                src="/logo.svg"
+                src="/logo.webp"
                 alt="AgentMap AI"
                 width={24}
                 height={24}

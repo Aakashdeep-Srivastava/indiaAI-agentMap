@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import Link from "next/link";
 
 /* ── Mock taxonomy data shown after "upload" ─────────────────────── */
 const MOCK_TAXONOMY = [
@@ -332,9 +333,9 @@ export default function UploadPage() {
               <button onClick={handleReset} className="btn-secondary">
                 Upload Another
               </button>
-              <a href="/classify" className="btn-primary">
+              <Link href="/classify" className="btn-primary">
                 Test Classification
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -13,15 +13,15 @@
 
   body {
     @apply bg-surface-50 text-brand-900 antialiased;
-    font-family: "DM Sans", sans-serif;
+    font-family: var(--font-body), "DM Sans", sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: var(--font-display), "Plus Jakarta Sans", sans-serif;
   }
 
   code, .font-mono {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
   }
 }
 
@@ -181,6 +181,214 @@
     background: rgba(27, 79, 204, 0.15);
     border-radius: 4px;
   }
+
+  /* ─── Voice Orb ─── */
+  .voice-orb {
+    @apply relative flex items-center justify-center rounded-full cursor-pointer select-none;
+    width: 120px;
+    height: 120px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .voice-orb-idle {
+    background: linear-gradient(135deg, #1B4FCC 0%, #5a82ed 100%);
+    box-shadow: 0 4px 24px rgba(27, 79, 204, 0.3), 0 0 0 0 rgba(27, 79, 204, 0.2);
+    animation: orb-idle-pulse 2.5s ease-in-out infinite;
+  }
+  .voice-orb-listening {
+    background: linear-gradient(135deg, #E8680C 0%, #FFA942 100%);
+    box-shadow: 0 4px 32px rgba(232, 104, 12, 0.4);
+    animation: orb-listening-pulse 1.5s ease-in-out infinite;
+  }
+  .voice-orb-processing {
+    background: linear-gradient(135deg, #0B1437 0%, #1B4FCC 100%);
+    box-shadow: 0 4px 24px rgba(11, 20, 55, 0.3);
+    animation: orb-processing-spin 2s linear infinite;
+  }
+
+  /* Orb animated ring */
+  .orb-ring {
+    @apply absolute rounded-full;
+    border: 2px solid currentColor;
+    opacity: 0;
+    animation: orb-ring-expand 2.5s ease-out infinite;
+  }
+  .orb-ring-listening {
+    border-color: rgba(232, 104, 12, 0.3);
+    animation: orb-ring-expand 1.5s ease-out infinite;
+  }
+
+  /* ─── Waveform Bars ─── */
+  .waveform-bar {
+    @apply rounded-full transition-all duration-75;
+    width: 3px;
+    min-height: 4px;
+  }
+  .waveform-bar-active {
+    background: linear-gradient(to top, #E8680C, #FFA942);
+  }
+  .waveform-bar-idle {
+    @apply bg-surface-300;
+    height: 4px;
+  }
+
+  /* ─── Field Status Cards ─── */
+  .field-card {
+    @apply rounded-xl border px-3 py-2.5 text-xs transition-all duration-300;
+  }
+  .field-card-empty {
+    @apply border-surface-200 bg-surface-50 text-surface-400;
+  }
+  .field-card-filled {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-700;
+  }
+  .field-card-highlight {
+    @apply border-saffron-400 bg-saffron-50 text-saffron-600;
+    animation: field-card-glow 2s ease-out;
+  }
+
+  /* ─── Doc Upload Button (always-visible paperclip) ─── */
+  .doc-upload-btn {
+    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
+      border border-surface-200 bg-white text-surface-500
+      transition-all duration-200
+      hover:border-brand-500/30 hover:bg-brand-50 hover:text-brand-500
+      disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  /* ─── Doc Preview Card (inline result above input) ─── */
+  .doc-preview-card {
+    @apply flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/50 px-3 py-2.5;
+    transition: all 0.3s ease;
+  }
+  .doc-preview-error {
+    @apply border-red-200 bg-red-50/50;
+  }
+
+  /* ─── Sathi Chat (Perplexity-style) ─── */
+  .sathi-chat {
+    @apply flex h-full flex-col overflow-hidden rounded-2xl border border-surface-200 bg-white shadow-card;
+  }
+  .sathi-chat-header {
+    @apply flex items-center gap-3 bg-brand-900 px-4 py-3;
+  }
+  .sathi-chat-messages {
+    @apply flex-1 overflow-y-auto px-4 py-4;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(27, 79, 204, 0.08) transparent;
+  }
+  .sathi-chat-messages::-webkit-scrollbar {
+    width: 4px;
+  }
+  .sathi-chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sathi-chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(27, 79, 204, 0.08);
+    border-radius: 4px;
+  }
+  .sathi-msg-bubble {
+    @apply max-w-[85%] rounded-2xl rounded-tl-sm bg-surface-50 px-4 py-3 text-sm;
+  }
+  .user-msg-bubble {
+    @apply max-w-[85%] rounded-2xl rounded-tr-sm bg-brand-500 px-4 py-3 text-sm text-white;
+  }
+  .sathi-quick-chip {
+    @apply rounded-full border border-brand-500/20 bg-white px-3 py-1.5 text-[11px] font-medium text-brand-500
+      transition-all hover:bg-brand-500 hover:text-white active:scale-95 cursor-pointer
+      disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-brand-500;
+  }
+  .sathi-field-badge {
+    @apply inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700;
+  }
+  .sathi-input-bar {
+    @apply flex items-center gap-2 border-t border-surface-200 px-4 py-3;
+  }
+  .sathi-mic-btn {
+    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-200
+      disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .sathi-mic-idle {
+    @apply bg-surface-100 text-surface-500 hover:bg-surface-200 hover:text-brand-500;
+  }
+  .sathi-mic-recording {
+    @apply bg-red-500 text-white;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    animation: voice-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* ─── Sidebar hidden scrollbar ─── */
+  .sidebar-no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sidebar-no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ─── Document Scanner ─── */
+  .scan-line {
+    @apply absolute left-0 right-0 h-0.5;
+    background: linear-gradient(90deg, transparent 0%, #1B4FCC 50%, transparent 100%);
+    animation: scan-sweep 2s ease-in-out infinite;
+  }
+
+  /* ─── Sathi Full-Page Voice Layout ─── */
+  .sathi-fullpage {
+    @apply flex min-h-screen flex-col;
+    background: linear-gradient(180deg, #060B1A 0%, #0B1437 40%, #0d1c4a 100%);
+  }
+
+  /* ─── Sathi Voice Panel (embedded in page) ─── */
+  .sathi-voice-panel {
+    @apply flex h-full flex-col overflow-hidden bg-white;
+  }
+
+  /* Voice orb — speaking state */
+  .voice-orb-speaking {
+    background: linear-gradient(135deg, #1B4FCC 0%, #5a82ed 60%, #FFA942 100%);
+    box-shadow: 0 4px 32px rgba(27, 79, 204, 0.4), 0 0 48px rgba(90, 130, 237, 0.15);
+    animation: orb-speaking-breathe 2s ease-in-out infinite;
+  }
+  .orb-ring-speaking {
+    border-color: rgba(27, 79, 204, 0.25);
+    animation: orb-ring-expand 2s ease-out infinite;
+  }
+
+  /* ─── Voice Field Cards (dark theme) ─── */
+  .field-card-voice {
+    @apply rounded-lg border px-2.5 py-1.5 text-left transition-all duration-300 cursor-default;
+    min-height: 40px;
+  }
+  .field-card-voice-empty {
+    @apply border-surface-200 bg-surface-50 text-surface-400;
+  }
+  .field-card-voice-filled {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-700;
+  }
+  .field-card-voice-glow {
+    @apply border-saffron-300 bg-saffron-50 text-saffron-600;
+    animation: field-reveal-glow 2.5s ease-out;
+  }
+
+  /* ─── Voice Input Bar (dark) ─── */
+  .sathi-voice-input-bar {
+    @apply flex items-center gap-2 px-3 py-2.5;
+    border-top: 1px solid theme('colors.surface.200');
+    background: theme('colors.surface.50');
+  }
+  .sathi-voice-text-input {
+    @apply flex-1 rounded-xl border border-surface-200 bg-white px-3 py-2 text-sm text-brand-900
+      placeholder:text-surface-400
+      focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/10;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  /* Dark theme doc upload (fullpage + panel) */
+  .sathi-fullpage .doc-upload-btn,
+  .sathi-voice-panel .doc-upload-btn {
+    @apply border-surface-200 bg-surface-50 text-surface-400
+      hover:border-surface-300 hover:bg-surface-100 hover:text-surface-600;
+  }
 }
 
 /* Float up-down */
@@ -239,6 +447,73 @@
   0% { box-shadow: 0 0 0 0 rgba(232, 104, 12, 0.4); }
   50% { box-shadow: 0 0 0 8px rgba(232, 104, 12, 0); }
   100% { box-shadow: 0 0 0 0 rgba(232, 104, 12, 0); }
+}
+
+/* Voice orb idle pulse */
+@keyframes orb-idle-pulse {
+  0%, 100% { box-shadow: 0 4px 24px rgba(27, 79, 204, 0.3), 0 0 0 0 rgba(27, 79, 204, 0.15); }
+  50% { box-shadow: 0 4px 32px rgba(27, 79, 204, 0.4), 0 0 0 12px rgba(27, 79, 204, 0); }
+}
+
+/* Voice orb listening pulse */
+@keyframes orb-listening-pulse {
+  0%, 100% { box-shadow: 0 4px 32px rgba(232, 104, 12, 0.4), 0 0 0 0 rgba(232, 104, 12, 0.2); transform: scale(1); }
+  50% { box-shadow: 0 4px 40px rgba(232, 104, 12, 0.5), 0 0 0 16px rgba(232, 104, 12, 0); transform: scale(1.03); }
+}
+
+/* Voice orb processing spin */
+@keyframes orb-processing-spin {
+  0% { box-shadow: 0 4px 24px rgba(11, 20, 55, 0.3); }
+  50% { box-shadow: 0 4px 32px rgba(27, 79, 204, 0.4); }
+  100% { box-shadow: 0 4px 24px rgba(11, 20, 55, 0.3); }
+}
+
+/* Expanding ring around orb */
+@keyframes orb-ring-expand {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* Field card glow on fill */
+@keyframes field-card-glow {
+  0% { box-shadow: 0 0 0 0 rgba(232, 104, 12, 0.4); }
+  30% { box-shadow: 0 0 12px 4px rgba(232, 104, 12, 0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 104, 12, 0); }
+}
+
+/* Voice orb speaking breathe */
+@keyframes orb-speaking-breathe {
+  0%, 100% {
+    box-shadow: 0 4px 32px rgba(27, 79, 204, 0.4), 0 0 48px rgba(90, 130, 237, 0.15);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 4px 48px rgba(27, 79, 204, 0.5), 0 0 64px rgba(90, 130, 237, 0.25);
+    transform: scale(1.04);
+  }
+}
+
+/* Field reveal glow (dark theme) */
+@keyframes field-reveal-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 169, 66, 0.5), 0 0 12px rgba(232, 104, 12, 0.3);
+    border-color: rgba(255, 169, 66, 0.5);
+  }
+  40% {
+    box-shadow: 0 0 0 6px rgba(255, 169, 66, 0.1), 0 0 20px rgba(232, 104, 12, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 169, 66, 0), 0 0 0 rgba(232, 104, 12, 0);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+}
+
+/* Document scanner sweep */
+@keyframes scan-sweep {
+  0% { top: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
 }
 
 /* Logo breathe + glow */

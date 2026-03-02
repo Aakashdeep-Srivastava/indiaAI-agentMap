@@ -86,7 +86,7 @@ export default function AppSidebar({
         <div className="flex h-14 shrink-0 items-center justify-between border-b border-surface-100 px-5">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
-              src="/logo.svg"
+              src="/logo.webp"
               alt="AgentMap AI"
               width={28}
               height={28}
@@ -104,8 +104,8 @@ export default function AppSidebar({
           </button>
         </div>
 
-        {/* ── Scrollable content ────────────────────────────────── */}
-        <div className="flex flex-1 flex-col overflow-y-auto px-4 py-5">
+        {/* ── Content (scrollbar hidden) ──────────────────────────── */}
+        <div className="flex flex-1 flex-col overflow-y-auto px-4 py-5 sidebar-no-scrollbar">
           {/* MSE Context Card */}
           {mseId && (
             <div className="mb-5 rounded-xl border border-brand-100 bg-brand-50/50 px-4 py-3">

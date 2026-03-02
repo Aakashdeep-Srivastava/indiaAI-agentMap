@@ -32,7 +32,10 @@
       "Bash(npm run:*)",
       "Bash(powershell:*)",
       "Bash(rm:*)",
-      "Bash(NEXT_PUBLIC_API_URL=http://localhost:8010 npm run:*)"
+      "Bash(NEXT_PUBLIC_API_URL=http://localhost:8010 npm run:*)",
+      "Bash(timeout 10 python:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)"
     ]
   }
 }
