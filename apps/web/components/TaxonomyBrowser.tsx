@@ -20,9 +20,10 @@ interface Domain {
 interface Props {
   domains: Domain[];
   highlightedDomain?: string;
+  highlightedCategory?: string;
 }
 
-export function TaxonomyBrowser({ domains, highlightedDomain }: Props) {
+export function TaxonomyBrowser({ domains, highlightedDomain, highlightedCategory }: Props) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   // Auto-expand the highlighted domain
@@ -141,20 +142,28 @@ export function TaxonomyBrowser({ domains, highlightedDomain }: Props) {
                     className="overflow-hidden"
                   >
                     <div className="border-t border-surface-100 bg-surface-50/30 px-5 py-2">
-                      {domain.categories.map((cat) => (
-                        <div
-                          key={cat.code}
-                          className="flex items-center gap-3 py-2 pl-8"
-                        >
-                          <span className="h-1.5 w-1.5 rounded-full bg-surface-300" />
-                          <span className="font-mono text-[10px] text-surface-400">
-                            {cat.code}
-                          </span>
-                          <span className="text-xs text-surface-600">
-                            {cat.name}
-                          </span>
-                        </div>
-                      ))}
+                      {domain.categories.map((cat) => {
+                        const isCatHighlighted = highlightedCategory === cat.code;
+                        return (
+                          <div
+                            key={cat.code}
+                            className={`flex items-center gap-3 rounded-lg py-2 pl-8 transition-colors ${
+                              isCatHighlighted ? "bg-saffron-500/8 -mx-2 px-10" : ""
+                            }`}
+                          >
+                            <span className={`h-1.5 w-1.5 rounded-full ${isCatHighlighted ? "bg-saffron-500" : "bg-surface-300"}`} />
+                            <span className={`font-mono text-[10px] ${isCatHighlighted ? "font-semibold text-saffron-600" : "text-surface-400"}`}>
+                              {cat.code}
+                            </span>
+                            <span className={`text-xs ${isCatHighlighted ? "font-semibold text-saffron-700" : "text-surface-600"}`}>
+                              {cat.name}
+                            </span>
+                            {isCatHighlighted && (
+                              <span className="ml-auto flex h-2 w-2 rounded-full bg-saffron-500 animate-pulse-dot" />
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 )}

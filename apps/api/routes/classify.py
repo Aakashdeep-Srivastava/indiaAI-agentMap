@@ -1,14 +1,15 @@
-"""Classification route – MuRIL-based ONDC domain prediction."""
+"""Classification route – VargBot ONDC domain prediction (LLM-powered)."""
 
 import json
 from datetime import datetime
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import MSE, AuditLog, ClassificationResult, get_db
-from services.classifier import classify_mse_description
+from services.classifier import classify_mse_description_async
 
 router = APIRouter()
 
@@ -28,6 +29,9 @@ class ClassifyTextRequest(BaseModel):
 class PredictionItem(BaseModel):
     domain: str
     confidence: float
+    category: Optional[str] = None
+    category_name: Optional[str] = None
+    explanation: Optional[str] = None
 
 
 class ClassifyResponse(BaseModel):
@@ -35,6 +39,10 @@ class ClassifyResponse(BaseModel):
     top3: list[PredictionItem]
     selected_domain: str
     confidence: float
+    selected_category: Optional[str] = None
+    selected_category_name: Optional[str] = None
+    explanation: Optional[str] = None
+    engine: Optional[str] = None
 
 
 class ClassificationHistoryItem(BaseModel):
@@ -50,51 +58,64 @@ class ClassificationHistoryItem(BaseModel):
 
 
 @router.post("/", response_model=ClassifyResponse)
-def classify(payload: ClassifyRequest, db: Session = Depends(get_db)):
-    """Classify an MSE into ONDC domain(s) using MuRIL."""
+async def classify(payload: ClassifyRequest, db: Session = Depends(get_db)):
+    """Classify an MSE into ONDC domain(s) using VargBot LLM chain."""
     mse = db.query(MSE).get(payload.mse_id)
     if not mse:
         raise HTTPException(status_code=404, detail="MSE not found")
 
-    predictions = classify_mse_description(mse.description, mse.language)
+    predictions, engine = await classify_mse_description_async(mse.description, mse.language)
+
+    top_pred = predictions[0]
 
     result = ClassificationResult(
         mse_id=mse.id,
-        predicted_domain=predictions[0]["domain"],
-        confidence=predictions[0]["confidence"],
-        top3_predictions=json.dumps(predictions[:3]),
+        predicted_domain=top_pred["domain"],
+        confidence=top_pred["confidence"],
+        top3_predictions=json.dumps([dict(p) for p in predictions[:3]]),
+        model_version=engine,
     )
     db.add(result)
     db.add(AuditLog(
         action="mse_classified",
         entity_type="mse",
         entity_id=mse.id,
-        details=f"Predicted {predictions[0]['domain']} ({predictions[0]['confidence']:.2f})",
-        performed_by="muril-v1-lora",
+        details=f"Predicted {top_pred['domain']} ({top_pred['confidence']:.2f}) via {engine}",
+        performed_by=engine,
     ))
     db.commit()
 
     return ClassifyResponse(
         mse_id=mse.id,
         top3=[PredictionItem(**p) for p in predictions[:3]],
-        selected_domain=predictions[0]["domain"],
-        confidence=predictions[0]["confidence"],
+        selected_domain=top_pred["domain"],
+        confidence=top_pred["confidence"],
+        selected_category=top_pred.get("category"),
+        selected_category_name=top_pred.get("category_name"),
+        explanation=top_pred.get("explanation"),
+        engine=engine,
     )
 
 
 @router.post("/text", response_model=ClassifyResponse)
-def classify_text(payload: ClassifyTextRequest):
+async def classify_text(payload: ClassifyTextRequest):
     """Classify raw description text without requiring an MSE record."""
     if not payload.description.strip():
         raise HTTPException(status_code=400, detail="Description cannot be empty")
 
-    predictions = classify_mse_description(payload.description, payload.language)
+    predictions, engine = await classify_mse_description_async(payload.description, payload.language)
+
+    top_pred = predictions[0]
 
     return ClassifyResponse(
         mse_id=0,
         top3=[PredictionItem(**p) for p in predictions[:3]],
-        selected_domain=predictions[0]["domain"],
-        confidence=predictions[0]["confidence"],
+        selected_domain=top_pred["domain"],
+        confidence=top_pred["confidence"],
+        selected_category=top_pred.get("category"),
+        selected_category_name=top_pred.get("category_name"),
+        explanation=top_pred.get("explanation"),
+        engine=engine,
     )
 
 

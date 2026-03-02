@@ -28,11 +28,21 @@ SARVAM_BASE_URL = "https://api.sarvam.ai/v1"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
+NVIDIA_BASE = "https://integrate.api.nvidia.com/v1/chat/completions"
+NVIDIA_MODEL = "qwen/qwen3.5-397b-a17b"
 
 from services.gemini_limiter import gemini_limiter
 
-_primary = "Gemini" if GEMINI_API_KEY else ("Sarvam-m" if SARVAM_API_KEY else "REGEX")
-logger.info(f"NER chain: {_primary} → {'Sarvam-m → ' if SARVAM_API_KEY and GEMINI_API_KEY else ''}REGEX")
+_ner_chain = []
+if GEMINI_API_KEY:
+    _ner_chain.append("Gemini")
+if NVIDIA_API_KEY:
+    _ner_chain.append("NVIDIA/Qwen")
+if SARVAM_API_KEY:
+    _ner_chain.append("Sarvam-m")
+_ner_chain.append("REGEX")
+logger.info(f"NER chain: {' → '.join(_ner_chain)}")
 
 # ── Rate limiter ─────────────────────────────────────────────────────
 
@@ -308,6 +318,45 @@ async def _extract_gemini(text: str) -> Optional[dict]:
     return None
 
 
+async def _extract_nvidia(text: str) -> Optional[dict]:
+    """Extract fields using NVIDIA NIM (Qwen 3.5 397B)."""
+    if not NVIDIA_API_KEY:
+        return None
+
+    try:
+        async with httpx.AsyncClient(timeout=25.0) as client:
+            resp = await client.post(
+                NVIDIA_BASE,
+                headers={
+                    "Authorization": f"Bearer {NVIDIA_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": NVIDIA_MODEL,
+                    "temperature": 0.1,
+                    "max_tokens": 512,
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": text},
+                    ],
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"]
+            # Qwen may wrap thinking in <think> tags — strip them
+            content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
+            parsed = _parse_llm_json(content)
+            if parsed:
+                logger.info(f"NVIDIA/Qwen NER extracted {len(parsed)} fields")
+                return _clean_llm_result(parsed)
+            logger.warning("NVIDIA/Qwen NER: unparseable JSON response")
+    except Exception as e:
+        logger.error(f"NVIDIA/Qwen NER error: {e}")
+
+    return None
+
+
 async def _extract_sarvam(text: str) -> Optional[dict]:
     """Extract fields using Sarvam-m chat completion API."""
     if not SARVAM_API_KEY:
@@ -360,12 +409,17 @@ async def extract_fields_llm(text: str) -> dict:
     if result:
         return result
 
-    # 2. Fallback to Sarvam-m
+    # 2. Try NVIDIA/Qwen
+    result = await _extract_nvidia(text)
+    if result:
+        return result
+
+    # 3. Fallback to Sarvam-m
     result = await _extract_sarvam(text)
     if result:
         return result
 
-    # 3. Last resort: regex
+    # 4. Last resort: regex
     logger.info("All LLMs failed, using regex fallback")
     return _regex_extract(text)
 

@@ -17,6 +17,9 @@ SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
 GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
+NVIDIA_BASE = "https://integrate.api.nvidia.com/v1/chat/completions"
+NVIDIA_MODEL = "qwen/qwen3.5-397b-a17b"
 
 from services.gemini_limiter import gemini_limiter
 
@@ -27,6 +30,8 @@ if SARVAM_API_KEY:
     _stt_chain.append("Sarvam")
 if GEMINI_API_KEY:
     _stt_chain.append("Gemini")
+if NVIDIA_API_KEY:
+    _stt_chain.append("NVIDIA/Qwen")
 _stt_chain.append("Mock")
 logger.info(f"STT chain: {' → '.join(_stt_chain)}")
 
@@ -245,6 +250,17 @@ async def _transcribe_gemini(audio_bytes: bytes, language: str) -> dict | None:
     return None
 
 
+async def _transcribe_nvidia(audio_bytes: bytes, language: str) -> dict | None:
+    """Transcribe audio using NVIDIA NIM (Qwen multimodal). Falls back gracefully.
+
+    Note: NVIDIA NIM Qwen doesn't natively support audio input via the chat API.
+    This is a placeholder for when audio support becomes available. Currently skipped.
+    """
+    # NVIDIA NIM chat completions API does not support audio input natively.
+    # When audio-capable models are available, this will be implemented.
+    return None
+
+
 async def transcribe_audio(
     audio_bytes: bytes,
     language: str = "en",
@@ -252,7 +268,7 @@ async def transcribe_audio(
     filename: str = "audio.webm",
     content_type: str = "audio/webm",
 ) -> dict:
-    """Transcribe audio. Chain: Sarvam → Gemini → Mock."""
+    """Transcribe audio. Chain: Sarvam → Gemini → NVIDIA → Mock."""
     is_auto = language == "auto"
     effective_lang = "en" if is_auto else language
 
@@ -280,7 +296,13 @@ async def transcribe_audio(
         gemini_result["detected_language"] = _detect_language_from_text(gemini_result["text"])
         return gemini_result
 
-    # 3. Last resort: mock
+    # 3. Try NVIDIA (placeholder — audio not yet supported)
+    nvidia_result = await _transcribe_nvidia(audio_bytes, effective_lang)
+    if nvidia_result and nvidia_result.get("text"):
+        nvidia_result["detected_language"] = _detect_language_from_text(nvidia_result["text"])
+        return nvidia_result
+
+    # 4. Last resort: mock
     logger.warning("All STT engines failed, using mock")
     if is_auto:
         effective_lang = random.choice(["en", "hi"])

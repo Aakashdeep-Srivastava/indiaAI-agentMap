@@ -6,23 +6,33 @@ import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 
 const DomainPredictionCard = dynamic(
-  () => import("@/components/DomainPredictionCard").then((m) => ({ default: m.DomainPredictionCard })),
+  () =>
+    import("@/components/DomainPredictionCard").then((m) => ({
+      default: m.DomainPredictionCard,
+    })),
   { ssr: false }
 );
 const TaxonomyBrowser = dynamic(
-  () => import("@/components/TaxonomyBrowser").then((m) => ({ default: m.TaxonomyBrowser })),
+  () =>
+    import("@/components/TaxonomyBrowser").then((m) => ({
+      default: m.TaxonomyBrowser,
+    })),
   { ssr: false }
 );
 const ClassificationHistory = dynamic(
-  () => import("@/components/ClassificationHistory").then((m) => ({ default: m.ClassificationHistory })),
+  () =>
+    import("@/components/ClassificationHistory").then((m) => ({
+      default: m.ClassificationHistory,
+    })),
   { ssr: false }
 );
-const VoiceInput = dynamic(
-  () => import("@/components/VoiceInput"),
-  { ssr: false }
-);
+const VoiceInput = dynamic(() => import("@/components/VoiceInput"), {
+  ssr: false,
+});
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+/* ─── Constants ───────────────────────────────────────────────────── */
 
 const DOMAIN_NAMES: Record<string, string> = {
   RET10: "Grocery",
@@ -30,6 +40,14 @@ const DOMAIN_NAMES: Record<string, string> = {
   RET14: "Electronics",
   RET16: "Home & Kitchen",
   RET18: "Health & Wellness",
+};
+
+const DOMAIN_ICONS: Record<string, string> = {
+  RET10: "M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm11 0h7v7h-7v-7z",
+  RET12: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
+  RET14: "M9.663 17h4.674M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
+  RET16: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4",
+  RET18: "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z",
 };
 
 const DOMAIN_EXPLAINERS: Record<string, { en: string; hi: string }> = {
@@ -55,9 +73,47 @@ const DOMAIN_EXPLAINERS: Record<string, { en: string; hi: string }> = {
   },
 };
 
+const ENGINE_META: Record<
+  string,
+  { label: string; desc: string; classes: string }
+> = {
+  "gemini-llm": {
+    label: "Gemini LLM",
+    desc: "Google Gemini multimodal",
+    classes: "bg-sky-50 text-sky-700 border-sky-200",
+  },
+  "nvidia-qwen": {
+    label: "Qwen 3.5 397B",
+    desc: "NVIDIA NIM inference",
+    classes: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  "sarvam-llm": {
+    label: "Sarvam-m",
+    desc: "Sovereign Indian LLM",
+    classes: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  "muril-lora": {
+    label: "MuRIL LoRA",
+    desc: "Fine-tuned classifier",
+    classes: "bg-violet-50 text-violet-700 border-violet-200",
+  },
+  "keyword-fallback": {
+    label: "Keyword Match",
+    desc: "Deterministic fallback",
+    classes: "bg-surface-50 text-surface-600 border-surface-200",
+  },
+};
+
+const PIPELINE_ENGINES = ["Gemini", "NVIDIA", "Sarvam", "MuRIL", "Keywords"];
+
+/* ─── Types ───────────────────────────────────────────────────────── */
+
 interface PredictionItem {
   domain: string;
   confidence: number;
+  category?: string;
+  category_name?: string;
+  explanation?: string;
 }
 
 interface ClassifyResult {
@@ -65,6 +121,10 @@ interface ClassifyResult {
   top3: PredictionItem[];
   selected_domain: string;
   confidence: number;
+  selected_category?: string;
+  selected_category_name?: string;
+  explanation?: string;
+  engine?: string;
 }
 
 interface MSEInfo {
@@ -93,28 +153,134 @@ interface HistoryItem {
 
 type TabMode = "mse" | "text";
 
+/* ─── Inline Components ───────────────────────────────────────────── */
+
+function ConfidenceRing({
+  score,
+  size = 108,
+}: {
+  score: number;
+  size?: number;
+}) {
+  const sw = 7;
+  const r = (size - sw) / 2;
+  const c = 2 * Math.PI * r;
+  const off = c - score * c;
+  const bandColor =
+    score >= 0.85 ? "#10b981" : score >= 0.6 ? "#f59e0b" : "#ef4444";
+
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="-rotate-90"
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeWidth={sw}
+          className="stroke-surface-100"
+        />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={`url(#cring)`}
+          strokeWidth={sw}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          initial={{ strokeDashoffset: c }}
+          animate={{ strokeDashoffset: off }}
+          transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+        />
+        <defs>
+          <linearGradient id="cring" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#1B4FCC" />
+            <stop offset="100%" stopColor={bandColor} />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <motion.span
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.9, duration: 0.35, type: "spring" }}
+          className="font-display text-2xl font-extrabold text-brand-900"
+        >
+          {(score * 100).toFixed(0)}
+          <span className="text-sm font-bold text-surface-400">%</span>
+        </motion.span>
+      </div>
+    </div>
+  );
+}
+
+function ConfidenceDistribution({
+  predictions,
+}: {
+  predictions: PredictionItem[];
+}) {
+  const colors = ["#E8680C", "#1B4FCC", "#CBD5E1"];
+  return (
+    <div className="space-y-2">
+      <div className="flex h-2 overflow-hidden rounded-full bg-surface-100">
+        {predictions.map((p, i) => (
+          <motion.div
+            key={p.domain}
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.max(p.confidence * 100, 0.5)}%` }}
+            transition={{
+              duration: 0.8,
+              delay: 0.6 + i * 0.15,
+              ease: "easeOut",
+            }}
+            className="h-full first:rounded-l-full last:rounded-r-full"
+            style={{ backgroundColor: colors[i] }}
+          />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        {predictions.map((p, i) => (
+          <div key={p.domain} className="flex items-center gap-1.5">
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: colors[i] }}
+            />
+            <span className="text-[10px] font-medium text-surface-500">
+              {DOMAIN_NAMES[p.domain]} {(p.confidence * 100).toFixed(1)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Page ────────────────────────────────────────────────────────── */
+
 export default function ClassifyPage() {
   const searchParams = useSearchParams();
   const autoTriggered = useRef(false);
 
-  // Input state
   const [tab, setTab] = useState<TabMode>("text");
   const [mseId, setMseId] = useState("");
   const [description, setDescription] = useState("");
   const [language, setLanguage] = useState("en");
 
-  // Result state
   const [result, setResult] = useState<ClassifyResult | null>(null);
   const [mseInfo, setMseInfo] = useState<MSEInfo | null>(null);
   const [domains, setDomains] = useState<DomainData[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
-  // UI state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [explainerLang, setExplainerLang] = useState<"en" | "hi">("en");
 
-  // Auto-load from URL params
   useEffect(() => {
     const paramId = searchParams.get("mseId");
     if (paramId && !autoTriggered.current) {
@@ -124,7 +290,6 @@ export default function ClassifyPage() {
     }
   }, [searchParams]);
 
-  // Load domains on mount
   useEffect(() => {
     fetch(`${API}/domains/`)
       .then((r) => r.json())
@@ -132,7 +297,6 @@ export default function ClassifyPage() {
       .catch(() => {});
   }, []);
 
-  // Auto-trigger classification when mseId comes from URL
   useEffect(() => {
     if (autoTriggered.current && mseId && !result && !loading) {
       classifyByMSE();
@@ -147,30 +311,20 @@ export default function ClassifyPage() {
     setResult(null);
     setMseInfo(null);
     setHistory([]);
-
     try {
-      // Fetch MSE info
       const mseRes = await fetch(`${API}/mse/${mseId}`);
       if (!mseRes.ok) throw new Error("MSE not found");
       const mse: MSEInfo = await mseRes.json();
       setMseInfo(mse);
-
-      // Classify
       const classifyRes = await fetch(`${API}/classify/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mse_id: parseInt(mseId) }),
       });
       if (!classifyRes.ok) throw new Error("Classification failed");
-      const data: ClassifyResult = await classifyRes.json();
-      setResult(data);
-
-      // Fetch history
+      setResult(await classifyRes.json());
       const histRes = await fetch(`${API}/classify/history/${mseId}`);
-      if (histRes.ok) {
-        const hist = await histRes.json();
-        setHistory(hist);
-      }
+      if (histRes.ok) setHistory(await histRes.json());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Classification failed");
     } finally {
@@ -185,7 +339,6 @@ export default function ClassifyPage() {
     setResult(null);
     setMseInfo(null);
     setHistory([]);
-
     try {
       const res = await fetch(`${API}/classify/text`, {
         method: "POST",
@@ -193,8 +346,7 @@ export default function ClassifyPage() {
         body: JSON.stringify({ description, language }),
       });
       if (!res.ok) throw new Error("Classification failed");
-      const data: ClassifyResult = await res.json();
-      setResult(data);
+      setResult(await res.json());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Classification failed");
     } finally {
@@ -202,32 +354,97 @@ export default function ClassifyPage() {
     }
   };
 
-  const handleClassify = () => {
-    if (tab === "mse") classifyByMSE();
-    else classifyByText();
-  };
+  const handleClassify = () =>
+    tab === "mse" ? classifyByMSE() : classifyByText();
+
+  const engineInfo = result?.engine
+    ? ENGINE_META[result.engine] ?? null
+    : null;
+  const topIcon = result
+    ? DOMAIN_ICONS[result.selected_domain] ?? DOMAIN_ICONS.RET10
+    : "";
 
   return (
     <div className="space-y-8">
-      {/* ── Input Card ────────────────────────────────────────────── */}
-      <div className="glass-card overflow-hidden">
+      {/* ═══ Page Header ══════════════════════════════════════════════ */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-start justify-between gap-4"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-900 shadow-lg shadow-brand-900/20">
+            <svg
+              className="h-6 w-6 text-white"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-extrabold tracking-tight text-brand-900">
+              VargBot
+            </h1>
+            <p className="text-sm text-surface-500">
+              ONDC Taxonomy Classification Engine
+            </p>
+          </div>
+        </div>
+        <span className="hidden rounded-lg border border-surface-200 bg-white px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-surface-400 sm:inline-block">
+          Module 2
+        </span>
+      </motion.div>
+
+      {/* ═══ Input Card ═══════════════════════════════════════════════ */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="glass-card overflow-hidden"
+      >
         {/* Tab switcher */}
         <div className="flex border-b border-surface-100">
           {(
             [
-              { key: "text" as TabMode, label: "By Description" },
-              { key: "mse" as TabMode, label: "By MSE ID" },
+              {
+                key: "text" as TabMode,
+                label: "By Description",
+                icon: "M4 6h16M4 12h16M4 18h7",
+              },
+              {
+                key: "mse" as TabMode,
+                label: "By MSE ID",
+                icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z",
+              },
             ] as const
           ).map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex-1 px-5 py-3 text-sm font-medium transition-colors ${
+              className={`flex flex-1 items-center justify-center gap-2 px-5 py-3.5 text-sm font-medium transition-all ${
                 tab === t.key
-                  ? "border-b-2 border-brand-500 text-brand-900 bg-brand-50/30"
-                  : "text-surface-400 hover:text-surface-600 hover:bg-surface-50"
+                  ? "border-b-2 border-brand-500 bg-brand-50/30 text-brand-900"
+                  : "text-surface-400 hover:bg-surface-50 hover:text-surface-600"
               }`}
             >
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d={t.icon} />
+              </svg>
               {t.label}
             </button>
           ))}
@@ -400,9 +617,9 @@ export default function ClassifyPage() {
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
 
-      {/* ── Error State ───────────────────────────────────────────── */}
+      {/* ═══ Error ════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {error && (
           <motion.div
@@ -430,12 +647,17 @@ export default function ClassifyPage() {
         )}
       </AnimatePresence>
 
-      {/* ── Empty State (before first classification) ──────────────── */}
+      {/* ═══ Empty State ══════════════════════════════════════════════ */}
       {!result && !loading && !error && (
-        <div className="glass-card py-16 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-100">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="glass-card py-16 text-center"
+        >
+          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-500/10 to-saffron-500/10">
             <svg
-              className="h-7 w-7 text-surface-400"
+              className="h-9 w-9 text-brand-500"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -448,47 +670,112 @@ export default function ClassifyPage() {
               <path d="M2 12l10 5 10-5" />
             </svg>
           </div>
-          <h3 className="font-display text-lg font-bold text-brand-900">
+          <h3 className="font-display text-xl font-bold text-brand-900">
             Ready to Classify
           </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-surface-500">
-            Enter an MSE ID or describe a business above to classify it into the
-            appropriate ONDC retail domain.
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-surface-500">
+            Enter a business description or MSE ID above. VargBot will classify
+            it into the appropriate ONDC retail domain and subcategory using
+            AI-powered analysis.
           </p>
-        </div>
-      )}
-
-      {/* ── Loading State ─────────────────────────────────────────── */}
-      {loading && (
-        <div className="flex items-center justify-center py-16">
-          <div className="flex flex-col items-center gap-3">
-            <svg
-              className="h-8 w-8 animate-spin text-brand-500"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
-            <span className="text-sm font-medium text-surface-500">
-              Running VargBot classification...
-            </span>
+          <div className="mx-auto mt-6 flex flex-wrap items-center justify-center gap-2">
+            {Object.entries(DOMAIN_NAMES).map(([code, name]) => (
+              <span
+                key={code}
+                className="inline-flex items-center gap-1.5 rounded-full border border-surface-200 bg-white px-3 py-1 text-[11px] font-medium text-surface-500"
+              >
+                <svg
+                  className="h-3 w-3 text-surface-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d={DOMAIN_ICONS[code]} />
+                </svg>
+                {name}
+              </span>
+            ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* ── Results Section ───────────────────────────────────────── */}
+      {/* ═══ Loading State ════════════════════════════════════════════ */}
+      {loading && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card py-14"
+        >
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-900">
+                <svg
+                  className="h-8 w-8 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <motion.div
+                className="absolute -inset-3 rounded-3xl border-2 border-brand-500/30"
+                animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0, 0.6] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
+            <div className="text-center">
+              <h3 className="font-display text-lg font-bold text-brand-900">
+                VargBot is classifying...
+              </h3>
+              <p className="mt-1 text-sm text-surface-500">
+                Analyzing against ONDC taxonomy
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {PIPELINE_ENGINES.map((name, i) => (
+                <motion.div
+                  key={name}
+                  className="flex items-center gap-1.5"
+                  initial={{ opacity: 0.3 }}
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{
+                    duration: 1.8,
+                    repeat: Infinity,
+                    delay: i * 0.35,
+                  }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+                  <span className="text-[10px] font-medium text-surface-400">
+                    {name}
+                  </span>
+                  {i < PIPELINE_ENGINES.length - 1 && (
+                    <svg
+                      className="mx-0.5 h-2.5 w-2.5 text-surface-300"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ═══ Results ══════════════════════════════════════════════════ */}
       <AnimatePresence>
         {result && (
           <motion.div
@@ -497,35 +784,141 @@ export default function ClassifyPage() {
             transition={{ duration: 0.4 }}
             className="space-y-6"
           >
-            {/* MSE info bar (only in MSE mode) */}
+            {/* MSE info bar */}
             {mseInfo && (
-              <div className="flex flex-wrap items-center gap-3 rounded-xl border border-surface-200 bg-white px-5 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-surface-400">
-                    MSE
-                  </span>
-                  <span className="font-display text-sm font-bold text-brand-900">
-                    {mseInfo.name}
-                  </span>
-                </div>
-                <span className="h-1 w-1 rounded-full bg-surface-300" />
-                <span className="font-mono text-[11px] text-surface-500">
-                  {mseInfo.udyam_number}
-                </span>
-                {mseInfo.state && (
-                  <>
-                    <span className="h-1 w-1 rounded-full bg-surface-300" />
-                    <span className="text-xs text-surface-500">
-                      {mseInfo.state}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+                className="glass-card !rounded-xl px-5 py-3.5"
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50">
+                    <svg
+                      className="h-4 w-4 text-brand-500"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-display text-sm font-bold text-brand-900">
+                      {mseInfo.name}
                     </span>
-                  </>
+                    <span className="h-1 w-1 rounded-full bg-surface-300" />
+                    <span className="font-mono text-[11px] text-surface-500">
+                      {mseInfo.udyam_number}
+                    </span>
+                    {mseInfo.state && (
+                      <>
+                        <span className="h-1 w-1 rounded-full bg-surface-300" />
+                        <span className="text-xs text-surface-500">
+                          {mseInfo.state}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {mseInfo.description && (
+                  <p className="mt-2 truncate pl-11 text-xs italic text-surface-400">
+                    &ldquo;{mseInfo.description}&rdquo;
+                  </p>
                 )}
-              </div>
+              </motion.div>
             )}
 
-            {/* Prediction cards */}
-            <div>
-              <h3 className="mb-4 flex items-center gap-2 font-display text-lg font-bold text-brand-900">
+            {/* ── Result Hero Card ──────────────────────────────────── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="glass-card overflow-hidden"
+            >
+              {/* Saffron accent top border */}
+              <div className="h-1 bg-gradient-to-r from-brand-500 via-saffron-500 to-saffron-400" />
+
+              <div className="p-6">
+                <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+                  {/* Confidence Ring */}
+                  <ConfidenceRing score={result.confidence} />
+
+                  {/* Result info */}
+                  <div className="flex-1 text-center sm:text-left">
+                    <div className="flex flex-col items-center gap-2 sm:flex-row">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-900">
+                        <svg
+                          className="h-5 w-5 text-white"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d={topIcon} />
+                        </svg>
+                      </div>
+                      <div>
+                        <span className="block font-mono text-[10px] uppercase tracking-widest text-surface-400">
+                          {result.selected_domain}
+                        </span>
+                        <h2 className="font-display text-xl font-extrabold text-brand-900">
+                          {DOMAIN_NAMES[result.selected_domain] ??
+                            result.selected_domain}
+                        </h2>
+                      </div>
+                    </div>
+
+                    {/* Category + Engine pills */}
+                    <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                      {result.selected_category_name && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-saffron-500/20 bg-saffron-500/5 px-3 py-1 text-[11px] font-semibold text-saffron-600">
+                          <svg
+                            className="h-3 w-3"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                          </svg>
+                          {result.selected_category_name}
+                        </span>
+                      )}
+                      {engineInfo && (
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold ${engineInfo.classes}`}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-current opacity-60" />
+                          {engineInfo.label}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Confidence distribution */}
+                    <div className="mt-4">
+                      <ConfidenceDistribution predictions={result.top3} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* ── Top-3 Predictions ─────────────────────────────────── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h3 className="mb-4 flex items-center gap-2 font-display text-base font-bold text-brand-900">
                 <svg
                   className="h-5 w-5 text-saffron-500"
                   viewBox="0 0 24 24"
@@ -541,76 +934,189 @@ export default function ClassifyPage() {
               </h3>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {result.top3.map((pred, i) => (
-                  <DomainPredictionCard
-                    key={pred.domain}
-                    domain={pred.domain}
-                    domainName={DOMAIN_NAMES[pred.domain] ?? pred.domain}
-                    confidence={pred.confidence}
-                    rank={i + 1}
-                    isSelected={i === 0}
-                  />
+                  <div key={pred.domain} className="space-y-2">
+                    <DomainPredictionCard
+                      domain={pred.domain}
+                      domainName={DOMAIN_NAMES[pred.domain] ?? pred.domain}
+                      confidence={pred.confidence}
+                      rank={i + 1}
+                      isSelected={i === 0}
+                    />
+                    {pred.category_name && (
+                      <div className="flex items-center justify-center">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/15 bg-brand-50/60 px-3 py-1 text-[11px] font-semibold text-brand-500">
+                          <svg
+                            className="h-3 w-3"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                          </svg>
+                          {pred.category_name}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            {/* AI Explainer */}
-            <div className="glass-card p-5">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-brand-500">
-                    <svg
-                      className="h-3.5 w-3.5 text-white"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    >
-                      <path d="M12 2a4 4 0 014 4v2a4 4 0 01-8 0V6a4 4 0 014-4z" />
-                      <path d="M18 14v1a6 6 0 01-12 0v-1" />
-                      <line x1="12" y1="19" x2="12" y2="22" />
-                    </svg>
+            {/* ── AI Reasoning ──────────────────────────────────────── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="glass-card overflow-hidden"
+            >
+              <div className="border-b border-surface-100 bg-surface-50/40 px-5 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500">
+                      <svg
+                        className="h-3.5 w-3.5 text-white"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-surface-500">
+                      AI Reasoning
+                    </span>
+                    {engineInfo && (
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${engineInfo.classes}`}
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-current opacity-50" />
+                        via {engineInfo.label}
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-surface-500">
-                    AI Explainer
-                  </span>
-                </div>
-                <div className="flex overflow-hidden rounded-lg border border-surface-200 bg-white">
-                  <button
-                    onClick={() => setExplainerLang("en")}
-                    className={`px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      explainerLang === "en"
-                        ? "bg-brand-500 text-white"
-                        : "text-surface-500 hover:text-brand-900"
-                    }`}
-                  >
-                    EN
-                  </button>
-                  <button
-                    onClick={() => setExplainerLang("hi")}
-                    className={`px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      explainerLang === "hi"
-                        ? "bg-brand-500 text-white"
-                        : "text-surface-500 hover:text-brand-900"
-                    }`}
-                  >
-                    HI
-                  </button>
+                  {/* EN / HI toggle — only if using fallback templates */}
+                  {!result.explanation && (
+                    <div className="flex overflow-hidden rounded-lg border border-surface-200 bg-white">
+                      <button
+                        onClick={() => setExplainerLang("en")}
+                        className={`px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                          explainerLang === "en"
+                            ? "bg-brand-500 text-white"
+                            : "text-surface-500 hover:text-brand-900"
+                        }`}
+                      >
+                        EN
+                      </button>
+                      <button
+                        onClick={() => setExplainerLang("hi")}
+                        className={`px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                          explainerLang === "hi"
+                            ? "bg-brand-500 text-white"
+                            : "text-surface-500 hover:text-brand-900"
+                        }`}
+                      >
+                        HI
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-              <p className="text-sm leading-relaxed text-surface-600">
-                {DOMAIN_EXPLAINERS[result.selected_domain]?.[explainerLang] ??
-                  `Classified under ${
-                    DOMAIN_NAMES[result.selected_domain] ??
-                    result.selected_domain
-                  }.`}
-              </p>
-            </div>
+              <div className="p-5">
+                <p className="text-sm leading-relaxed text-surface-600">
+                  {result.explanation ??
+                    DOMAIN_EXPLAINERS[result.selected_domain]?.[
+                      explainerLang
+                    ] ??
+                    `Classified under ${
+                      DOMAIN_NAMES[result.selected_domain] ??
+                      result.selected_domain
+                    }.`}
+                </p>
 
-            {/* Taxonomy Browser */}
+                {/* Category detail row */}
+                {result.selected_category_name && (
+                  <div className="mt-4 flex items-center gap-3 rounded-xl border border-surface-100 bg-surface-50/50 px-4 py-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-saffron-500/10">
+                      <svg
+                        className="h-4 w-4 text-saffron-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                        Subcategory
+                      </span>
+                      <p className="text-sm font-semibold text-brand-900">
+                        {result.selected_category_name}
+                        {result.selected_category && (
+                          <span className="ml-2 font-mono text-[11px] font-normal text-surface-400">
+                            {result.selected_category}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Per-prediction explanations */}
+                {result.top3.some((p) => p.explanation) && (
+                  <div className="mt-4 space-y-2 border-t border-surface-100 pt-4">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                      Per-Prediction Reasoning
+                    </span>
+                    {result.top3.map(
+                      (pred, i) =>
+                        pred.explanation && (
+                          <div
+                            key={pred.domain}
+                            className="flex items-start gap-2"
+                          >
+                            <span
+                              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white ${
+                                i === 0
+                                  ? "bg-saffron-500"
+                                  : i === 1
+                                    ? "bg-brand-500"
+                                    : "bg-surface-400"
+                              }`}
+                            >
+                              {i + 1}
+                            </span>
+                            <p className="text-xs leading-relaxed text-surface-500">
+                              <span className="font-semibold text-surface-600">
+                                {DOMAIN_NAMES[pred.domain]}:
+                              </span>{" "}
+                              {pred.explanation}
+                            </p>
+                          </div>
+                        )
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* ── ONDC Taxonomy ─────────────────────────────────────── */}
             {domains.length > 0 && (
-              <div>
-                <h3 className="mb-4 flex items-center gap-2 font-display text-lg font-bold text-brand-900">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+              >
+                <h3 className="mb-4 flex items-center gap-2 font-display text-base font-bold text-brand-900">
                   <svg
                     className="h-5 w-5 text-brand-500"
                     viewBox="0 0 24 24"
@@ -627,14 +1133,19 @@ export default function ClassifyPage() {
                 <TaxonomyBrowser
                   domains={domains}
                   highlightedDomain={result.selected_domain}
+                  highlightedCategory={result.selected_category}
                 />
-              </div>
+              </motion.div>
             )}
 
-            {/* Classification History (MSE mode only) */}
+            {/* ── History (MSE mode) ───────────────────────────────── */}
             {tab === "mse" && mseInfo && (
-              <div>
-                <h3 className="mb-4 flex items-center gap-2 font-display text-lg font-bold text-brand-900">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <h3 className="mb-4 flex items-center gap-2 font-display text-base font-bold text-brand-900">
                   <svg
                     className="h-5 w-5 text-surface-500"
                     viewBox="0 0 24 24"
@@ -646,28 +1157,39 @@ export default function ClassifyPage() {
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
-                  History
+                  Classification History
                 </h3>
-                <ClassificationHistory
-                  mseId={mseInfo.id}
-                  history={history}
-                />
-              </div>
+                <ClassificationHistory mseId={mseInfo.id} history={history} />
+              </motion.div>
             )}
 
-            {/* Continue to Matching CTA */}
+            {/* ── Continue to Matching CTA ──────────────────────────── */}
             {tab === "mse" && mseId && (
-              <div className="flex justify-center pt-2">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 }}
+                className="flex justify-center pt-2"
+              >
                 <a
                   href={`/match?mseId=${mseId}`}
                   className="btn-saffron inline-flex"
                 >
                   Continue to Matching
-                  <svg className="ml-1.5 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                  <svg
+                    className="ml-1.5 h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
                   </svg>
                 </a>
-              </div>
+              </motion.div>
             )}
           </motion.div>
         )}
