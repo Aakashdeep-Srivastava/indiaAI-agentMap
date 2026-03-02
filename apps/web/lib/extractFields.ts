@@ -1,21 +1,65 @@
 /**
- * Client-side NER extraction from free-form text.
- * PoC implementation using regex/keyword matching.
- * Production: replace with Sarvam Mayura NER API.
+ * Field extraction utilities for Sathi registration.
+ *
+ * Primary: calls /ner/extract API (Sarvam-m LLM — multilingual)
+ * Fallback: client-side regex for instant offline extraction
  */
 
 export interface ExtractedFields {
   name?: string;
   udyam_number?: string;
+  mobile_number?: string;
   description?: string;
   state?: string;
   district?: string;
   pin_code?: string;
   products?: string;
-  gender_owner?: string;
   turnover_band?: string;
   language?: string;
 }
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+/* ── API-based extraction (Sarvam-m LLM) ─────────────────────────── */
+
+export async function extractFieldsFromAPI(
+  text: string,
+  existingFields: Record<string, string> = {},
+): Promise<{ fields: ExtractedFields; engine: string }> {
+  try {
+    const res = await fetch(`${API}/ner/extract`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text,
+        language: "auto",
+        existing_fields: existingFields,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+    const data = await res.json();
+    return { fields: data.extracted, engine: data.engine };
+  } catch {
+    // Fallback to client-side regex
+    const fields = extractFieldsFromText(text);
+    // Remove already-filled fields
+    for (const key of Object.keys(existingFields)) {
+      if (existingFields[key]) delete (fields as Record<string, string | undefined>)[key];
+    }
+    return { fields, engine: "regex-fallback" };
+  }
+}
+
+/* ── Language detection ───────────────────────────────────────────── */
+
+export function detectLanguage(text: string): "en" | "hi" {
+  const devanagariChars = text.match(/[\u0900-\u097F]/g);
+  return devanagariChars && devanagariChars.length >= 2 ? "hi" : "en";
+}
+
+/* ── Client-side regex extraction (fast fallback) ─────────────────── */
 
 const INDIAN_STATES = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -48,13 +92,17 @@ export function extractFieldsFromText(text: string): ExtractedFields {
   const result: ExtractedFields = {};
   const lower = text.toLowerCase();
 
-  // --- Udyam registration number ---
+  // Udyam number
   const udyamMatch = text.match(/UDYAM[-\s]?[A-Z]{2}[-\s]?\d{2}[-\s]?\d{7}/i);
   if (udyamMatch) {
     result.udyam_number = udyamMatch[0].toUpperCase().replace(/\s/g, "-");
   }
 
-  // --- Business name ---
+  // Mobile number
+  const mobileMatch = text.match(/\b([6-9]\d{9})\b/);
+  if (mobileMatch) result.mobile_number = mobileMatch[1];
+
+  // Business name
   const namePatterns = [
     /(?:business|company|shop|enterprise|firm|brand|store)\s+(?:name\s+)?(?:is|called|named)\s+["']?([A-Z][^"',.;\n]{2,40})/i,
     /(?:called|named)\s+["']?([A-Z][^"',.;\n]{2,40})/i,
@@ -69,14 +117,13 @@ export function extractFieldsFromText(text: string): ExtractedFields {
     }
   }
 
-  // --- State ---
+  // State
   for (const state of INDIAN_STATES) {
     if (lower.includes(state.toLowerCase())) {
       result.state = state;
       break;
     }
   }
-  // Abbreviation fallbacks
   if (!result.state) {
     if (/\bU\.?P\.?\b/i.test(text)) result.state = "Uttar Pradesh";
     else if (/\bM\.?P\.?\b/i.test(text)) result.state = "Madhya Pradesh";
@@ -84,7 +131,7 @@ export function extractFieldsFromText(text: string): ExtractedFields {
     else if (/\bH\.?P\.?\b/i.test(text)) result.state = "Himachal Pradesh";
   }
 
-  // --- District / City ---
+  // District
   for (const [key, display] of Object.entries(KNOWN_DISTRICTS)) {
     if (lower.includes(key)) {
       result.district = display;
@@ -92,11 +139,11 @@ export function extractFieldsFromText(text: string): ExtractedFields {
     }
   }
 
-  // --- PIN code (6-digit Indian postal code) ---
+  // PIN code
   const pinMatch = text.match(/\b([1-9]\d{5})\b/);
   if (pinMatch) result.pin_code = pinMatch[1];
 
-  // --- Products / Services ---
+  // Products
   const prodPatterns = [
     /(?:we\s+(?:make|sell|produce|manufacture|deal\s+in|supply|create|offer))\s+([^.!?\n]{5,120})/i,
     /(?:products?|services?|items?)\s+(?:are|include|like)\s+([^.!?\n]{5,120})/i,
@@ -110,19 +157,10 @@ export function extractFieldsFromText(text: string): ExtractedFields {
     }
   }
 
-  // --- Description (use the whole text as description if long enough) ---
-  if (text.length > 30) {
-    result.description = text.trim();
-  }
+  // Description
+  if (text.length > 30) result.description = text.trim();
 
-  // --- Gender ---
-  if (/\b(female|woman|lady|mahila|she\b|her\b|wife)/i.test(text)) {
-    result.gender_owner = "female";
-  } else if (/\b(male|man\b|he\b|his\b|husband)/i.test(text)) {
-    result.gender_owner = "male";
-  }
-
-  // --- Enterprise size ---
+  // Enterprise size
   if (/\bmicro\b/i.test(text)) result.turnover_band = "micro";
   else if (/\bsmall\b/i.test(text)) result.turnover_band = "small";
   else if (/\bmedium\b/i.test(text)) result.turnover_band = "medium";
@@ -130,26 +168,26 @@ export function extractFieldsFromText(text: string): ExtractedFields {
   return result;
 }
 
-/** Count how many registration fields have values */
+/* ── Utility functions ────────────────────────────────────────────── */
+
 export function countFilledFields(form: Record<string, string>): number {
   const required = [
-    "name", "udyam_number", "description", "state",
-    "district", "pin_code", "products", "language",
+    "name", "udyam_number", "mobile_number", "description", "state",
+    "district", "pin_code", "products",
   ];
   return required.filter((k) => form[k]?.trim()).length;
 }
 
-/** Get list of missing required fields */
 export function getMissingFields(form: Record<string, string>): string[] {
   const labels: Record<string, string> = {
     name: "business name",
     udyam_number: "Udyam number",
+    mobile_number: "mobile number",
     description: "business description",
     state: "state",
     district: "district",
     pin_code: "PIN code",
     products: "products or services",
-    language: "preferred language",
   };
   return Object.entries(labels)
     .filter(([k]) => !form[k]?.trim())

@@ -1,23 +1,28 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import VoiceInput from "@/components/VoiceInput";
+import DocUploadButton from "@/components/sathi/DocUploadButton";
+import VoiceOrb from "@/components/sathi/VoiceOrb";
+import WaveformVisualizer from "@/components/sathi/WaveformVisualizer";
+import LiveTranscript from "@/components/sathi/LiveTranscript";
+import { useAudioAnalyzer } from "@/lib/useAudioAnalyzer";
 import {
+  extractFieldsFromAPI,
   extractFieldsFromText,
   getMissingFields,
-  type ExtractedFields,
+  countFilledFields,
+  detectLanguage,
 } from "@/lib/extractFields";
 
 /* ─── Types ─── */
-type MessageKind = "text" | "extraction" | "upload" | "summary";
+type OrbPhase = "idle" | "listening" | "processing" | "speaking";
 
-interface Message {
+interface ChatMessage {
   id: string;
-  role: "bot" | "user";
+  role: "sathi" | "user";
   text: string;
-  kind: MessageKind;
-  extractedFields?: Record<string, string>;
+  filledFields?: string[];
   quickReplies?: { label: string; value: string }[];
 }
 
@@ -30,631 +35,781 @@ interface FormState {
   pin_code: string;
   nic_code: string;
   language: string;
-  gender_owner: string;
   turnover_band: string;
+  mobile_number: string;
   products: string;
 }
-
-type AgentPhase =
-  | "greeting"
-  | "listening"
-  | "extracting"
-  | "followup"
-  | "documents"
-  | "confirming"
-  | "complete";
 
 interface SathiAgentProps {
   form: FormState;
   onUpdate: (field: string, value: string) => void;
   onHighlight: (fields: string[]) => void;
   onSubmit: () => void;
-  onStepChange: (step: number) => void;
   submitting: boolean;
   success: number | null;
 }
 
-/* ─── Labels ─── */
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const TOTAL_FIELDS = 8;
+
 const FIELD_LABELS: Record<string, string> = {
   name: "Business Name",
   udyam_number: "Udyam Number",
-  language: "Language",
+  mobile_number: "Mobile Number",
   description: "Description",
   products: "Products",
-  gender_owner: "Owner Gender",
   turnover_band: "Enterprise Size",
   state: "State",
   district: "District",
   pin_code: "PIN Code",
 };
 
-const LANG_LABELS: Record<string, string> = {
-  en: "English", hi: "Hindi", ta: "Tamil", te: "Telugu",
-  kn: "Kannada", bn: "Bengali", mr: "Marathi", gu: "Gujarati",
+const FIELD_QUESTIONS: Record<string, string> = {
+  udyam_number: "What's your Udyam Registration Number? (e.g., UDYAM-MH-02-0012345)",
+  name: "What's your business or enterprise name?",
+  mobile_number: "What's your 10-digit mobile number?",
+  description: "Describe your business in a few sentences — what do you make or sell?",
+  products: "What products or services do you offer? (comma-separated)",
+  state: "Which state is your business located in?",
+  district: "Which district or city?",
+  pin_code: "What's your area PIN code? (6 digits)",
+  turnover_band: "What size is your enterprise — Micro, Small, or Medium?",
 };
 
-let msgCounter = 0;
-function mid() { return `m-${++msgCounter}`; }
+const LANG_OPTIONS = [
+  { code: "en", label: "English" },
+  { code: "hi", label: "Hindi" },
+];
 
 export default function SathiAgent({
   form,
   onUpdate,
   onHighlight,
   onSubmit,
-  onStepChange,
   submitting,
   success,
 }: SathiAgentProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [phase, setPhase] = useState<AgentPhase>("greeting");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [typing, setTyping] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [verifying, setVerifying] = useState(false);
-  const [followupField, setFollowupField] = useState<string | null>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [recording, setRecording] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [docUploading, setDocUploading] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [complete, setComplete] = useState(false);
+
+  /* ─── Voice-first state ─── */
+  const [orbPhase, setOrbPhase] = useState<OrbPhase>("idle");
+  const [currentQuestion, setCurrentQuestion] = useState("");
+  const [latestTranscript, setLatestTranscript] = useState("");
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
   const initRef = useRef(false);
+  const currentFieldRef = useRef<string | null>(null);
+  const langDetectedRef = useRef(false);
+  const ttsRef = useRef(false);
+  ttsRef.current = ttsEnabled;
+  const ttsGenRef = useRef(0);
 
-  const scroll = useCallback(() => {
-    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 60);
-  }, []);
+  const {
+    start: startAnalyzer,
+    stop: stopAnalyzer,
+    frequencyData,
+    isActive,
+    bins,
+  } = useAudioAnalyzer();
 
-  /* ─── Add messages ─── */
-  const addBot = useCallback(
-    (text: string, opts?: Partial<Omit<Message, "id" | "role">>) => {
-      setTyping(true);
-      return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          setTyping(false);
-          setMessages((prev) => [
-            ...prev,
-            { id: mid(), role: "bot", text, kind: "text", ...opts },
-          ]);
-          scroll();
-          resolve();
-        }, 700);
-      });
-    },
-    [scroll],
+  const filledCount = countFilledFields(
+    form as unknown as Record<string, string>,
   );
 
-  const addUser = useCallback(
-    (text: string) => {
-      setMessages((prev) => [
-        ...prev,
-        { id: mid(), role: "user", text, kind: "text" },
-      ]);
-      scroll();
-    },
-    [scroll],
-  );
+  /* ─── Cleanup analyzer on unmount ─── */
+  useEffect(() => {
+    return () => stopAnalyzer();
+  }, [stopAnalyzer]);
 
-  /* ─── Greeting ─── */
+  /* ─── Init conversation ─── */
   useEffect(() => {
     if (initRef.current) return;
     initRef.current = true;
-    (async () => {
-      await addBot(
-        "Namaste! I'm Sathi, your AI registration guide. Just tell me about your business — speak naturally or type below. I'll fill in the form for you!",
-      );
-      await addBot(
-        "For example: \"I'm Sunita from Varanasi, UP. I run a small handicraft shop called Devi Creations. We make wooden toys. My Udyam number is UDYAM-UP-04-0012345.\"",
-      );
-      setPhase("listening");
-    })();
-  }, [addBot]);
 
-  /* Scroll on change */
-  useEffect(() => { scroll(); }, [messages, typing, scroll]);
+    setTimeout(() => {
+      pushSathi(
+        "Namaste! I'm Sathi, your AI registration assistant. Let's get your business onboarded to ONDC.",
+      );
+      setTimeout(() => {
+        pushSathi(
+          "You can type, speak, or upload a document anytime. I'll auto-detect your language (English/Hindi supported). Let's start!",
+        );
+        setTimeout(() => askNextField(), 600);
+      }, 800);
+    }, 400);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  /* Sync form step */
+  /* ─── Handle success ─── */
   useEffect(() => {
-    const hasIdentity = form.name || form.udyam_number;
-    onStepChange(hasIdentity ? 1 : 0);
-  }, [form.name, form.udyam_number, onStepChange]);
-
-  /* ─── Auto-advance after success ─── */
-  useEffect(() => {
-    if (success !== null && phase !== "complete") {
-      setPhase("complete");
-      addBot(
-        `Registration successful! Your MSE ID is ${success}. Moving you to the classification step...`,
+    if (success !== null && !complete) {
+      setComplete(true);
+      pushSathi(
+        `Registration successful! Your MSE ID is ${success}. Redirecting to classification...`,
       );
     }
-  }, [success, phase, addBot]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success]);
 
-  /* ─── Core: extract entities from user input ─── */
-  async function handleExtraction(text: string) {
-    addUser(text);
-    setPhase("extracting");
-    setTyping(true);
+  /* ─── Message helpers ─── */
+  function pushSathi(
+    text: string,
+    filledFields?: string[],
+    quickReplies?: { label: string; value: string }[],
+  ) {
+    const msg: ChatMessage = {
+      id: `s-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      role: "sathi",
+      text,
+      filledFields,
+      quickReplies,
+    };
+    setMessages((prev) => [...prev, msg]);
+    setCurrentQuestion(text);
+    setOrbPhase("speaking");
+    speak(text);
+  }
 
-    // Simulate AI processing time
-    await new Promise((r) => setTimeout(r, 1200));
-    setTyping(false);
+  function pushUser(text: string) {
+    const msg: ChatMessage = {
+      id: `u-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      role: "user",
+      text,
+    };
+    setMessages((prev) => [...prev, msg]);
+    setLatestTranscript(text);
+  }
 
-    const extracted = extractFieldsFromText(text);
-    const filledKeys: string[] = [];
+  /* ─── Ask next missing field ─── */
+  function askNextField(localForm?: Record<string, string>) {
+    const f = (localForm || form) as Record<string, string>;
+    const missing = getMissingFields(f);
 
-    // Apply extracted fields to form
-    for (const [key, value] of Object.entries(extracted)) {
-      if (value && !form[key as keyof FormState]) {
-        onUpdate(key, value);
-        filledKeys.push(key);
-      }
+    if (missing.length === 0) {
+      currentFieldRef.current = null;
+      setConfirming(true);
+      pushSathi(
+        "All details collected! Please review your information and hit Submit.",
+      );
+      return;
     }
 
-    // Highlight the filled fields on the form
-    if (filledKeys.length > 0) {
-      onHighlight(filledKeys);
+    const nextLabel = missing[0];
+    const nextKey = fieldToKey(nextLabel);
+    currentFieldRef.current = nextKey;
+    const question =
+      FIELD_QUESTIONS[nextKey] || `What's your ${nextLabel}?`;
+    const qr = getQuickReplies(nextKey);
+    pushSathi(question, undefined, qr || undefined);
+  }
+
+  /* ─── TTS (browser fallback + Sarvam backend) ─── */
+  function speak(text: string) {
+    if (!ttsRef.current) {
+      setOrbPhase("idle");
+      return;
+    }
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      setOrbPhase("idle");
+      return;
     }
 
-    if (filledKeys.length > 0) {
-      // Show extraction card
-      const fieldMap: Record<string, string> = {};
-      for (const k of filledKeys) {
-        const raw = extracted[k as keyof ExtractedFields] || "";
-        fieldMap[FIELD_LABELS[k] || k] = raw;
-      }
+    const gen = ++ttsGenRef.current;
 
-      await addBot("I picked up some details! Let me fill those in for you...", {
-        kind: "extraction",
-        extractedFields: fieldMap,
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const langMap: Record<string, string> = {
+      en: "en-IN",
+      hi: "hi-IN",
+      ta: "ta-IN",
+      te: "te-IN",
+      kn: "kn-IN",
+      bn: "bn-IN",
+      mr: "mr-IN",
+      gu: "gu-IN",
+    };
+    utterance.lang = langMap[form.language] || "en-IN";
+    utterance.rate = 0.95;
+    utterance.onend = () => {
+      if (ttsGenRef.current === gen) setOrbPhase("idle");
+    };
+    window.speechSynthesis.speak(utterance);
+
+    fetchBackendTTS(text, form.language, gen);
+  }
+
+  async function fetchBackendTTS(text: string, language: string, gen: number) {
+    try {
+      const res = await fetch(`${API}/tts/synthesize`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, language }),
       });
-
-      // Check what's still missing
-      const mergedForm = { ...form };
-      for (const [k, v] of Object.entries(extracted)) {
-        if (v) mergedForm[k as keyof FormState] = v;
-      }
-      const missing = getMissingFields(mergedForm);
-
-      if (missing.length === 0) {
-        setPhase("documents");
-        await addBot(
-          "All the required details are filled in! Could you upload your Udyam registration certificate for verification? You can also skip this step.",
-          { kind: "upload" },
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.audio_base64 && data.content_type) {
+        const sarvamGen = ++ttsGenRef.current;
+        window.speechSynthesis.cancel();
+        const audio = new Audio(
+          `data:${data.content_type};base64,${data.audio_base64}`,
         );
-      } else if (missing.length <= 3) {
-        setPhase("followup");
-        const first = missing[0];
-        setFollowupField(fieldToKey(first));
-        const qr = getQuickReplies(fieldToKey(first));
-        await addBot(
-          `Almost there! I still need your ${missing.join(", ")}. What's your ${first}?`,
-          qr ?? undefined,
-        );
-      } else {
-        setPhase("followup");
-        const first = missing[0];
-        setFollowupField(fieldToKey(first));
-        const qr = getQuickReplies(fieldToKey(first));
-        await addBot(
-          `Great start! I still need a few more details. Let's go through them. What's your ${first}?`,
-          qr ?? undefined,
-        );
+        audio.onended = () => {
+          if (ttsGenRef.current === sarvamGen) setOrbPhase("idle");
+        };
+        audio.play().catch(() => {});
       }
-    } else {
-      // Nothing extracted — treat as direct answer for current followup field
-      if (followupField) {
-        handleDirectAnswer(text);
-        return;
-      }
-      await addBot(
-        "I couldn't quite catch the details from that. Could you try again? Mention your business name, location, products, and Udyam number.",
-      );
-      setPhase("listening");
+    } catch {
+      // browser TTS already playing as fallback
     }
   }
 
-  /* ─── Handle direct answer to a followup question ─── */
-  function handleDirectAnswer(text: string) {
-    if (!followupField) return;
-    addUser(text);
+  /* ─── Handle text send ─── */
+  function handleSend() {
+    const text = input.trim();
+    if (!text || processing || complete) return;
+    setInput("");
+    pushUser(text);
+    processUserInput(text);
+  }
 
-    onUpdate(followupField, text);
-    onHighlight([followupField]);
+  /* ─── Process user input: extract via LLM API, validate, fill ─── */
+  async function processUserInput(text: string) {
+    setProcessing(true);
+    setOrbPhase("processing");
+    const localForm: Record<string, string> = {
+      ...(form as unknown as Record<string, string>),
+    };
 
-    const label = FIELD_LABELS[followupField] || followupField;
+    // Auto-detect language on first user message (don't flip-flop)
+    if (!langDetectedRef.current) {
+      langDetectedRef.current = true;
+      const detectedLang = detectLanguage(text);
+      onUpdate("language", detectedLang);
+      localForm.language = detectedLang;
+    }
 
-    const mergedForm = { ...form, [followupField]: text };
-    const missing = getMissingFields(mergedForm);
+    // Call Sarvam-m LLM API for extraction (falls back to regex automatically)
+    const { fields: extracted } = await extractFieldsFromAPI(text, localForm);
+    const filledKeys: string[] = [];
 
-    if (missing.length === 0) {
-      setPhase("documents");
-      setFollowupField(null);
-      addBot(`Got it! ${label} set to: ${text}`).then(() =>
-        addBot(
-          "All details filled! Would you like to upload your Udyam certificate for verification? You can also skip.",
-          { kind: "upload" },
-        ),
+    for (const [key, value] of Object.entries(extracted)) {
+      if (value && !localForm[key]) {
+        const err = validateField(key, value);
+        if (!err) {
+          onUpdate(key, value);
+          localForm[key] = value;
+          filledKeys.push(key);
+        }
+      }
+    }
+
+    if (filledKeys.length > 0) {
+      onHighlight(filledKeys);
+      const labels = filledKeys.map((k) => FIELD_LABELS[k] || k);
+      pushSathi(
+        filledKeys.length === 1
+          ? `Got it! Updated your ${labels[0]}.`
+          : `Great! Filled ${filledKeys.length} fields: ${labels.join(", ")}.`,
+        filledKeys,
       );
     } else {
-      const next = missing[0];
-      const nextKey = fieldToKey(next);
-      setFollowupField(nextKey);
-      const qr = getQuickReplies(nextKey);
-      addBot(`Got it! ${label} set to: ${text}`).then(() =>
-        addBot(`What's your ${next}?`, qr ?? undefined),
+      // Direct answer for current question
+      const currentKey = currentFieldRef.current;
+      if (currentKey && !localForm[currentKey]) {
+        const err = validateField(currentKey, text);
+        if (err) {
+          pushSathi(err);
+          setProcessing(false);
+          return;
+        }
+        onUpdate(currentKey, text);
+        localForm[currentKey] = text;
+        onHighlight([currentKey]);
+        pushSathi(`Noted!`, [currentKey]);
+      } else {
+        pushSathi(
+          "Thanks! Let me continue with the next question.",
+        );
+      }
+    }
+
+    setProcessing(false);
+    setTimeout(() => askNextField(localForm), 600);
+  }
+
+  /* ─── Validation ─── */
+  function validateField(key: string, value: string): string | null {
+    const v = value.trim();
+    switch (key) {
+      case "udyam_number":
+        if (!/^UDYAM[-\s]?[A-Z]{2}[-\s]?\d{2}[-\s]?\d{7}$/i.test(v))
+          return "That doesn't look like a valid Udyam number. Format: UDYAM-XX-00-0000001. Try again.";
+        break;
+      case "mobile_number":
+        if (!/^[6-9]\d{9}$/.test(v))
+          return "Please enter a valid 10-digit Indian mobile number (starting with 6-9).";
+        break;
+      case "pin_code":
+        if (!/^[1-9]\d{5}$/.test(v))
+          return "PIN code should be 6 digits (e.g., 411001). Try again.";
+        break;
+    }
+    return null;
+  }
+
+  /* ─── Voice recording ─── */
+  async function toggleRecording() {
+    if (recording) {
+      if (mediaRecorderRef.current?.state === "recording") {
+        mediaRecorderRef.current.stop();
+      }
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+      setRecording(false);
+      stopAnalyzer();
+      setOrbPhase("processing");
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        streamRef.current = stream;
+        const recorder = new MediaRecorder(stream, {
+          mimeType: "audio/webm",
+        });
+        chunksRef.current = [];
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) chunksRef.current.push(e.data);
+        };
+        recorder.onstop = () => handleRecordingDone();
+        recorder.start();
+        mediaRecorderRef.current = recorder;
+        startAnalyzer(stream);
+        setRecording(true);
+        setOrbPhase("listening");
+        setLatestTranscript("");
+      } catch {
+        pushSathi(
+          "Couldn't access your microphone. Please check browser permissions.",
+        );
+      }
+    }
+  }
+
+  async function handleRecordingDone() {
+    const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+    if (blob.size < 100) {
+      pushSathi("That was too short. Please speak for a bit longer.");
+      return;
+    }
+
+    setProcessing(true);
+    setOrbPhase("processing");
+
+    try {
+      const fd = new FormData();
+      fd.append("file", blob, "audio.webm");
+      fd.append("language", "auto");
+      fd.append("field_hint", currentFieldRef.current || "description");
+
+      const res = await fetch(`${API}/stt/transcribe`, {
+        method: "POST",
+        body: fd,
+      });
+
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const text = (data.text || "").trim();
+
+      // Auto-set language from STT detected_language if available
+      if (data.detected_language && !langDetectedRef.current) {
+        langDetectedRef.current = true;
+        onUpdate("language", data.detected_language);
+      }
+
+      if (text) {
+        pushUser(text);
+        processUserInput(text);
+      } else {
+        setProcessing(false);
+        setOrbPhase("idle");
+        pushSathi("I couldn't catch that. Could you try again?");
+      }
+    } catch {
+      setProcessing(false);
+      setOrbPhase("idle");
+      pushSathi(
+        "Voice service unavailable. Please type your response instead.",
       );
+    }
+  }
+
+  /* ─── Document upload via OCR ─── */
+  async function handleDocUpload(file: File) {
+    setDocUploading(true);
+    pushUser(`Uploaded: ${file.name}`);
+
+    try {
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      fd.append("language", form.language || "en");
+
+      const res = await fetch(`${API}/ocr/extract`, {
+        method: "POST",
+        body: fd,
+      });
+
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const fields: Record<string, string> = data.extracted_fields || {};
+
+      const localForm: Record<string, string> = {
+        ...(form as unknown as Record<string, string>),
+      };
+      const filledKeys: string[] = [];
+
+      for (const [key, value] of Object.entries(fields)) {
+        if (value && !localForm[key]) {
+          onUpdate(key, value);
+          localForm[key] = value;
+          filledKeys.push(key);
+        }
+      }
+
+      if (filledKeys.length > 0) {
+        onHighlight(filledKeys);
+        pushSathi(
+          `Extracted ${filledKeys.length} fields from your document!`,
+          filledKeys,
+        );
+      } else {
+        pushSathi(
+          "Couldn't extract new fields from this document. Let's continue.",
+        );
+      }
+
+      setTimeout(() => askNextField(localForm), 600);
+    } catch {
+      pushSathi(
+        "Couldn't read the document. Please try a clearer image or type instead.",
+      );
+    } finally {
+      setDocUploading(false);
     }
   }
 
   /* ─── Quick reply handler ─── */
   function handleQuickReply(value: string, label: string) {
-    if (!followupField) return;
-    addUser(label);
-
-    onUpdate(followupField, value);
-    onHighlight([followupField]);
-
-    const fieldLabel = FIELD_LABELS[followupField] || followupField;
-    const mergedForm = { ...form, [followupField]: value };
-    const missing = getMissingFields(mergedForm);
-
-    if (missing.length === 0) {
-      setPhase("documents");
-      setFollowupField(null);
-      addBot(`Got it! ${fieldLabel} set to: ${label}`).then(() =>
-        addBot(
-          "Wonderful! All details are in. Would you like to upload your Udyam certificate for verification?",
-          { kind: "upload" },
-        ),
-      );
-    } else {
-      const next = missing[0];
-      const nextKey = fieldToKey(next);
-      setFollowupField(nextKey);
-      const qr = getQuickReplies(nextKey);
-      addBot(`Got it! ${fieldLabel} set to: ${label}`).then(() =>
-        addBot(`What's your ${next}?`, qr ?? undefined),
-      );
+    pushUser(label);
+    const key = currentFieldRef.current;
+    if (key) {
+      const localForm: Record<string, string> = {
+        ...(form as unknown as Record<string, string>),
+      };
+      onUpdate(key, value);
+      localForm[key] = value;
+      onHighlight([key]);
+      pushSathi(`Got it!`, [key]);
+      setTimeout(() => askNextField(localForm), 600);
     }
   }
 
-  /* ─── Document upload ─── */
-  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadedFile(file);
-    addUser(`Uploaded: ${file.name}`);
-    setVerifying(true);
+  /* ─── Computed values ─── */
+  const lastSathiMsg = [...messages].reverse().find((m) => m.role === "sathi");
+  const activeQuickReplies = lastSathiMsg?.quickReplies || [];
+  const allFilledKeys = Object.entries(
+    form as unknown as Record<string, string>,
+  )
+    .filter(([, v]) => v && v.trim())
+    .map(([k]) => k);
 
-    // Mock Sarvam Vision OCR validation
-    setTimeout(async () => {
-      setVerifying(false);
-      await addBot(
-        `Certificate "${file.name}" verified successfully! Your details match the document.`,
-      );
-      moveToConfirm();
-    }, 2500);
-  }
+  const orbState: "idle" | "listening" | "processing" =
+    orbPhase === "speaking" ? "idle" : orbPhase;
 
-  function skipUpload() {
-    addUser("Skip certificate upload");
-    moveToConfirm();
-  }
+  const isDisabled = complete || submitting;
 
-  async function moveToConfirm() {
-    setPhase("confirming");
-    const lines = [
-      `Business Name: ${form.name || "—"}`,
-      `Udyam: ${form.udyam_number || "—"}`,
-      `Language: ${LANG_LABELS[form.language] || form.language || "—"}`,
-      `Description: ${(form.description || "—").slice(0, 80)}${form.description?.length > 80 ? "..." : ""}`,
-      `Products: ${form.products || "—"}`,
-      `State: ${form.state || "—"}, District: ${form.district || "—"}`,
-      `PIN: ${form.pin_code || "—"}`,
-    ];
-    await addBot(
-      `Here's your registration summary:\n\n${lines.join("\n")}\n\nReady to submit?`,
-      { kind: "summary" },
-    );
-  }
-
-  /* ─── Send handler ─── */
-  function handleSend() {
-    const trimmed = input.trim();
-    if (!trimmed) return;
-    setInput("");
-
-    if (phase === "listening" || phase === "extracting") {
-      handleExtraction(trimmed);
-    } else if (phase === "followup" && followupField) {
-      handleDirectAnswer(trimmed);
-    } else if (phase === "documents") {
-      // User typed something instead of uploading — skip
-      skipUpload();
-    }
-    inputRef.current?.focus();
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  }
-
-  function handleVoiceTranscribe(text: string) {
-    if (phase === "listening" || phase === "extracting") {
-      handleExtraction(text);
-    } else if (phase === "followup" && followupField) {
-      // Try extraction first — if the user gives a long answer with multiple fields
-      const extracted = extractFieldsFromText(text);
-      const keys = Object.keys(extracted).filter(
-        (k) => extracted[k as keyof ExtractedFields] && !form[k as keyof FormState],
-      );
-      if (keys.length > 1) {
-        handleExtraction(text);
-      } else {
-        handleDirectAnswer(text);
-      }
-    }
-  }
-
-  const isInputDisabled = phase === "confirming" || phase === "complete" || submitting;
-
+  /* ─── Render ─── */
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-surface-200 bg-white shadow-card">
+    <div className="sathi-chat">
       {/* ─── Header ─── */}
-      <div className="flex items-center gap-3 bg-brand-900 px-5 py-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-saffron-400 to-saffron-500">
-          <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
-            <path d="M19 10v2a7 7 0 01-14 0v-2" />
-            <line x1="12" y1="19" x2="12" y2="23" />
-            <line x1="8" y1="23" x2="16" y2="23" />
+      <div className="sathi-chat-header">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-saffron-400 to-saffron-500">
+          <svg
+            className="h-4 w-4 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
           </svg>
         </div>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <h3 className="font-display text-sm font-bold text-white">Sathi</h3>
-          <p className="text-[11px] text-white/60">
-            {phase === "extracting"
-              ? "Analyzing your response..."
-              : phase === "complete"
-                ? "Registration complete!"
-                : "AI Registration Assistant"}
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-white/50">AI Registration Copilot</span>
+            <span className="text-[10px] text-white/30">|</span>
+            <span className="text-[10px] text-saffron-400">
+              {filledCount}/{TOTAL_FIELDS} fields
+            </span>
+          </div>
         </div>
-        {/* Progress indicator */}
-        <div className="flex items-center gap-1.5">
-          {(["greeting", "listening", "followup", "documents", "confirming", "complete"] as AgentPhase[]).map(
-            (p, i) => (
-              <div
-                key={p}
-                className={`h-1.5 w-1.5 rounded-full transition-all ${
-                  getPhaseIndex(phase) >= i
-                    ? "bg-saffron-400"
-                    : "bg-white/20"
-                }`}
-              />
-            ),
+
+        {/* TTS toggle */}
+        <button
+          onClick={() => {
+            setTtsEnabled(!ttsEnabled);
+            if (ttsEnabled) window.speechSynthesis?.cancel();
+          }}
+          className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-white/60 transition hover:bg-white/20 hover:text-white"
+          title={ttsEnabled ? "Mute Sathi" : "Unmute Sathi"}
+        >
+          {ttsEnabled ? (
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 010 14.14" />
+              <path d="M15.54 8.46a5 5 0 010 7.07" />
+            </svg>
+          ) : (
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
           )}
-        </div>
+        </button>
+
+        {/* Language selector */}
+        <select
+          value={form.language}
+          onChange={(e) => onUpdate("language", e.target.value)}
+          className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-[11px] font-medium text-white/80 outline-none transition hover:bg-white/20"
+        >
+          {LANG_OPTIONS.map((l) => (
+            <option key={l.code} value={l.code} className="text-brand-900">
+              {l.label}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* ─── Chat area ─── */}
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sathi-chat-scroll">
-        <AnimatePresence initial={false}>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 12, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              {msg.role === "bot" && (
-                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-50">
-                  <svg className="h-3.5 w-3.5 text-brand-500" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
-                  </svg>
-                </div>
-              )}
-              <div className="max-w-[80%]">
-                <div
-                  className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
-                    msg.role === "user"
-                      ? "bg-brand-500 text-white"
-                      : "bg-brand-50 text-brand-900"
-                  }`}
-                >
-                  {msg.text}
-                </div>
+      {/* ─── Progress bar ─── */}
+      <div className="h-0.5 bg-surface-100">
+        <div
+          className="h-full bg-gradient-to-r from-saffron-500 to-saffron-400 transition-all duration-500"
+          style={{ width: `${(filledCount / TOTAL_FIELDS) * 100}%` }}
+        />
+      </div>
 
-                {/* Extraction card */}
-                {msg.kind === "extraction" && msg.extractedFields && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    transition={{ delay: 0.3 }}
-                    className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50/50 p-3"
+      {/* ─── Center content ─── */}
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 overflow-y-auto p-6">
+        <AnimatePresence mode="wait">
+          {confirming && !complete ? (
+            /* ─── Confirmation card ─── */
+            <motion.div
+              key="confirm"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="w-full max-w-sm"
+            >
+              <div className="space-y-3 rounded-xl border border-surface-200 bg-surface-50 p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                  Registration Summary
+                </p>
+                <div className="space-y-1.5">
+                  {(
+                    [
+                      ["Business", form.name],
+                      ["Udyam", form.udyam_number],
+                      ["Mobile", form.mobile_number],
+                      ["Products", form.products],
+                      ["Location", [form.district, form.state].filter(Boolean).join(", ")],
+                      ["PIN", form.pin_code],
+                    ] as [string, string][]
+                  ).map(([label, val]) =>
+                    val ? (
+                      <div key={label} className="flex items-start gap-2 text-xs">
+                        <span className="w-16 shrink-0 font-medium text-surface-400">
+                          {label}
+                        </span>
+                        <span className="text-brand-900">{val}</span>
+                      </div>
+                    ) : null,
+                  )}
+                </div>
+                {!submitting && success === null && (
+                  <button
+                    onClick={onSubmit}
+                    className="btn-saffron w-full !py-2.5 !text-xs"
                   >
-                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-emerald-600">
-                      Fields Detected
-                    </p>
-                    <div className="space-y-1.5">
-                      {Object.entries(msg.extractedFields).map(([label, val]) => (
-                        <div key={label} className="flex items-center gap-2 text-xs">
-                          <svg className="h-3.5 w-3.5 shrink-0 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                          <span className="font-medium text-surface-600">{label}:</span>
-                          <span className="truncate text-brand-900">{val}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
+                    Submit Registration
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </button>
+                )}
+                {submitting && (
+                  <div className="flex items-center justify-center gap-2 py-2 text-xs text-brand-500">
+                    <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Registering your business...
+                  </div>
                 )}
               </div>
             </motion.div>
-          ))}
-        </AnimatePresence>
-
-        {/* Quick replies */}
-        {messages.length > 0 &&
-          messages[messages.length - 1].role === "bot" &&
-          messages[messages.length - 1].quickReplies && (
+          ) : complete ? (
+            /* ─── Success card ─── */
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-wrap gap-2 pl-9"
+              key="success"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full max-w-sm"
             >
-              {messages[messages.length - 1].quickReplies!.map((qr) => (
-                <button
-                  key={qr.value}
-                  onClick={() => handleQuickReply(qr.value, qr.label)}
-                  className="rounded-full border border-brand-500/20 bg-white px-3.5 py-1.5 text-xs font-medium text-brand-500 transition-all hover:bg-brand-500 hover:text-white active:scale-95"
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center">
+                <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                  <svg className="h-5 w-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <p className="text-sm font-medium text-emerald-700">
+                  MSE ID: {success}
+                </p>
+                <p className="mt-1 text-[11px] text-emerald-600/70">
+                  Redirecting to classification...
+                </p>
+              </div>
+            </motion.div>
+          ) : (
+            /* ─── Voice-first orb layout ─── */
+            <motion.div
+              key="orb"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex w-full flex-col items-center gap-5"
+            >
+              {/* Orb */}
+              <div className="pt-2 pb-4">
+                <VoiceOrb
+                  state={orbState}
+                  onClick={toggleRecording}
+                  disabled={isDisabled || orbPhase === "speaking" || processing}
+                />
+              </div>
+
+              {/* Waveform */}
+              <WaveformVisualizer
+                frequencyData={frequencyData}
+                isActive={isActive}
+                bins={bins}
+              />
+
+              {/* Current question from Sathi */}
+              {currentQuestion && (
+                <motion.p
+                  key={currentQuestion}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="max-w-xs text-center text-sm leading-relaxed text-surface-600"
                 >
-                  {qr.label}
-                </button>
-              ))}
+                  {currentQuestion}
+                </motion.p>
+              )}
+
+              {/* Live transcript of user speech */}
+              <LiveTranscript
+                text={latestTranscript}
+                isListening={orbPhase === "listening"}
+              />
+
+              {/* Quick replies */}
+              {activeQuickReplies.length > 0 && !confirming && (
+                <div className="flex flex-wrap justify-center gap-1.5">
+                  {activeQuickReplies.map((qr) => (
+                    <button
+                      key={qr.value}
+                      onClick={() => handleQuickReply(qr.value, qr.label)}
+                      disabled={isDisabled}
+                      className="sathi-quick-chip"
+                    >
+                      {qr.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Filled field badges */}
+              {allFilledKeys.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-1.5">
+                  {allFilledKeys.map((k) => (
+                    <span key={k} className="sathi-field-badge">
+                      <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {FIELD_LABELS[k] || k}
+                    </span>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
-
-        {/* Upload zone */}
-        {phase === "documents" && !uploadedFile && !verifying && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="ml-9 flex flex-col gap-2"
-          >
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-3 rounded-xl border-2 border-dashed border-brand-500/20 bg-brand-50/50 px-4 py-4 text-sm text-brand-500 transition-all hover:border-brand-500/40 hover:bg-brand-50"
-            >
-              <svg className="h-8 w-8 shrink-0 text-brand-500/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-              <div className="text-left">
-                <p className="font-medium">Upload Certificate</p>
-                <p className="text-[11px] text-surface-400">Udyam / GST / PAN (Image or PDF)</p>
-              </div>
-            </button>
-            <button
-              onClick={skipUpload}
-              className="text-xs text-surface-400 hover:text-surface-600 transition-colors"
-            >
-              Skip for now
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,.pdf"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </motion.div>
-        )}
-
-        {/* Verifying animation */}
-        {verifying && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="ml-9 flex items-center gap-2 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-500"
-          >
-            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            Verifying certificate with Sarvam Vision...
-          </motion.div>
-        )}
-
-        {/* Typing indicator */}
-        {typing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-2 pl-9"
-          >
-            <div className="flex items-center gap-1.5 rounded-2xl bg-brand-50 px-4 py-3">
-              <span className="typing-dot" />
-              <span className="typing-dot typing-dot-2" />
-              <span className="typing-dot typing-dot-3" />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Submit button */}
-        {phase === "confirming" && !submitting && success === null && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-center gap-3 pt-2"
-          >
-            <button onClick={onSubmit} className="btn-saffron">
-              Submit Registration
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </button>
-          </motion.div>
-        )}
-
-        {submitting && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-center pt-2"
-          >
-            <div className="flex items-center gap-2 rounded-xl bg-brand-50 px-5 py-3 text-sm text-brand-500">
-              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Registering your business...
-            </div>
-          </motion.div>
-        )}
-
-        <div ref={chatEndRef} />
+        </AnimatePresence>
       </div>
 
-      {/* ─── Input area ─── */}
-      <div className="border-t border-surface-200 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <VoiceInput
-            language={form.language}
-            fieldLabel="Business Details"
-            onTranscribe={handleVoiceTranscribe}
-            disabled={isInputDisabled}
-          />
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              isInputDisabled
-                ? success !== null
-                  ? "Registration complete!"
-                  : "Click Submit above"
-                : phase === "listening"
-                  ? "Tell me about your business..."
-                  : "Type your answer..."
+      {/* ─── Input bar ─── */}
+      <div className="sathi-input-bar">
+        <DocUploadButton
+          onFileSelect={handleDocUpload}
+          uploading={docUploading}
+          disabled={isDisabled}
+        />
+
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
             }
-            disabled={isInputDisabled}
-            className="input-field flex-1 !py-2.5"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || isInputDisabled}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white transition-all hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-          </button>
-        </div>
+          }}
+          placeholder={
+            complete
+              ? "Registration complete!"
+              : recording
+                ? "Listening..."
+                : "Type your response..."
+          }
+          disabled={isDisabled}
+          className="input-field flex-1 !py-2.5 !rounded-xl"
+        />
+
+        <button
+          onClick={handleSend}
+          disabled={!input.trim() || isDisabled || processing}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white transition-all hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+        </button>
       </div>
     </div>
   );
@@ -662,25 +817,16 @@ export default function SathiAgent({
 
 /* ─── Helpers ─── */
 
-function getPhaseIndex(phase: AgentPhase): number {
-  const order: AgentPhase[] = [
-    "greeting", "listening", "followup", "documents", "confirming", "complete",
-  ];
-  const idx = order.indexOf(phase);
-  return idx >= 0 ? idx : 0;
-}
-
 function fieldToKey(label: string): string {
   const map: Record<string, string> = {
     "business name": "name",
     "udyam number": "udyam_number",
+    "mobile number": "mobile_number",
     "business description": "description",
     state: "state",
     district: "district",
     "pin code": "pin_code",
     "products or services": "products",
-    "preferred language": "language",
-    "owner gender": "gender_owner",
     "enterprise size": "turnover_band",
   };
   return map[label] || label;
@@ -688,50 +834,25 @@ function fieldToKey(label: string): string {
 
 function getQuickReplies(
   field: string,
-): { quickReplies: { label: string; value: string }[] } | null {
+): { label: string; value: string }[] | null {
   switch (field) {
-    case "language":
-      return {
-        quickReplies: [
-          { label: "English", value: "en" },
-          { label: "Hindi", value: "hi" },
-          { label: "Tamil", value: "ta" },
-          { label: "Telugu", value: "te" },
-          { label: "Kannada", value: "kn" },
-          { label: "Bengali", value: "bn" },
-          { label: "Marathi", value: "mr" },
-          { label: "Gujarati", value: "gu" },
-        ],
-      };
-    case "gender_owner":
-      return {
-        quickReplies: [
-          { label: "Male", value: "male" },
-          { label: "Female", value: "female" },
-          { label: "Other", value: "other" },
-        ],
-      };
     case "turnover_band":
-      return {
-        quickReplies: [
-          { label: "Micro", value: "micro" },
-          { label: "Small", value: "small" },
-          { label: "Medium", value: "medium" },
-        ],
-      };
+      return [
+        { label: "Micro", value: "micro" },
+        { label: "Small", value: "small" },
+        { label: "Medium", value: "medium" },
+      ];
     case "state":
-      return {
-        quickReplies: [
-          { label: "Maharashtra", value: "Maharashtra" },
-          { label: "Uttar Pradesh", value: "Uttar Pradesh" },
-          { label: "Karnataka", value: "Karnataka" },
-          { label: "Tamil Nadu", value: "Tamil Nadu" },
-          { label: "Gujarat", value: "Gujarat" },
-          { label: "Delhi", value: "Delhi" },
-          { label: "Rajasthan", value: "Rajasthan" },
-          { label: "West Bengal", value: "West Bengal" },
-        ],
-      };
+      return [
+        { label: "Maharashtra", value: "Maharashtra" },
+        { label: "Uttar Pradesh", value: "Uttar Pradesh" },
+        { label: "Karnataka", value: "Karnataka" },
+        { label: "Tamil Nadu", value: "Tamil Nadu" },
+        { label: "Gujarat", value: "Gujarat" },
+        { label: "Delhi", value: "Delhi" },
+        { label: "Rajasthan", value: "Rajasthan" },
+        { label: "West Bengal", value: "West Bengal" },
+      ];
     default:
       return null;
   }
