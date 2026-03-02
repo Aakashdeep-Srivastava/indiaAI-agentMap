@@ -86,7 +86,7 @@ export default function AppSidebar({
         <div className="flex h-14 shrink-0 items-center justify-between border-b border-surface-100 px-5">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
-              src="/logo.webp"
+              src="/logo.png"
               alt="AgentMap AI"
               width={28}
               height={28}
