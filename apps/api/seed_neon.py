@@ -1,32 +1,24 @@
--- AgentMap AI — Seed Data
--- 5 ONDC Domains, 50 SNPs, representative MSE samples
--- =======================================================
+"""Initialize Neon DB: create tables from SQLAlchemy models and seed data."""
 
--- ── ONDC Domain Taxonomy (PoC subset) ────────────────────────────────
+import sys
+from pathlib import Path
 
-CREATE TABLE IF NOT EXISTS ondc_domains (
-    id SERIAL PRIMARY KEY,
-    code VARCHAR(20) UNIQUE NOT NULL,
-    name VARCHAR(200) NOT NULL,
-    description TEXT
-);
+# Ensure the api directory is in the path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from database import Base, engine, SessionLocal, DATABASE_URL
+
+SEED_SQL = """
+-- ONDC Domains
 INSERT INTO ondc_domains (code, name, description) VALUES
     ('RET10', 'Grocery', 'Food and grocery items including staples, spices, and daily essentials'),
     ('RET12', 'Fashion', 'Clothing, garments, textiles, and fashion accessories'),
     ('RET14', 'Electronics', 'Consumer electronics, mobile phones, and electrical appliances'),
     ('RET16', 'Home & Kitchen', 'Furniture, kitchenware, home décor, and handicrafts'),
-    ('RET18', 'Health & Wellness', 'Ayurvedic products, herbal remedies, health supplements, and wellness items');
+    ('RET18', 'Health & Wellness', 'Ayurvedic products, herbal remedies, health supplements, and wellness items')
+ON CONFLICT DO NOTHING;
 
--- ── ONDC Categories ──────────────────────────────────────────────────
-
-CREATE TABLE IF NOT EXISTS ondc_categories (
-    id SERIAL PRIMARY KEY,
-    domain_id INTEGER REFERENCES ondc_domains(id),
-    code VARCHAR(40) UNIQUE NOT NULL,
-    name VARCHAR(300) NOT NULL
-);
-
+-- ONDC Categories
 INSERT INTO ondc_categories (domain_id, code, name) VALUES
     (1, 'RET10-001', 'Staples & Grains'),
     (1, 'RET10-002', 'Spices & Condiments'),
@@ -43,26 +35,11 @@ INSERT INTO ondc_categories (domain_id, code, name) VALUES
     (4, 'RET16-003', 'Handicrafts & Décor'),
     (5, 'RET18-001', 'Ayurvedic Medicines'),
     (5, 'RET18-002', 'Organic & Natural Products'),
-    (5, 'RET18-003', 'Yoga & Wellness Accessories');
+    (5, 'RET18-003', 'Yoga & Wellness Accessories')
+ON CONFLICT DO NOTHING;
 
--- ── Seller Network Participants (50 SNPs) ────────────────────────────
-
-CREATE TABLE IF NOT EXISTS snps (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(300) NOT NULL,
-    subscriber_id VARCHAR(100) UNIQUE NOT NULL,
-    domain_codes VARCHAR(200),
-    geo_coverage VARCHAR(500),
-    commission_pct REAL DEFAULT 0.0,
-    min_order_value REAL DEFAULT 0.0,
-    languages_supported VARCHAR(200) DEFAULT 'en,hi',
-    rating REAL DEFAULT 0.0,
-    onboarding_support VARCHAR(10) DEFAULT 'partial',
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
+-- SNPs (50)
 INSERT INTO snps (name, subscriber_id, domain_codes, geo_coverage, commission_pct, min_order_value, languages_supported, rating, onboarding_support) VALUES
-    -- Grocery SNPs (1-10)
     ('GroceryMart India', 'snp-grocery-001', 'RET10', 'Pan-India', 4.5, 500, 'en,hi', 4.2, 'full'),
     ('KiranaConnect', 'snp-grocery-002', 'RET10', 'Maharashtra,Gujarat,Rajasthan', 3.0, 200, 'en,hi,mr,gu', 4.5, 'full'),
     ('DailyBasket', 'snp-grocery-003', 'RET10', 'Delhi,Haryana,Punjab,UP', 5.0, 300, 'en,hi,pa', 3.8, 'partial'),
@@ -73,8 +50,6 @@ INSERT INTO snps (name, subscriber_id, domain_codes, geo_coverage, commission_pc
     ('NaturalStore', 'snp-grocery-008', 'RET10,RET18', 'Maharashtra,Goa,Karnataka', 5.5, 800, 'en,hi,mr,kn', 4.1, 'full'),
     ('VillageProvisions', 'snp-grocery-009', 'RET10', 'Rajasthan,Gujarat', 2.0, 100, 'en,hi,gu', 3.0, 'none'),
     ('MegaMart Digital', 'snp-grocery-010', 'RET10', 'Pan-India', 7.0, 1000, 'en,hi', 4.6, 'full'),
-
-    -- Fashion SNPs (11-20)
     ('TextileHub India', 'snp-fashion-001', 'RET12', 'Pan-India', 5.0, 1000, 'en,hi', 4.3, 'full'),
     ('SareeBazaar', 'snp-fashion-002', 'RET12', 'UP,Bihar,West Bengal', 3.5, 500, 'en,hi,bn', 4.1, 'full'),
     ('FabIndia Connect', 'snp-fashion-003', 'RET12', 'Pan-India', 8.0, 2000, 'en,hi', 4.7, 'full'),
@@ -85,8 +60,6 @@ INSERT INTO snps (name, subscriber_id, domain_codes, geo_coverage, commission_pc
     ('WeaveConnect', 'snp-fashion-008', 'RET12', 'Odisha,West Bengal,Assam', 3.0, 400, 'en,hi,or,bn', 3.6, 'partial'),
     ('FashionForward', 'snp-fashion-009', 'RET12', 'Maharashtra,Delhi,Karnataka', 7.5, 2000, 'en,hi', 4.5, 'full'),
     ('DesiDrapes', 'snp-fashion-010', 'RET12', 'UP,Rajasthan', 2.0, 200, 'en,hi', 3.3, 'none'),
-
-    -- Electronics SNPs (21-30)
     ('TechBazaar', 'snp-elec-001', 'RET14', 'Pan-India', 4.0, 1000, 'en,hi', 4.1, 'full'),
     ('MobileMarket India', 'snp-elec-002', 'RET14', 'Delhi,UP,Haryana', 3.0, 500, 'en,hi', 3.8, 'partial'),
     ('ElectroHub', 'snp-elec-003', 'RET14', 'Pan-India', 5.5, 2000, 'en,hi', 4.4, 'full'),
@@ -97,8 +70,6 @@ INSERT INTO snps (name, subscriber_id, domain_codes, geo_coverage, commission_pc
     ('DigitalDukaan', 'snp-elec-008', 'RET14', 'Pan-India', 7.0, 3000, 'en,hi', 4.6, 'full'),
     ('CircuitStore', 'snp-elec-009', 'RET14', 'West Bengal,Odisha', 3.0, 600, 'en,hi,bn,or', 3.4, 'none'),
     ('SmartConnect', 'snp-elec-010', 'RET14', 'Punjab,Haryana,Delhi', 4.0, 700, 'en,hi,pa', 4.0, 'partial'),
-
-    -- Home & Kitchen SNPs (31-40)
     ('CraftBazaar', 'snp-home-001', 'RET16', 'Pan-India', 4.0, 500, 'en,hi', 4.3, 'full'),
     ('UtensiltMart', 'snp-home-002', 'RET16', 'Maharashtra,Gujarat', 3.0, 300, 'en,hi,mr,gu', 3.9, 'partial'),
     ('WoodWorkIndia', 'snp-home-003', 'RET16', 'Rajasthan,MP,UP', 5.0, 1000, 'en,hi', 4.1, 'full'),
@@ -109,8 +80,6 @@ INSERT INTO snps (name, subscriber_id, domain_codes, geo_coverage, commission_pc
     ('KitchenConnect', 'snp-home-008', 'RET16', 'Pan-India', 5.5, 800, 'en,hi', 4.2, 'full'),
     ('MatWeavers', 'snp-home-009', 'RET16', 'Kerala,Tamil Nadu', 2.0, 100, 'en,hi,ta,ml', 3.4, 'none'),
     ('ArtisanMarket', 'snp-home-010', 'RET16', 'Pan-India', 4.5, 600, 'en,hi', 4.4, 'full'),
-
-    -- Health & Wellness SNPs (41-50)
     ('AyurvedaHub', 'snp-health-001', 'RET18', 'Pan-India', 5.0, 500, 'en,hi', 4.5, 'full'),
     ('HerbalIndia', 'snp-health-002', 'RET18', 'Kerala,Karnataka,Tamil Nadu', 3.5, 300, 'en,hi,ta,kn,ml', 4.2, 'full'),
     ('OrganicBazaar', 'snp-health-003', 'RET18,RET10', 'Pan-India', 6.0, 800, 'en,hi', 4.0, 'partial'),
@@ -120,29 +89,10 @@ INSERT INTO snps (name, subscriber_id, domain_codes, geo_coverage, commission_pc
     ('Vaidya Network', 'snp-health-007', 'RET18', 'UP,Bihar,Jharkhand', 2.5, 150, 'en,hi', 3.5, 'none'),
     ('HoneyHarvest', 'snp-health-008', 'RET18', 'Rajasthan,Gujarat,MP', 3.0, 300, 'en,hi,gu', 3.9, 'partial'),
     ('PharmaLocal', 'snp-health-009', 'RET18', 'AP,Telangana', 5.5, 600, 'en,hi,te', 4.1, 'partial'),
-    ('SupplementStore', 'snp-health-010', 'RET18', 'Pan-India', 8.0, 1500, 'en,hi', 4.4, 'full');
+    ('SupplementStore', 'snp-health-010', 'RET18', 'Pan-India', 8.0, 1500, 'en,hi', 4.4, 'full')
+ON CONFLICT DO NOTHING;
 
--- ── MSE Registration Table ───────────────────────────────────────────
-
-CREATE TYPE turnover_band AS ENUM ('micro', 'small', 'medium');
-
-CREATE TABLE IF NOT EXISTS mses (
-    id SERIAL PRIMARY KEY,
-    udyam_number VARCHAR(30) UNIQUE NOT NULL,
-    name VARCHAR(300) NOT NULL,
-    description TEXT NOT NULL,
-    district VARCHAR(100),
-    state VARCHAR(100),
-    pin_code VARCHAR(10),
-    nic_code VARCHAR(10),
-    language VARCHAR(10) DEFAULT 'en',
-    turnover_band turnover_band,
-    mobile_number VARCHAR(15),
-    products TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Sample MSEs (20 for immediate testing)
+-- MSEs (20)
 INSERT INTO mses (udyam_number, name, description, district, state, pin_code, nic_code, language, turnover_band, mobile_number, products) VALUES
     ('UDYAM-MH-01-0000001', 'Shree Ganesh Kirana Store', 'Wholesale and retail of grocery items including rice, dal, atta, spices, cooking oil, sugar, and daily provision essentials for local customers', 'Pune', 'Maharashtra', '411001', '4711', 'hi', 'micro', '9876543210', 'Rice, Dal, Atta, Spices, Cooking Oil'),
     ('UDYAM-UP-02-0000002', 'Varanasi Handloom Sarees', 'Traditional Banarasi silk saree weaving and handloom cotton textile manufacturing for domestic and export markets', 'Varanasi', 'Uttar Pradesh', '221001', '1312', 'hi', 'small', '9123456780', 'Banarasi Silk Sarees, Cotton Textiles, Dupattas'),
@@ -163,62 +113,40 @@ INSERT INTO mses (udyam_number, name, description, district, state, pin_code, ni
     ('UDYAM-PB-17-0000017', 'Ludhiana Hosiery Works', 'Knitted garments, woolen hosiery, and winter wear manufacturing for wholesale distribution', 'Ludhiana', 'Punjab', '141001', '1430', 'pa', 'medium', '7676655443', 'Knitted Garments, Woolen Hosiery, Winter Wear'),
     ('UDYAM-TG-18-0000018', 'Hyderabad Pearl Jewels', 'Traditional pearl jewellery, fashion accessories, and decorative items retail', 'Hyderabad', 'Telangana', '500001', '3212', 'te', 'micro', '9565544332', 'Pearl Jewellery, Fashion Accessories, Decorative Items'),
     ('UDYAM-HR-19-0000019', 'Gurgaon Smart Appliances', 'Smart home devices, IoT sensors, LED panels, and energy-efficient electrical appliances', 'Gurgaon', 'Haryana', '122001', '2750', 'hi', 'small', '8454433221', 'Smart Home Devices, IoT Sensors, LED Panels'),
-    ('UDYAM-KA-20-0000020', 'Mysore Sandalwood Products', 'Natural sandalwood oil, incense sticks, and herbal beauty products manufacturing', 'Mysore', 'Karnataka', '570001', '2029', 'kn', 'micro', '7343322110', 'Sandalwood Oil, Incense Sticks, Herbal Beauty Products');
+    ('UDYAM-KA-20-0000020', 'Mysore Sandalwood Products', 'Natural sandalwood oil, incense sticks, and herbal beauty products manufacturing', 'Mysore', 'Karnataka', '570001', '2029', 'kn', 'micro', '7343322110', 'Sandalwood Oil, Incense Sticks, Herbal Beauty Products')
+ON CONFLICT DO NOTHING;
+"""
 
--- ── Classification Results ───────────────────────────────────────────
 
-CREATE TABLE IF NOT EXISTS classification_results (
-    id SERIAL PRIMARY KEY,
-    mse_id INTEGER REFERENCES mses(id),
-    predicted_domain VARCHAR(20) NOT NULL,
-    confidence REAL NOT NULL,
-    top3_predictions TEXT,
-    model_version VARCHAR(50) DEFAULT 'muril-v1-lora',
-    created_at TIMESTAMP DEFAULT NOW()
-);
+def main():
+    print("Connecting to Neon DB...")
+    print(f"URL: {DATABASE_URL[:50]}...")
 
--- ── Match Results ────────────────────────────────────────────────────
+    # Drop all tables first for a clean slate
+    print("\n1. Creating tables from SQLAlchemy models...")
+    Base.metadata.create_all(engine)
+    print("   Tables created successfully!")
 
-CREATE TABLE IF NOT EXISTS match_results (
-    id SERIAL PRIMARY KEY,
-    mse_id INTEGER REFERENCES mses(id),
-    snp_id INTEGER REFERENCES snps(id),
-    composite_score REAL NOT NULL,
-    domain_score REAL DEFAULT 0.0,
-    geo_score REAL DEFAULT 0.0,
-    commission_score REAL DEFAULT 0.0,
-    history_score REAL DEFAULT 0.0,
-    sentiment_score REAL DEFAULT 0.0,
-    confidence_band VARCHAR(10) NOT NULL,
-    explainer_en TEXT,
-    explainer_hi TEXT,
-    model_version VARCHAR(50) DEFAULT 'indicbert-v1',
-    created_at TIMESTAMP DEFAULT NOW()
-);
+    # Seed data
+    print("\n2. Inserting seed data...")
+    from sqlalchemy import text
 
-CREATE TYPE support_level AS ENUM ('full', 'partial', 'none');
-CREATE TYPE confidence_band AS ENUM ('green', 'yellow', 'red');
+    with engine.connect() as conn:
+        conn.execute(text(SEED_SQL))
+        conn.commit()
+    print("   Seed data inserted!")
 
--- ── Audit Trail ──────────────────────────────────────────────────────
+    # Verify
+    print("\n3. Verifying...")
+    with engine.connect() as conn:
+        from sqlalchemy import text
 
-CREATE TABLE IF NOT EXISTS audit_logs (
-    id SERIAL PRIMARY KEY,
-    action VARCHAR(50) NOT NULL,
-    entity_type VARCHAR(50),
-    entity_id INTEGER,
-    details TEXT,
-    performed_by VARCHAR(100),
-    created_at TIMESTAMP DEFAULT NOW()
-);
+        for table in ["ondc_domains", "ondc_categories", "snps", "mses"]:
+            count = conn.execute(text(f"SELECT COUNT(*) FROM {table}")).scalar()
+            print(f"   {table}: {count} rows")
 
--- ── Indexes ──────────────────────────────────────────────────────────
+    print("\nNeon DB initialized successfully!")
 
-CREATE INDEX idx_mses_state ON mses(state);
-CREATE INDEX idx_mses_udyam ON mses(udyam_number);
-CREATE INDEX idx_snps_domains ON snps(domain_codes);
-CREATE INDEX idx_classification_mse ON classification_results(mse_id);
-CREATE INDEX idx_match_mse ON match_results(mse_id);
-CREATE INDEX idx_match_snp ON match_results(snp_id);
-CREATE INDEX idx_match_band ON match_results(confidence_band);
-CREATE INDEX idx_audit_action ON audit_logs(action);
-CREATE INDEX idx_audit_entity ON audit_logs(entity_type, entity_id);
+
+if __name__ == "__main__":
+    main()

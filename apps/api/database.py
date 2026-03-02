@@ -2,7 +2,9 @@
 
 import os
 from datetime import datetime
+from pathlib import Path
 
+from dotenv import load_dotenv
 from sqlalchemy import (
     Column,
     DateTime,
@@ -16,11 +18,22 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Session, relationship, sessionmaker
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://agentmap:agentmap_dev@localhost:5432/agentmap"
-)
+# Load .env from the api directory
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
-engine = create_engine(DATABASE_URL)
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL not set — check apps/api/.env")
+
+REDIS_URL = os.getenv("REDIS_URL")
+
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10,
+    pool_recycle=300,
+)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
@@ -66,12 +79,10 @@ class MSE(Base):
     pin_code = Column(String(10))
     nic_code = Column(String(10))
     language = Column(String(10), default="en")
-    gender_owner = Column(
-        Enum("male", "female", "other", name="gender_owner"), nullable=True
-    )
     turnover_band = Column(
         Enum("micro", "small", "medium", name="turnover_band"), nullable=True
     )
+    mobile_number = Column(String(15), nullable=True)
     products = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
