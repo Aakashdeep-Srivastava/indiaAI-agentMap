@@ -6,11 +6,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from database import MSE, SNP, AuditLog, ClassificationResult, MatchResult, get_db
+from database import MSE, SNP, AuditLog, ClassificationResult, MatchResult, User, get_db
+from services.auth import get_current_user
 from services.matcher import compute_match_scores
 from services.explainer import generate_explainer
 
 router = APIRouter()
+
+MODEL_VERSION = "heuristic-baseline-v1"
 
 
 class MatchRequest(BaseModel):
@@ -31,7 +34,10 @@ class MatchItem(BaseModel):
     snp_name: str
     composite_score: float
     confidence_band: str
-    factors: FactorBreakdown
+    # Qualitative per-factor bands (high/medium/low) — safe for all roles.
+    factor_bands: dict[str, str]
+    # Raw factor scores are NSIC-admin only; never sent to MSE clients.
+    factors: Optional[FactorBreakdown] = None
     explainer_en: str
     explainer_hi: str
 
@@ -43,8 +49,12 @@ class MatchResponse(BaseModel):
     matches: list[MatchItem]
 
 
-@router.post("/", response_model=MatchResponse)
-def match_mse_to_snps(payload: MatchRequest, db: Session = Depends(get_db)):
+@router.post("/", response_model=MatchResponse, response_model_exclude_none=True)
+def match_mse_to_snps(
+    payload: MatchRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
     """Find the best SNP matches for an MSE using the multi-factor scoring algorithm."""
     mse = db.query(MSE).get(payload.mse_id)
     if not mse:
@@ -87,6 +97,7 @@ def match_mse_to_snps(payload: MatchRequest, db: Session = Depends(get_db)):
             confidence_band=band,
             explainer_en=explainer["en"],
             explainer_hi=explainer["hi"],
+            model_version=MODEL_VERSION,
         )
         db.add(result)
 
@@ -95,13 +106,20 @@ def match_mse_to_snps(payload: MatchRequest, db: Session = Depends(get_db)):
             snp_name=snp.name,
             composite_score=round(m["composite"], 4),
             confidence_band=band,
+            factor_bands={
+                "domain": _factor_band(m["domain"]),
+                "geo": _factor_band(m["geo"]),
+                "commission": _factor_band(m["commission"]),
+                "history": _factor_band(m["history"]),
+                "sentiment": _factor_band(m["sentiment"]),
+            },
             factors=FactorBreakdown(
                 domain_score=round(m["domain"], 4),
                 geo_score=round(m["geo"], 4),
                 commission_score=round(m["commission"], 4),
                 history_score=round(m["history"], 4),
                 sentiment_score=round(m["sentiment"], 4),
-            ),
+            ) if user.role == "admin" else None,
             explainer_en=explainer["en"],
             explainer_hi=explainer["hi"],
         ))
@@ -110,8 +128,8 @@ def match_mse_to_snps(payload: MatchRequest, db: Session = Depends(get_db)):
         action="mse_matched",
         entity_type="mse",
         entity_id=mse.id,
-        details=f"Matched to {len(items)} SNPs, top={items[0].snp_name if items else 'none'}",
-        performed_by="indicbert-v1",
+        details=f"Matched to {len(items)} SNPs, top={items[0].snp_name if items else 'none'} ({MODEL_VERSION})",
+        performed_by=user.username,
     ))
     db.commit()
 
@@ -130,3 +148,12 @@ def _confidence_band(score: float) -> str:
     elif score >= 0.60:
         return "yellow"
     return "red"
+
+
+def _factor_band(score: float) -> str:
+    """Qualitative factor strength — the only per-factor signal MSE clients see."""
+    if score >= 0.75:
+        return "high"
+    elif score >= 0.45:
+        return "medium"
+    return "low"

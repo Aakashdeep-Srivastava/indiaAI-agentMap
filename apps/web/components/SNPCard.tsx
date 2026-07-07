@@ -4,6 +4,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ConfidenceBadge } from "./ConfidenceBadge";
 
+type FactorLevel = "high" | "medium" | "low";
+
 interface FactorBreakdown {
   domain_score: number;
   geo_score: number;
@@ -17,55 +19,32 @@ interface MatchItem {
   snp_name: string;
   composite_score: number;
   confidence_band: "green" | "yellow" | "red";
-  factors: FactorBreakdown;
+  /** Qualitative per-factor strength — the only per-factor signal for MSE users. */
+  factor_bands: Record<string, FactorLevel>;
+  /** Raw factor scores — present only for NSIC admin sessions. */
+  factors?: FactorBreakdown;
   explainer_en: string;
   explainer_hi: string;
 }
 
 const FACTORS: {
+  band: string;
   key: keyof FactorBreakdown;
   label: string;
   gradient: string;
-  bg: string;
 }[] = [
-  {
-    key: "domain_score",
-    label: "Domain Fit",
-    gradient: "from-blue-500 to-blue-600",
-    bg: "bg-blue-50",
-  },
-  {
-    key: "geo_score",
-    label: "Geography",
-    gradient: "from-emerald-500 to-emerald-600",
-    bg: "bg-emerald-50",
-  },
-  {
-    key: "commission_score",
-    label: "Commission",
-    gradient: "from-amber-400 to-amber-500",
-    bg: "bg-amber-50",
-  },
-  {
-    key: "history_score",
-    label: "Track Record",
-    gradient: "from-violet-500 to-violet-600",
-    bg: "bg-violet-50",
-  },
-  {
-    key: "sentiment_score",
-    label: "Support",
-    gradient: "from-rose-400 to-rose-500",
-    bg: "bg-rose-50",
-  },
+  { band: "domain", key: "domain_score", label: "Domain Fit", gradient: "from-blue-500 to-blue-600" },
+  { band: "geo", key: "geo_score", label: "Geography", gradient: "from-emerald-500 to-emerald-600" },
+  { band: "commission", key: "commission_score", label: "Commission", gradient: "from-amber-400 to-amber-500" },
+  { band: "history", key: "history_score", label: "Track Record", gradient: "from-violet-500 to-violet-600" },
+  { band: "sentiment", key: "sentiment_score", label: "Support", gradient: "from-rose-400 to-rose-500" },
 ];
 
-/** Qualitative band for a factor value — no raw weights/formula in the UI. */
-function factorBand(value: number): { text: string; cls: string } {
-  if (value >= 0.75) return { text: "High", cls: "bg-emerald-50 text-emerald-600" };
-  if (value >= 0.45) return { text: "Medium", cls: "bg-amber-50 text-amber-600" };
-  return { text: "Low", cls: "bg-surface-100 text-surface-400" };
-}
+const LEVEL_STYLE: Record<FactorLevel, { text: string; cls: string; width: string }> = {
+  high: { text: "High", cls: "bg-emerald-50 text-emerald-600", width: "92%" },
+  medium: { text: "Medium", cls: "bg-amber-50 text-amber-600", width: "58%" },
+  low: { text: "Low", cls: "bg-surface-100 text-surface-400", width: "24%" },
+};
 
 interface Props {
   match: MatchItem;
@@ -138,8 +117,11 @@ export function SNPCard({ match, rank }: Props) {
         </div>
 
         {FACTORS.map((f) => {
-          const value = match.factors[f.key];
-          const pct = (value * 100).toFixed(0);
+          // Raw values render only for admin sessions (server withholds them otherwise).
+          const raw = match.factors?.[f.key];
+          const level: FactorLevel = match.factor_bands?.[f.band] ?? "low";
+          const style = LEVEL_STYLE[level];
+          const barWidth = raw !== undefined ? `${raw * 100}%` : style.width;
           return (
             <div key={f.key} className="group">
               <div className="mb-1 flex items-center justify-between">
@@ -148,19 +130,21 @@ export function SNPCard({ match, rank }: Props) {
                     {f.label}
                   </span>
                   <span
-                    className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${factorBand(value).cls}`}
+                    className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${style.cls}`}
                   >
-                    {factorBand(value).text}
+                    {style.text}
                   </span>
                 </div>
-                <span className="font-mono text-xs font-semibold text-brand-800">
-                  {pct}%
-                </span>
+                {raw !== undefined && (
+                  <span className="font-mono text-xs font-semibold text-brand-800">
+                    {(raw * 100).toFixed(0)}%
+                  </span>
+                )}
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-100">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${value * 100}%` }}
+                  animate={{ width: barWidth }}
                   transition={{
                     duration: 0.7,
                     delay: rank * 0.1 + 0.2,

@@ -14,7 +14,7 @@ const SNPCard = dynamic(
   { ssr: false }
 );
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { apiFetch } from "@/lib/auth";
 
 interface FactorBreakdown {
   domain_score: number;
@@ -29,7 +29,8 @@ interface MatchItem {
   snp_name: string;
   composite_score: number;
   confidence_band: "green" | "yellow" | "red";
-  factors: FactorBreakdown;
+  factor_bands: Record<string, "high" | "medium" | "low">;
+  factors?: FactorBreakdown; // NSIC admin sessions only
   explainer_en: string;
   explainer_hi: string;
 }
@@ -77,13 +78,13 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      await fetch(`${API}/classify/`, {
+      await apiFetch(`/classify/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mse_id: Number(mseId) }),
       });
 
-      const res = await fetch(`${API}/match/`, {
+      const res = await apiFetch(`/match/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mse_id: Number(mseId), top_k: 5 }),
@@ -103,7 +104,10 @@ export default function DashboardPage() {
   }
 
   const domain = result?.predicted_domain
-    ? DOMAIN_LABELS[result.predicted_domain]
+    ? DOMAIN_LABELS[result.predicted_domain] ?? {
+        label: result.predicted_domain,
+        icon: "\u{1F3EA}",
+      }
     : null;
 
   return (
