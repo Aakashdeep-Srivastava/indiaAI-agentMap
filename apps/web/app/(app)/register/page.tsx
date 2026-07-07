@@ -18,7 +18,7 @@ const SathiVoicePanel = dynamic(
   }
 );
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { apiFetch } from "@/lib/auth";
 
 const STATES = [
   "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Delhi", "Goa",
@@ -58,6 +58,7 @@ export default function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   const [highlighted, setHighlighted] = useState<Set<string>>(new Set());
   const highlightTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -87,10 +88,10 @@ export default function RegisterPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch(`${API}/mse/`, {
+      const res = await apiFetch(`/mse/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, consent_given: consent }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -273,10 +274,28 @@ export default function RegisterPage() {
         </div>
       )}
 
+      {/* DPDP consent */}
+      <label className="flex items-start gap-2.5 rounded-xl border border-surface-200 bg-surface-50 px-3.5 py-3">
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => setConsent(e.target.checked)}
+          className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-brand-500"
+        />
+        <span className="text-[11px] leading-snug text-surface-600">
+          I consent to my enterprise details being processed to classify my
+          business and recommend seller platforms (DPDP Act 2023). Data stays
+          in India and can be erased on request.
+          <span className="mt-0.5 block text-surface-400">
+            मैं अपने उद्यम की जानकारी के उपयोग की सहमति देता/देती हूँ।
+          </span>
+        </span>
+      </label>
+
       {/* Submit button */}
       <button
         onClick={handleSubmit}
-        disabled={submitting || !form.name || !form.udyam_number}
+        disabled={submitting || !form.name || !form.udyam_number || !consent}
         className="btn-saffron w-full !py-2.5 !text-xs"
       >
         {submitting ? (
