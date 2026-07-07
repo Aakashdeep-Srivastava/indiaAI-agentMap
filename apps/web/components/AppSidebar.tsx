@@ -234,23 +234,39 @@ export default function AppSidebar({
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* ── Signed-in identity ──────────────────────────────── */}
+          {/* ── Signed-in identity (role-coloured) ──────────────── */}
           {session && (
-            <div className="mb-4 flex items-center gap-3 rounded-2xl border border-surface-200 bg-surface-50 px-3 py-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand-50">
+            <div
+              className={`mb-4 flex items-center gap-3 rounded-2xl border px-3 py-2.5 ${
+                session.role === "admin"
+                  ? "border-brand-100 bg-brand-50/60"
+                  : "border-saffron-400/30 bg-saffron-500/5"
+              }`}
+            >
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-xl ${
+                  session.role === "admin" ? "bg-brand-500" : "bg-saffron-500"
+                }`}
+              >
                 {session.role === "admin" ? (
-                  <ShieldCheck className="h-4 w-4 text-brand-500" />
+                  <ShieldCheck className="h-4 w-4 text-white" />
                 ) : (
-                  <Store className="h-4 w-4 text-saffron-500" />
+                  <Store className="h-4 w-4 text-white" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-semibold text-brand-900">
                   {session.name}
                 </p>
-                <p className="text-[10px] text-surface-400">
+                <span
+                  className={`mt-0.5 inline-block rounded px-1.5 py-px text-[9px] font-bold uppercase tracking-wider ${
+                    session.role === "admin"
+                      ? "bg-brand-500/10 text-brand-500"
+                      : "bg-saffron-500/10 text-saffron-500"
+                  }`}
+                >
                   {session.role === "admin" ? "NSIC Administrator" : "MSE Owner"}
-                </p>
+                </span>
               </div>
               <button
                 onClick={handleLogout}

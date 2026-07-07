@@ -14,6 +14,7 @@ import {
   countFilledFields,
   detectLanguage,
 } from "@/lib/extractFields";
+import { apiFetch } from "@/lib/auth";
 
 /* ─── Types ─── */
 type OrbPhase = "idle" | "listening" | "processing" | "speaking";
@@ -41,7 +42,6 @@ interface SathiVoicePanelProps {
   success: number | null;
 }
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const TOTAL_FIELDS = 8;
 
 const FIELD_LABELS: Record<string, string> = {
@@ -257,7 +257,7 @@ export default function SathiVoicePanel({
     gen: number,
   ) {
     try {
-      const res = await fetch(`${API}/tts/synthesize`, {
+      const res = await apiFetch(`/tts/synthesize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, language }),
@@ -561,7 +561,7 @@ export default function SathiVoicePanel({
       const missingFields = getMissingFields(form as unknown as Record<string, string>);
       fd.append("field_hint", missingFields.length > 0 ? missingFields.join(",") : "general");
 
-      const res = await fetch(`${API}/stt/transcribe`, {
+      const res = await apiFetch(`/stt/transcribe`, {
         method: "POST",
         body: fd,
       });
@@ -603,7 +603,7 @@ export default function SathiVoicePanel({
       fd.append("file", file, file.name);
       fd.append("language", form.language || "en");
 
-      const res = await fetch(`${API}/ocr/extract`, {
+      const res = await apiFetch(`/ocr/extract`, {
         method: "POST",
         body: fd,
       });

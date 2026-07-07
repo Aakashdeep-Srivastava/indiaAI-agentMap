@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { apiFetch } from "@/lib/auth";
 
 interface MSE {
   id: number;
@@ -19,7 +18,7 @@ export default function ReviewPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API}/mse/?limit=20`)
+    apiFetch(`/mse/?limit=20`)
       .then((r) => r.json())
       .then(setMses)
       .catch(() => {})

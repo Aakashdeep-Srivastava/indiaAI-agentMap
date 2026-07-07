@@ -5,6 +5,8 @@
  * Fallback: client-side regex for instant offline extraction
  */
 
+import { apiFetch } from "@/lib/auth";
+
 export interface ExtractedFields {
   name?: string;
   udyam_number?: string;
@@ -18,8 +20,6 @@ export interface ExtractedFields {
   language?: string;
 }
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 /* ── API-based extraction (Sarvam-m LLM) ─────────────────────────── */
 
 export async function extractFieldsFromAPI(
@@ -27,7 +27,7 @@ export async function extractFieldsFromAPI(
   existingFields: Record<string, string> = {},
 ): Promise<{ fields: ExtractedFields; engine: string }> {
   try {
-    const res = await fetch(`${API}/ner/extract`, {
+    const res = await apiFetch(`/ner/extract`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

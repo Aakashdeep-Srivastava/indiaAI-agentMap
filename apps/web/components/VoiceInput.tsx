@@ -2,8 +2,7 @@
 
 import { useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { apiFetch } from "@/lib/auth";
 
 type VoiceState = "idle" | "recording" | "processing";
 
@@ -89,7 +88,7 @@ export default function VoiceInput({
         formData.append("language", language);
         formData.append("field_hint", fieldHint);
 
-        const res = await fetch(`${API}/stt/transcribe`, {
+        const res = await apiFetch(`/stt/transcribe`, {
           method: "POST",
           body: formData,
         });

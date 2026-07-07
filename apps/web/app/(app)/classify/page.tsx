@@ -30,7 +30,7 @@ const VoiceInput = dynamic(() => import("@/components/VoiceInput"), {
   ssr: false,
 });
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { apiFetch } from "@/lib/auth";
 
 /* ─── Constants ───────────────────────────────────────────────────── */
 
@@ -249,7 +249,7 @@ function ConfidenceDistribution({
               style={{ backgroundColor: colors[i] }}
             />
             <span className="text-[10px] font-medium text-surface-500">
-              {DOMAIN_NAMES[p.domain]} {(p.confidence * 100).toFixed(1)}%
+              {DOMAIN_NAMES[p.domain] ?? p.domain} {(p.confidence * 100).toFixed(1)}%
             </span>
           </div>
         ))}
@@ -288,7 +288,7 @@ export default function ClassifyPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    fetch(`${API}/domains/`)
+    apiFetch(`/domains/`)
       .then((r) => r.json())
       .then(setDomains)
       .catch(() => {});
@@ -309,18 +309,18 @@ export default function ClassifyPage() {
     setMseInfo(null);
     setHistory([]);
     try {
-      const mseRes = await fetch(`${API}/mse/${mseId}`);
+      const mseRes = await apiFetch(`/mse/${mseId}`);
       if (!mseRes.ok) throw new Error("MSE not found");
       const mse: MSEInfo = await mseRes.json();
       setMseInfo(mse);
-      const classifyRes = await fetch(`${API}/classify/`, {
+      const classifyRes = await apiFetch(`/classify/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mse_id: parseInt(mseId) }),
       });
       if (!classifyRes.ok) throw new Error("Classification failed");
       setResult(await classifyRes.json());
-      const histRes = await fetch(`${API}/classify/history/${mseId}`);
+      const histRes = await apiFetch(`/classify/history/${mseId}`);
       if (histRes.ok) setHistory(await histRes.json());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Classification failed");
@@ -337,7 +337,7 @@ export default function ClassifyPage() {
     setMseInfo(null);
     setHistory([]);
     try {
-      const res = await fetch(`${API}/classify/text`, {
+      const res = await apiFetch(`/classify/text`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description, language }),
@@ -1094,7 +1094,7 @@ export default function ClassifyPage() {
                             </span>
                             <p className="text-xs leading-relaxed text-surface-500">
                               <span className="font-semibold text-surface-600">
-                                {DOMAIN_NAMES[pred.domain]}:
+                                {DOMAIN_NAMES[pred.domain] ?? pred.domain}:
                               </span>{" "}
                               {pred.explanation}
                             </p>

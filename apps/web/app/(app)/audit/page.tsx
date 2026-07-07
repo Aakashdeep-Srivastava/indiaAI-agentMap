@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { apiFetch } from "@/lib/auth";
 
 interface AuditEntry {
   id: number;
@@ -46,9 +45,9 @@ export default function AuditPage() {
     setError(null);
     try {
       const url = filter
-        ? `${API}/audit/?limit=50&action=${filter}`
-        : `${API}/audit/?limit=50`;
-      const res = await fetch(url);
+        ? `/audit/?limit=50&action=${filter}`
+        : `/audit/?limit=50`;
+      const res = await apiFetch(url);
       if (!res.ok) throw new Error("Failed to fetch audit logs");
       setLogs(await res.json());
     } catch (e: unknown) {

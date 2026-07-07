@@ -6,7 +6,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Store, ShieldCheck, LogIn, KeyRound, User } from "lucide-react";
-import { DEMO_CREDENTIALS, getSession, login, type Role } from "@/lib/auth";
+import { getSession, login, type Role } from "@/lib/auth";
+
+/** Demo usernames shown as a hint — passcodes are issued separately (never shipped in the bundle). */
+const DEMO_IDS: Record<Role, string> = { mse: "mse@demo", admin: "nsic@demo" };
 
 const ROLES: {
   role: Role;
@@ -45,24 +48,22 @@ export default function LoginPage() {
     if (s) router.replace(s.role === "admin" ? "/review" : "/register");
   }, [router]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    const cred = DEMO_CREDENTIALS[role];
-    if (userId.trim().toLowerCase() !== cred.id || passcode !== cred.passcode) {
-      setError(
-        role === "mse"
-          ? "Invalid credentials. Use the demo access shown below."
-          : "Invalid administrator credentials.",
-      );
+    if (!userId.trim() || !passcode) {
+      setError("Please enter your user ID and passcode.");
       return;
     }
     setBusy(true);
-    login(role, role === "mse" ? "Demo MSE Owner" : "NSIC Reviewer");
-    router.replace(role === "admin" ? "/review" : "/register");
+    try {
+      const session = await login(userId, passcode);
+      router.replace(session.role === "admin" ? "/review" : "/register");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign-in failed. Please try again.");
+      setBusy(false);
+    }
   }
-
-  const cred = DEMO_CREDENTIALS[role];
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
@@ -173,7 +174,7 @@ export default function LoginPage() {
                 <input
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
-                  placeholder={cred.id}
+                  placeholder={DEMO_IDS[role]}
                   autoComplete="username"
                   className="input-field w-full pl-10"
                 />
@@ -218,7 +219,7 @@ export default function LoginPage() {
               Demo access — {role === "mse" ? "MSE Owner" : "NSIC Administrator"}
             </p>
             <p className="mt-1.5 font-mono text-xs text-surface-600">
-              ID: {cred.id} · Passcode: {cred.passcode}
+              ID: {DEMO_IDS[role]} · Passcode: issued with your demo pack
             </p>
           </div>
         </motion.div>
