@@ -14,24 +14,12 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 logger = logging.getLogger(__name__)
 
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
-GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
-NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
-NVIDIA_BASE = "https://integrate.api.nvidia.com/v1/chat/completions"
-NVIDIA_MODEL = "qwen/qwen3.5-397b-a17b"
 
-from services.gemini_limiter import gemini_limiter
-
-USE_MOCK_STT = os.getenv("USE_MOCK_STT", "false" if (SARVAM_API_KEY or GEMINI_API_KEY) else "true").lower() == "true"
+USE_MOCK_STT = os.getenv("USE_MOCK_STT", "false" if SARVAM_API_KEY else "true").lower() == "true"
 
 _stt_chain = []
 if SARVAM_API_KEY:
-    _stt_chain.append("Sarvam")
-if GEMINI_API_KEY:
-    _stt_chain.append("Gemini")
-if NVIDIA_API_KEY:
-    _stt_chain.append("NVIDIA/Qwen")
+    _stt_chain.append("Sarvam Saras")
 _stt_chain.append("Mock")
 logger.info(f"STT chain: {' → '.join(_stt_chain)}")
 
@@ -194,73 +182,6 @@ def _convert_to_wav(audio_bytes: bytes, filename: str) -> bytes | None:
         return None
 
 
-async def _transcribe_gemini(audio_bytes: bytes, language: str) -> dict | None:
-    """Transcribe audio using Gemini multimodal API with shared rate limiting."""
-    if not GEMINI_API_KEY:
-        return None
-
-    import base64
-    import httpx
-
-    b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
-    lang_label = {"en": "English", "hi": "Hindi"}.get(language, "Hindi or English")
-
-    for model in GEMINI_MODELS:
-        # Check rate limit before calling
-        if not await gemini_limiter.acquire(model, max_wait=8.0):
-            logger.info(f"Gemini STT {model}: rate limited, trying next model...")
-            continue
-
-        try:
-            url = f"{GEMINI_BASE}/{model}:generateContent?key={GEMINI_API_KEY}"
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                resp = await client.post(
-                    url,
-                    headers={"Content-Type": "application/json"},
-                    json={
-                        "contents": [{
-                            "role": "user",
-                            "parts": [
-                                {"inline_data": {"mime_type": "audio/webm", "data": b64_audio}},
-                                {"text": f"Transcribe this audio exactly as spoken. The speaker may use {lang_label}, Hinglish, or code-mixed language. Return ONLY the transcription text, nothing else."},
-                            ],
-                        }],
-                        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 500},
-                    },
-                )
-                if resp.status_code == 429:
-                    gemini_limiter.mark_429(model)
-                    logger.warning(f"Gemini STT {model} got 429 despite limiter, trying next...")
-                    continue
-                resp.raise_for_status()
-                data = resp.json()
-                transcript = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                logger.info(f"Gemini STT ({model}) result: '{transcript[:100]}'")
-                return {
-                    "text": transcript,
-                    "language": language,
-                    "confidence": 0.90,
-                    "engine": f"gemini-{model}",
-                    "is_mock": False,
-                }
-        except Exception as e:
-            logger.error(f"Gemini STT {model} failed: {e}")
-            continue
-
-    return None
-
-
-async def _transcribe_nvidia(audio_bytes: bytes, language: str) -> dict | None:
-    """Transcribe audio using NVIDIA NIM (Qwen multimodal). Falls back gracefully.
-
-    Note: NVIDIA NIM Qwen doesn't natively support audio input via the chat API.
-    This is a placeholder for when audio support becomes available. Currently skipped.
-    """
-    # NVIDIA NIM chat completions API does not support audio input natively.
-    # When audio-capable models are available, this will be implemented.
-    return None
-
-
 async def transcribe_audio(
     audio_bytes: bytes,
     language: str = "en",
@@ -268,7 +189,7 @@ async def transcribe_audio(
     filename: str = "audio.webm",
     content_type: str = "audio/webm",
 ) -> dict:
-    """Transcribe audio. Chain: Sarvam → Gemini → NVIDIA → Mock."""
+    """Transcribe audio. Chain: Sarvam Saras → Mock."""
     is_auto = language == "auto"
     effective_lang = "en" if is_auto else language
 
@@ -288,22 +209,9 @@ async def transcribe_audio(
         if result.get("engine") != "mock-fallback":
             result["detected_language"] = _detect_language_from_text(result["text"])
             return result
-        logger.info("Sarvam STT failed, trying Gemini...")
 
-    # 2. Try Gemini multimodal STT
-    gemini_result = await _transcribe_gemini(audio_bytes, effective_lang)
-    if gemini_result and gemini_result.get("text"):
-        gemini_result["detected_language"] = _detect_language_from_text(gemini_result["text"])
-        return gemini_result
-
-    # 3. Try NVIDIA (placeholder — audio not yet supported)
-    nvidia_result = await _transcribe_nvidia(audio_bytes, effective_lang)
-    if nvidia_result and nvidia_result.get("text"):
-        nvidia_result["detected_language"] = _detect_language_from_text(nvidia_result["text"])
-        return nvidia_result
-
-    # 4. Last resort: mock
-    logger.warning("All STT engines failed, using mock")
+    # 2. Last resort: mock
+    logger.warning("Sarvam STT unavailable, using mock")
     if is_auto:
         effective_lang = random.choice(["en", "hi"])
     result = _transcribe_mock(effective_lang, field_hint)

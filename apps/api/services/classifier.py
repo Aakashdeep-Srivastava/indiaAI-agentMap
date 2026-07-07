@@ -1,9 +1,9 @@
 """VargBot — ONDC domain classification service.
 
-LLM classification chain: Gemini → NVIDIA/Qwen → Sarvam-m → MuRIL (if loaded) → keyword fallback.
+Sovereign classification chain: Sarvam-30B → MuRIL (if loaded) → keyword fallback.
 Supports dual-mode operation:
   - If VARGBOT_MODEL_DIR points to a valid LoRA adapter, loads MuRIL + LoRA
-  - Otherwise, uses LLM chain with keyword fallback
+  - Otherwise, uses the Sarvam LLM with keyword fallback
 """
 
 import asyncio
@@ -20,31 +20,17 @@ import httpx
 # Ensure .env is loaded before reading keys
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-from services.gemini_limiter import gemini_limiter
-
 logger = logging.getLogger(__name__)
 
 # ── API keys ─────────────────────────────────────────────────────────
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
-GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
-
-NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
-NVIDIA_BASE = "https://integrate.api.nvidia.com/v1/chat/completions"
-NVIDIA_MODEL = "qwen/qwen3.5-397b-a17b"
-
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
 SARVAM_BASE_URL = "https://api.sarvam.ai/v1"
+SARVAM_CHAT_MODEL = os.getenv("SARVAM_CHAT_MODEL", "sarvam-30b")
 
-# Log available engines (NVIDIA preferred for classification)
 _engines = []
-if NVIDIA_API_KEY:
-    _engines.append("NVIDIA/Qwen")
-if GEMINI_API_KEY:
-    _engines.append("Gemini")
 if SARVAM_API_KEY:
-    _engines.append("Sarvam-m")
+    _engines.append(SARVAM_CHAT_MODEL)
 _engines.append("keyword")
 logger.info(f"VargBot classify chain: {' → '.join(_engines)}")
 
@@ -312,100 +298,21 @@ def _parse_classification_json(raw: str) -> Optional[list[ClassificationPredicti
 
 # ── LLM engines ───────────────────────────────────────────────────────
 
-async def _classify_with_gemini(description: str) -> Optional[list[ClassificationPrediction]]:
-    """Classify using Gemini API. Tries multiple models with rate limiting."""
-    if not GEMINI_API_KEY:
-        return None
-
-    for model in GEMINI_MODELS:
-        if not await gemini_limiter.acquire(model, max_wait=8.0):
-            logger.info(f"VargBot Gemini {model}: rate limited, trying next...")
-            continue
-
-        try:
-            url = f"{GEMINI_BASE}/{model}:generateContent?key={GEMINI_API_KEY}"
-            async with httpx.AsyncClient(timeout=25.0) as client:
-                resp = await client.post(
-                    url,
-                    headers={"Content-Type": "application/json"},
-                    json={
-                        "system_instruction": {"parts": [{"text": CLASSIFY_SYSTEM_PROMPT}]},
-                        "contents": [
-                            {"role": "user", "parts": [{"text": f"Classify this business:\n\n{description}"}]},
-                        ],
-                        "generationConfig": {
-                            "temperature": 0.1,
-                            "maxOutputTokens": 1024,
-                        },
-                    },
-                )
-                if resp.status_code == 429:
-                    gemini_limiter.mark_429(model)
-                    logger.warning(f"VargBot Gemini {model} got 429, trying next...")
-                    continue
-                resp.raise_for_status()
-                data = resp.json()
-                content = data["candidates"][0]["content"]["parts"][0]["text"]
-                preds = _parse_classification_json(content)
-                if preds:
-                    logger.info(f"VargBot Gemini ({model}): {preds[0]['domain']} @ {preds[0]['confidence']}")
-                    return preds
-                logger.warning(f"VargBot Gemini {model}: unparseable JSON response")
-        except Exception as e:
-            logger.error(f"VargBot Gemini {model} error: {e}")
-            continue
-
-    return None
-
-
-async def _classify_with_nvidia(description: str) -> Optional[list[ClassificationPrediction]]:
-    """Classify using NVIDIA NIM (Qwen 3.5 397B). OpenAI-compatible endpoint."""
-    if not NVIDIA_API_KEY:
-        return None
-
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(
-                NVIDIA_BASE,
-                headers={
-                    "Authorization": f"Bearer {NVIDIA_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": NVIDIA_MODEL,
-                    "temperature": 0.1,
-                    "max_tokens": 1024,
-                    "messages": [
-                        {"role": "system", "content": CLASSIFY_SYSTEM_PROMPT},
-                        {"role": "user", "content": f"Classify this business:\n\n{description}"},
-                    ],
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            content = data["choices"][0]["message"]["content"]
-
-            # Qwen may wrap thinking in <think> tags — strip them
-            content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
-
-            preds = _parse_classification_json(content)
-            if preds:
-                logger.info(f"VargBot NVIDIA/Qwen: {preds[0]['domain']} @ {preds[0]['confidence']}")
-                return preds
-            logger.warning("VargBot NVIDIA/Qwen: unparseable JSON response")
-    except Exception as e:
-        logger.error(f"VargBot NVIDIA/Qwen error: {e}")
-
-    return None
+# Sarvam-30B is a reasoning model; without this it can spend its whole token
+# budget thinking and return empty content.
+_BREVITY_SUFFIX = (
+    "\n\nIMPORTANT: Do not deliberate. Keep any internal reasoning under 30 words, "
+    "then output the JSON immediately."
+)
 
 
 async def _classify_with_sarvam(description: str) -> Optional[list[ClassificationPrediction]]:
-    """Classify using Sarvam-m chat completion API."""
+    """Classify using the Sarvam chat completion API (sovereign)."""
     if not SARVAM_API_KEY:
         return None
 
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
                 f"{SARVAM_BASE_URL}/chat/completions",
                 headers={
@@ -413,25 +320,25 @@ async def _classify_with_sarvam(description: str) -> Optional[list[Classificatio
                     "Content-Type": "application/json",
                 },
                 json={
-                    "model": "sarvam-m",
+                    "model": SARVAM_CHAT_MODEL,
                     "temperature": 0.1,
-                    "max_tokens": 1024,
+                    "max_tokens": 4096,
                     "messages": [
-                        {"role": "system", "content": CLASSIFY_SYSTEM_PROMPT},
+                        {"role": "system", "content": CLASSIFY_SYSTEM_PROMPT + _BREVITY_SUFFIX},
                         {"role": "user", "content": f"Classify this business:\n\n{description}"},
                     ],
                 },
             )
             resp.raise_for_status()
             data = resp.json()
-            content = data["choices"][0]["message"]["content"]
+            content = data["choices"][0]["message"].get("content") or ""
             preds = _parse_classification_json(content)
             if preds:
-                logger.info(f"VargBot Sarvam-m: {preds[0]['domain']} @ {preds[0]['confidence']}")
+                logger.info(f"VargBot {SARVAM_CHAT_MODEL}: {preds[0]['domain']} @ {preds[0]['confidence']}")
                 return preds
-            logger.warning("VargBot Sarvam-m: unparseable JSON response")
+            logger.warning(f"VargBot {SARVAM_CHAT_MODEL}: unparseable JSON response")
     except Exception as e:
-        logger.error(f"VargBot Sarvam-m error: {e}")
+        logger.error(f"VargBot {SARVAM_CHAT_MODEL} error: {e}")
 
     return None
 
@@ -505,31 +412,21 @@ def _classify_with_keywords(description: str) -> list[ClassificationPrediction]:
 async def classify_mse_description_async(
     description: str, language: str = "en"
 ) -> tuple[list[ClassificationPrediction], str]:
-    """Return (top-3 predictions, engine_name) using LLM chain.
+    """Return (top-3 predictions, engine_name) using the sovereign chain.
 
-    Chain: NVIDIA/Qwen → Gemini → Sarvam-m → MuRIL (if loaded) → keywords.
+    Chain: Sarvam-30B → MuRIL (if loaded) → keywords.
     """
-    # 1. Try NVIDIA/Qwen (preferred — Qwen 3.5 397B)
-    preds = await _classify_with_nvidia(description)
-    if preds:
-        return preds, "nvidia-qwen"
-
-    # 2. Try Gemini (fallback)
-    preds = await _classify_with_gemini(description)
-    if preds:
-        return preds, "gemini-llm"
-
-    # 3. Try Sarvam-m
+    # 1. Try Sarvam (sovereign Indian LLM)
     preds = await _classify_with_sarvam(description)
     if preds:
         return preds, "sarvam-llm"
 
-    # 4. Try MuRIL if loaded
+    # 2. Try MuRIL if loaded
     if _use_muril:
         return _classify_with_muril(description), "muril-lora"
 
-    # 5. Keyword fallback
-    logger.info("All LLM engines failed, using keyword fallback")
+    # 3. Keyword fallback
+    logger.info("Sarvam unavailable, using keyword fallback")
     return _classify_with_keywords(description), "keyword-fallback"
 
 

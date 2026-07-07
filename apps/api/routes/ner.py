@@ -18,25 +18,22 @@ class NERRequest(BaseModel):
 
 class NERResponse(BaseModel):
     extracted: dict
-    engine: str  # "sarvam-m" or "regex"
+    engine: str  # actual engine that produced the extraction (e.g. "sarvam-30b" or "regex")
     field_count: int
     remaining_today: int
 
 
 @router.post("/extract", response_model=NERResponse)
 async def extract_fields(req: NERRequest, db: Session = Depends(get_db)):
-    """Extract MSE registration fields from free-form text using Sarvam-m LLM."""
-    import os
+    """Extract MSE registration fields from free-form text using the Sarvam LLM."""
     from services.ner import _limiter
 
-    extracted = await extract_fields_llm(req.text)
+    extracted, engine = await extract_fields_llm(req.text)
 
     # Remove fields that are already filled
     for key in req.existing_fields:
         if req.existing_fields[key] and key in extracted:
             del extracted[key]
-
-    engine = "sarvam-m" if os.getenv("SARVAM_API_KEY") else "regex"
 
     # Audit log
     db.add(AuditLog(

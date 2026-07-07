@@ -1,10 +1,10 @@
-"""NER / Structured Field Extraction using Sarvam-m (FREE LLM API).
+"""NER / Structured Field Extraction using Sarvam (sovereign LLM API).
 
 Extracts MSE registration fields from free-form multilingual text
 (Hindi, English, code-mixed) via Sarvam AI's chat completion API.
 Falls back to regex if the API is unavailable.
 
-Rate limiting: max 10 LLM calls/minute, 200/day to protect credits.
+Rate limiting: max 30 LLM calls/minute, 1000/day to protect credits.
 """
 
 import json
@@ -25,22 +25,11 @@ logger = logging.getLogger(__name__)
 
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
 SARVAM_BASE_URL = "https://api.sarvam.ai/v1"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
-GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
-NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
-NVIDIA_BASE = "https://integrate.api.nvidia.com/v1/chat/completions"
-NVIDIA_MODEL = "qwen/qwen3.5-397b-a17b"
-
-from services.gemini_limiter import gemini_limiter
+SARVAM_CHAT_MODEL = os.getenv("SARVAM_CHAT_MODEL", "sarvam-30b")
 
 _ner_chain = []
-if GEMINI_API_KEY:
-    _ner_chain.append("Gemini")
-if NVIDIA_API_KEY:
-    _ner_chain.append("NVIDIA/Qwen")
 if SARVAM_API_KEY:
-    _ner_chain.append("Sarvam-m")
+    _ner_chain.append(SARVAM_CHAT_MODEL)
 _ner_chain.append("REGEX")
 logger.info(f"NER chain: {' → '.join(_ner_chain)}")
 
@@ -271,94 +260,16 @@ def _clean_llm_result(parsed: dict) -> dict:
     return cleaned
 
 
-async def _extract_gemini(text: str) -> Optional[dict]:
-    """Extract fields using Google Gemini API. Tries multiple models with rate limiting."""
-    if not GEMINI_API_KEY:
-        return None
-
-    for model in GEMINI_MODELS:
-        # Check rate limit before calling
-        if not await gemini_limiter.acquire(model, max_wait=8.0):
-            logger.info(f"Gemini NER {model}: rate limited, trying next model...")
-            continue
-
-        try:
-            url = f"{GEMINI_BASE}/{model}:generateContent?key={GEMINI_API_KEY}"
-            async with httpx.AsyncClient(timeout=20.0) as client:
-                resp = await client.post(
-                    url,
-                    headers={"Content-Type": "application/json"},
-                    json={
-                        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-                        "contents": [
-                            {"role": "user", "parts": [{"text": text}]},
-                        ],
-                        "generationConfig": {
-                            "temperature": 0.1,
-                            "maxOutputTokens": 512,
-                        },
-                    },
-                )
-                if resp.status_code == 429:
-                    gemini_limiter.mark_429(model)
-                    logger.warning(f"Gemini NER {model} got 429 despite limiter, trying next...")
-                    continue
-                resp.raise_for_status()
-                data = resp.json()
-                content = data["candidates"][0]["content"]["parts"][0]["text"]
-                parsed = _parse_llm_json(content)
-                if parsed:
-                    logger.info(f"Gemini NER ({model}) extracted {len(parsed)} fields")
-                    return _clean_llm_result(parsed)
-                logger.warning(f"Gemini {model} returned unparseable JSON")
-        except Exception as e:
-            logger.error(f"Gemini NER {model} error: {e}")
-            continue
-
-    return None
-
-
-async def _extract_nvidia(text: str) -> Optional[dict]:
-    """Extract fields using NVIDIA NIM (Qwen 3.5 397B)."""
-    if not NVIDIA_API_KEY:
-        return None
-
-    try:
-        async with httpx.AsyncClient(timeout=25.0) as client:
-            resp = await client.post(
-                NVIDIA_BASE,
-                headers={
-                    "Authorization": f"Bearer {NVIDIA_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": NVIDIA_MODEL,
-                    "temperature": 0.1,
-                    "max_tokens": 512,
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": text},
-                    ],
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            content = data["choices"][0]["message"]["content"]
-            # Qwen may wrap thinking in <think> tags — strip them
-            content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
-            parsed = _parse_llm_json(content)
-            if parsed:
-                logger.info(f"NVIDIA/Qwen NER extracted {len(parsed)} fields")
-                return _clean_llm_result(parsed)
-            logger.warning("NVIDIA/Qwen NER: unparseable JSON response")
-    except Exception as e:
-        logger.error(f"NVIDIA/Qwen NER error: {e}")
-
-    return None
+# Sarvam-30B is a reasoning model; without this it can spend its whole token
+# budget thinking and return empty content.
+_BREVITY_SUFFIX = (
+    "\n\nIMPORTANT: Do not deliberate. Keep any internal reasoning under 30 words, "
+    "then output the JSON immediately."
+)
 
 
 async def _extract_sarvam(text: str) -> Optional[dict]:
-    """Extract fields using Sarvam-m chat completion API."""
+    """Extract fields using the Sarvam chat completion API (sovereign)."""
     if not SARVAM_API_KEY:
         return None
     if not _limiter.can_call():
@@ -367,7 +278,7 @@ async def _extract_sarvam(text: str) -> Optional[dict]:
 
     try:
         _limiter.record_call()
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
                 f"{SARVAM_BASE_URL}/chat/completions",
                 headers={
@@ -375,53 +286,43 @@ async def _extract_sarvam(text: str) -> Optional[dict]:
                     "Content-Type": "application/json",
                 },
                 json={
-                    "model": "sarvam-m",
+                    "model": SARVAM_CHAT_MODEL,
                     "temperature": 0.1,
-                    "max_tokens": 512,
+                    "max_tokens": 4096,
                     "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "system", "content": SYSTEM_PROMPT + _BREVITY_SUFFIX},
                         {"role": "user", "content": text},
                     ],
                 },
             )
             resp.raise_for_status()
             data = resp.json()
-            content = data["choices"][0]["message"]["content"]
+            content = data["choices"][0]["message"].get("content") or ""
             parsed = _parse_llm_json(content)
             if parsed:
-                logger.info(f"Sarvam-m extracted {len(parsed)} fields")
+                logger.info(f"{SARVAM_CHAT_MODEL} NER extracted {len(parsed)} fields")
                 return _clean_llm_result(parsed)
             return None
     except Exception as e:
-        logger.error(f"Sarvam-m API error: {e}")
+        logger.error(f"{SARVAM_CHAT_MODEL} NER error: {e}")
         return None
 
 
-async def extract_fields_llm(text: str) -> dict:
-    """Extract fields using LLM chain: Gemini → Sarvam-m → Regex fallback."""
+async def extract_fields_llm(text: str) -> tuple[dict, str]:
+    """Extract fields and return (fields, engine). Chain: Sarvam → regex."""
 
     if len(text.strip()) < MIN_TEXT_LEN:
         logger.info("Text too short for LLM, using regex")
-        return _regex_extract(text)
+        return _regex_extract(text), "regex"
 
-    # 1. Try Gemini (fast, reliable, good with numbers)
-    result = await _extract_gemini(text)
-    if result:
-        return result
-
-    # 2. Try NVIDIA/Qwen
-    result = await _extract_nvidia(text)
-    if result:
-        return result
-
-    # 3. Fallback to Sarvam-m
+    # 1. Try Sarvam (sovereign Indian LLM)
     result = await _extract_sarvam(text)
     if result:
-        return result
+        return result, SARVAM_CHAT_MODEL
 
-    # 4. Last resort: regex
-    logger.info("All LLMs failed, using regex fallback")
-    return _regex_extract(text)
+    # 2. Last resort: regex
+    logger.info("Sarvam unavailable, using regex fallback")
+    return _regex_extract(text), "regex"
 
 
 def extract_fields_sync(text: str) -> dict:
