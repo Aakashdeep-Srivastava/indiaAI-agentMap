@@ -25,46 +25,47 @@ interface MatchItem {
 const FACTORS: {
   key: keyof FactorBreakdown;
   label: string;
-  weight: string;
   gradient: string;
   bg: string;
 }[] = [
   {
     key: "domain_score",
-    label: "Domain",
-    weight: "0.35",
+    label: "Domain Fit",
     gradient: "from-blue-500 to-blue-600",
     bg: "bg-blue-50",
   },
   {
     key: "geo_score",
     label: "Geography",
-    weight: "0.20",
     gradient: "from-emerald-500 to-emerald-600",
     bg: "bg-emerald-50",
   },
   {
     key: "commission_score",
     label: "Commission",
-    weight: "0.15",
     gradient: "from-amber-400 to-amber-500",
     bg: "bg-amber-50",
   },
   {
     key: "history_score",
-    label: "History",
-    weight: "0.20",
+    label: "Track Record",
     gradient: "from-violet-500 to-violet-600",
     bg: "bg-violet-50",
   },
   {
     key: "sentiment_score",
     label: "Support",
-    weight: "0.10",
     gradient: "from-rose-400 to-rose-500",
     bg: "bg-rose-50",
   },
 ];
+
+/** Qualitative band for a factor value — no raw weights/formula in the UI. */
+function factorBand(value: number): { text: string; cls: string } {
+  if (value >= 0.75) return { text: "High", cls: "bg-emerald-50 text-emerald-600" };
+  if (value >= 0.45) return { text: "Medium", cls: "bg-amber-50 text-amber-600" };
+  return { text: "Low", cls: "bg-surface-100 text-surface-400" };
+}
 
 interface Props {
   match: MatchItem;
@@ -146,8 +147,10 @@ export function SNPCard({ match, rank }: Props) {
                   <span className="text-xs font-medium text-brand-900">
                     {f.label}
                   </span>
-                  <span className="rounded bg-surface-100 px-1.5 py-0.5 font-mono text-[10px] text-surface-400">
-                    w={f.weight}
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${factorBand(value).cls}`}
+                  >
+                    {factorBand(value).text}
                   </span>
                 </div>
                 <span className="font-mono text-xs font-semibold text-brand-800">

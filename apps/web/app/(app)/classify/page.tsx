@@ -73,38 +73,35 @@ const DOMAIN_EXPLAINERS: Record<string, { en: string; hi: string }> = {
   },
 };
 
+/* User-facing engine labels — descriptive only, no raw model/vendor internals. */
 const ENGINE_META: Record<
   string,
   { label: string; desc: string; classes: string }
 > = {
-  "gemini-llm": {
-    label: "Gemini LLM",
-    desc: "Google Gemini multimodal",
-    classes: "bg-sky-50 text-sky-700 border-sky-200",
-  },
-  "nvidia-qwen": {
-    label: "Qwen 3.5 397B",
-    desc: "NVIDIA NIM inference",
-    classes: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
   "sarvam-llm": {
-    label: "Sarvam-m",
-    desc: "Sovereign Indian LLM",
+    label: "VargBot AI",
+    desc: "Sovereign language understanding",
     classes: "bg-amber-50 text-amber-700 border-amber-200",
   },
   "muril-lora": {
-    label: "MuRIL LoRA",
-    desc: "Fine-tuned classifier",
+    label: "VargBot Classifier",
+    desc: "Fine-tuned taxonomy model",
     classes: "bg-violet-50 text-violet-700 border-violet-200",
   },
   "keyword-fallback": {
-    label: "Keyword Match",
+    label: "Rule Engine",
     desc: "Deterministic fallback",
     classes: "bg-surface-50 text-surface-600 border-surface-200",
   },
 };
+// Legacy engine identifiers from earlier records map to a neutral label.
+const LEGACY_ENGINE: { label: string; desc: string; classes: string } = {
+  label: "VargBot AI",
+  desc: "Language understanding",
+  classes: "bg-amber-50 text-amber-700 border-amber-200",
+};
 
-const PIPELINE_ENGINES = ["Gemini", "NVIDIA", "Sarvam", "MuRIL", "Keywords"];
+const PIPELINE_STAGES = ["Language Analysis", "Taxonomy Mapping", "Confidence Check"];
 
 /* ─── Types ───────────────────────────────────────────────────────── */
 
@@ -358,7 +355,7 @@ export default function ClassifyPage() {
     tab === "mse" ? classifyByMSE() : classifyByText();
 
   const engineInfo = result?.engine
-    ? ENGINE_META[result.engine] ?? null
+    ? ENGINE_META[result.engine] ?? LEGACY_ENGINE
     : null;
   const topIcon = result
     ? DOMAIN_ICONS[result.selected_domain] ?? DOMAIN_ICONS.RET10
@@ -741,7 +738,7 @@ export default function ClassifyPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {PIPELINE_ENGINES.map((name, i) => (
+              {PIPELINE_STAGES.map((name, i) => (
                 <motion.div
                   key={name}
                   className="flex items-center gap-1.5"
@@ -757,7 +754,7 @@ export default function ClassifyPage() {
                   <span className="text-[10px] font-medium text-surface-400">
                     {name}
                   </span>
-                  {i < PIPELINE_ENGINES.length - 1 && (
+                  {i < PIPELINE_STAGES.length - 1 && (
                     <svg
                       className="mx-0.5 h-2.5 w-2.5 text-surface-300"
                       viewBox="0 0 24 24"
