@@ -35,7 +35,21 @@
       "Bash(NEXT_PUBLIC_API_URL=http://localhost:8010 npm run:*)",
       "Bash(timeout 10 python:*)",
       "Bash(npx tsc:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(vercel:*)",
+      "Bash(az account:*)",
+      "Bash(az appservice:*)",
+      "Bash(az webapp:*)",
+      "Bash(npx vercel:*)",
+      "WebFetch(domain:www.remotion.dev)",
+      "WebSearch",
+      "Bash(grep -oE '.{300}cdn/dataset/1751292143404[^<]{0,300}' ds_district.html)",
+      "Bash(/c/Users/aakas/anaconda3/python *)",
+      "PowerShell(Get-Content *)",
+      "Bash(git push *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
 }

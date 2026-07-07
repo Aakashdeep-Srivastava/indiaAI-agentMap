@@ -1,3 +1,4 @@
+
 # AgentMap AI — Project Rules & Development Guide
 
 ## CONFIDENTIALITY
@@ -201,3 +202,61 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 - **Staging:** Indian cloud (Yotta/CtrlS or AWS Mumbai)
 - **Production:** MeitY Param Siddhi or Indian cloud with GPU (T4/A10 for inference)
 - **Compliance:** DPDP Act 2023, Indian data residency, RBAC, encryption at rest + transit
+
+---
+
+## SESSION PROGRESS & RESUME POINT (2026-07-07)
+
+A full production-readiness audit was run (backend, frontend, ML/data/infra). Findings
+are tracked as tasks; work is proceeding P0-first. Resume from here.
+
+### Decisions made
+- **Commits:** NO Claude/Anthropic attribution lines in commit messages (team-authored).
+- **Database = Supabase Mumbai (ap-south-1)** for DPDP data residency. Neon is REMOVED
+  from the stack entirely (user decision 2026-07-07). Supabase project ref:
+  `qiigylrybzdxkeibsfvh`; MCP in `.mcp.json`. Schema + seed data live (migrations
+  `initial_schema_agentmap`, `enable_pgcrypto`).
+- **Auth:** custom JWT (not Supabase Auth / third-party) — zero extra cost, exact control
+  over login lockout. Redis kept optional (login lockout is DB-backed, so no Redis cost).
+- **Name candidates (domains available):** khulja.ai / khulja.in (top pick — "open up",
+  voice-first), vriksh.ai, bolbazaar.ai, udyamsetu.ai, kalpavriksh.ai. Not yet purchased.
+
+### DONE (2026-07-08 session — code complete, frontend build green)
+- **#5 Auth+RBAC** — backend (JWT/bcrypt/lockout) + FRONTEND REWRITTEN: `lib/auth.ts` now
+  calls real `POST /auth/login`, stores JWT, `apiFetch()` attaches Bearer + 30s timeout +
+  401→re-login on ALL 18 call sites; hardcoded creds removed from bundle & login screen.
+- **#6 Scoring/PII leak** — match API returns qualitative `factor_bands` (high/med/low) to
+  MSE users; raw `factors` admin-only; SNPCard renders bands (numbers only for admin);
+  `GET /mse/` list is admin-only; honest `model_version="heuristic-baseline-v1"` stamps.
+- **#7 Rate limiting** — `services/ratelimit.py` sliding-window middleware
+  (login 10/min/IP, LLM endpoints 30/min/user, default 120/min; env-tunable).
+- **#8 CI** — `.github/workflows/ci.yml` (API deps+compile+import; web tsc+build).
+  Infra move off Azure F1 still needs a paid-plan DECISION from the user.
+- **#9 DPDP** — consent checkbox (EN/HI) + server-side 422 enforcement + consent columns;
+  `DELETE /mse/{id}` erasure (profile + derived AI results); `docs/DPDP.md` policy.
+- **#10 Real data in Supabase** — 14 domains, 408 categories (392-leaf full taxonomy),
+  281 real registry SNPs (synthetic 50 deleted), 5,020 MSEs from real Udyog data.
+  RLS enabled deny-all on every table (backend owner connection bypasses it).
+- **#13 Role identity** — role-coloured sidebar identity card + role badge chip.
+- **#15 Reliability** — `app/error.tsx`, `global-error.tsx`, `not-found.tsx`; apiFetch
+  timeouts; unknown-domain-code fallbacks in classify/match UIs.
+
+### Blocked on user
+1. `apps/api/.env` `DATABASE_URL` still has `[YOUR-DB-PASSWORD]` — paste the exact
+   Session-pooler string (Supabase Dashboard → Connect). Then start API and run the
+   end-to-end login/lockout + register(consent)/classify/match smoke test.
+2. Infra decision: move API off Azure F1 (paid tier or other host).
+3. Old Neon project deletion (kills git-history-leaked creds) — not visible from
+   current Neon MCP orgs, must be done in Neon console.
+
+### Remaining feature tasks (not started)
+11 Elasticsearch search · 12 AI chat panel (RAG, sovereign) ·
+14 ONDC integration + visibility nudges (seller-app SDK handoff; catalog+serviceability
+nudges) · i18n/mobile/offline polish (rest of #15).
+
+### Audit headline P0s (see memory for full detail)
+- Login is cosmetic (localStorage role forgery → instant admin); every API endpoint open.
+- SNPCard leaks trade-secret factor %s; match API returns full factors to unauth client.
+- Matcher is 100% heuristic (no IndicBERT); classifier runtime path is Sarvam LLM (MuRIL never loads); no eval evidence.
+- Azure F1 = 60 CPU-min/day (won't scale); no CI/CD, monitoring, migrations, backups.
+- DPDP claimed in UI but not implemented (no consent/retention/encryption/erasure).
