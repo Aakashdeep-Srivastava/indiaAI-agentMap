@@ -1,9 +1,12 @@
-"""Text-to-Speech service — Sarvam Bulbul V3 (mock for PoC)."""
+"""Text-to-Speech service — Sarvam Bulbul V3, mock fallback when unavailable."""
 
+import logging
 import os
 
-USE_MOCK_TTS = os.getenv("USE_MOCK_TTS", "true").lower() == "true"
+logger = logging.getLogger(__name__)
+
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
+USE_MOCK_TTS = os.getenv("USE_MOCK_TTS", "false" if SARVAM_API_KEY else "true").lower() == "true"
 
 LANG_MAP = {
     "en": "en-IN", "hi": "hi-IN", "ta": "ta-IN", "te": "te-IN",
@@ -15,7 +18,12 @@ async def synthesize_speech(text: str, language: str = "en") -> dict:
     """Synthesize speech from text. Mock for PoC, Sarvam Bulbul V3 in production."""
     if USE_MOCK_TTS or not SARVAM_API_KEY:
         return _synthesize_mock(text, language)
-    return await _synthesize_sarvam(text, language)
+    try:
+        return await _synthesize_sarvam(text, language)
+    except Exception as e:
+        # Frontend falls back to browser speechSynthesis when is_mock is true
+        logger.error(f"Sarvam TTS failed, falling back to mock: {e}")
+        return _synthesize_mock(text, language)
 
 
 def _synthesize_mock(text: str, language: str) -> dict:
@@ -41,10 +49,10 @@ async def _synthesize_sarvam(text: str, language: str) -> dict:
             "https://api.sarvam.ai/text-to-speech",
             headers={"api-subscription-key": SARVAM_API_KEY},
             json={
-                "inputs": [text],
+                "text": text,
                 "target_language_code": target_lang,
-                "speaker": "meera",
-                "model": "bulbul:v1",
+                "speaker": "ritu",
+                "model": "bulbul:v3",
             },
         )
         resp.raise_for_status()
