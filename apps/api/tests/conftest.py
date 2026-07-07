@@ -1,6 +1,6 @@
 """Test fixtures for AgentMap AI integration tests.
 
-Uses the Neon DB with per-test transaction rollback for isolation.
+Uses the configured Postgres DB with per-test transaction rollback for isolation.
 No separate test database needed — each test runs in a rolled-back transaction.
 """
 
@@ -28,7 +28,7 @@ if not TEST_DATABASE_URL:
 
 @pytest.fixture(scope="session")
 def test_engine():
-    """Create tables once per session using the shared Neon DB."""
+    """Create tables once per session using the shared Postgres DB."""
     engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
     from database import Base

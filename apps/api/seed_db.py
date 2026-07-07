@@ -1,4 +1,4 @@
-"""Initialize Neon DB: create tables from SQLAlchemy models and seed data."""
+"""Initialize the database: create tables from SQLAlchemy models and seed data."""
 
 import sys
 from pathlib import Path
@@ -119,7 +119,7 @@ ON CONFLICT DO NOTHING;
 
 
 def main():
-    print("Connecting to Neon DB...")
+    print("Connecting to database...")
     print(f"URL: {DATABASE_URL[:50]}...")
 
     # Drop all tables first for a clean slate
@@ -145,7 +145,7 @@ def main():
             count = conn.execute(text(f"SELECT COUNT(*) FROM {table}")).scalar()
             print(f"   {table}: {count} rows")
 
-    print("\nNeon DB initialized successfully!")
+    print("\nDatabase initialized successfully!")
 
 
 if __name__ == "__main__":
