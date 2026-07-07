@@ -1,0 +1,53 @@
+{
+  "generated": "2026-07-07",
+  "seed": 20260707,
+  "count": 5000,
+  "real_fields": [
+    "enterprise_name",
+    "org_type",
+    "gender_owner",
+    "social_category",
+    "specially_abled",
+    "nic_5digit",
+    "major_activity",
+    "classification",
+    "employees",
+    "investment_lakh"
+  ],
+  "synthetic_fields": [
+    "udyam_no",
+    "mobile_number",
+    "pin_code",
+    "state",
+    "district",
+    "description",
+    "products",
+    "b2b_or_b2c",
+    "current_business_state",
+    "has_*",
+    "workshop_interest",
+    "language"
+  ],
+  "label_derivation": "ondc_domain from REAL NIC-2008 code via NIC_TO_DOMAIN mapping",
+  "geography": "redistributed nationally, weighted by real district-wise Udyam micro+small counts",
+  "gender_note": "real-world Udyog Aadhaar gender distribution preserved (not the TEAM 50% women aspiration): {\"Male\": 3824, \"Female\": 1176}",
+  "domain_distribution": {
+    "RET11": 1257,
+    "RET12": 1149,
+    "RET10": 846,
+    "RET1B": 627,
+    "RET16": 533,
+    "RET13": 148,
+    "RET15": 123,
+    "RET1C": 90,
+    "RET1A": 80,
+    "RET14": 76,
+    "RET19": 47,
+    "RET18": 13,
+    "RET17": 11
+  },
+  "sources": [
+    "data\\raw\\aikosh\\list_of_msme_registered_units_under_udyog_aadhaar_memorandum_maharashtra_sample100k.csv",
+    "data\\raw\\udyam\\district_wise_msme.csv"
+  ]
+}

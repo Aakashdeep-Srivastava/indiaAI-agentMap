@@ -1,0 +1,600 @@
+--- PAGE 1 ---
+ IndiaAI Innovation Challenge 2026 
+In collaboration with Ministry of AYUSH & MSME 
+1. Introduction 
+IndiaAI, an Independent Business Division (IBD) under the Digital India 
+Corporation (DIC) of the Ministry of Electronics and IT (MeitY), is the 
+implementation agency of the IndiaAI Mission, which aims to democratise AI's 
+benefits across all strata of society, bol ster India’s global leadership in AI, foster 
+technological self-reliance, and ensure ethical and responsible use of AI. 
+As part of this Mission, the IndiaAI Application Development Initiative (IADI) aims 
+to promote the development, deployment, and adoption of AI applications in 
+critical sectors that have the potential to catalyse large -scale socio -economic 
+transformation. To achieve this, IndiaAI has partnered with the Ministry of Micro, 
+Small and Medium Enterprises (MSME) and the Ministry of AYUSH (MoA) to launch 
+the IndiaAI Innovation Challenge 2026. This challenge aims to identify and support 
+successful AI solutions for national scale deployment for addressing the respective 
+Ministry-specific problem statements listed in Annexure I.  
+2. Stages 
+The Innovation Challenge will be implemented in two stages to identify, and 
+support high-potential AI solutions for outlined problem statements. 
+● Stage 1 (Solution development and testing):  
+o Participants are invited to register and submit their AI solutions as per 
+the submission form in Annexure III. Submission shall include details 
+on team, solution proposal, technical details, and business plan. 
+o Applicant teams will refine existing solutions, optimi se algorithms, 
+improve interfaces and add AI functionalities for their Proof of Concept 
+(PoC) based on publicly available  data in compliance with DPDP Act 
+2023, and other applicable laws, as well as, sample data made available 
+by respective Ministries via AIKosh to address provided problem 
+statements.  
+o The permissible categories of solution include: 
+▪ Existing Solution : Established AI -enabled product, service, or 
+business model that addresses any one of the problem statements 
+listed under Annexure I and has been piloted or deployed, seeking 
+to achieve scale.  
+o The applications will be reviewed by a distinguished panel of jury 
+members, comprising technical and sectoral experts.  
+--- PAGE 2 ---
+o Shortlisted teams may be required to provide working PoCs, test access 
+details, source code and documentation for verification as per directions 
+provided by IndiaAI. 
+o Up to 3 teams may be shortlisted for Stage 2 corresponding to each 
+problem statement.  
+o Each team will be awarded INR 25 Lakhs for refining and piloting their 
+solution with support and guidance from relevant Line Ministry. 
+● Stage 2 (Finalising solution and deployment):  
+o Selected teams will be required to share pilot progress, security audit  
+report, integration capabilities and final performance matrix as part of 
+mid-phase and end-stage evaluation.  
+o The winner of this stage will secure a chance to receive a work contract 
+worth up to INR 1 crore for a period of two year s for integration, 
+deployment, and operation and maintenance of their solution in 
+partnership with IndiaAI and respective Line Ministry.  
+IndiaAI and the jury reserve the right to modify the number of qualifying solutions 
+at any stage to ensure competition and operational efficiency. The decision of the 
+jury shall be final and binding across all stages. 
+3. Registration Process 
+ 
+● All participants are required to utili se the IndiaAI  portal to access the 
+application form.  
+● A team leader will have to individually apply for the Challenge on the 
+IndiaAI portal by clicking the submit link.  
+● After the initial sign -up, the team leader should list all the team 
+members under the management team and complete all organi sation 
+details. All participants are required to utilise the IndiaAI portal to access 
+the application form.  
+● The team leader will have to answer all additional questions, including 
+uploading documents, and click ‘Submit’. 
+● Interested applicants can apply within the specified time period from the 
+launch. 
+4. Opportunity for Applicants 
+● Opportunity to Build for the Nation: Contribute to developing innovative 
+solutions that address critical challenges faced by the country, making a 
+direct impact on society. 
+● National Recognition: Gain visibility and recognition from government 
+officials, industry leaders, and peers for your contributions and innovative 
+ideas. 
+--- PAGE 3 ---
+● Networking Opportunities : Connect with like -minded innovators, 
+potential collaborators, and key stakeholders in the tech and innovation 
+ecosystem. 
+● Exposure to Real-world Challenges: Work on pressing issues faced by 
+the nation, providing practical experience and a deep understanding of real- 
+world problems. 
+● Support for Implementation: Winning solution will get potential support 
+in scaling and implementing the solution at a national level, bringing your 
+ideas to life. 
+● Reward: Receive work contract worth up to INR 1 crore for a period of 2 
+years to deploy their solution for use by the Government of India and its 
+associated entities.   
+5.  Intellectual Property Rights (IPR) 
+All Intellectual Property Rights (IPR) will belong to the solution owner participating 
+in the Challenge. IndiaAI and partnering institutions shall have a non -exclusive, 
+royalty-free, perpetual license to use the awarded AI solution including all IPR 
+arising out of its use, and the solution owner shall be deemed to have given a No 
+Objection Certificate (NOC) for the same and shall also remain bound by the terms 
+of a Non-Disclosure Agreement (NDA) with respect to such work. 
+6. Timeline 
+# Activity Timeline 
+1 Launch Date 15.01.2026 
+2 Last Date For Submission 22.02.2026 
+(7 Weeks) 
+3 Stage 1: Declaration Of Results Of Solutions 
+for Pilot Stage 
+TBC 
+4 Pilot And Technical Verification TBC 
+5 Stage 2: Declaration Of Innovation Challenge 
+Winners 
+TBC 
+7.  Eligibility Criteria 
+● Indian Company: The team may be an Indian company registered under 
+the Companies Act. An Indian company must have 51% or more 
+shareholding by Indian citizens or persons of Indian origin. 
+● Start-up: The team may be a start-up as defined in the latest notification 
+by the Department for Promotion of Industry and Industrial Trade (DPIIT), 
+accessible at Startup India. 
+--- PAGE 4 ---
+● Autonomous Bodies : Autonomous bodies, including public sector 
+organisations, non -profit organi sations, research institutions and 
+universities, are eligible to participate. 
+● Others: Indian students or researchers associated with educational 
+institutions or universities, or working professionals associated with Indian 
+start-ups and companies may participate in their individual capacity or as 
+teams. The participant must be a citizen of India. 
+Note: If the Participating Team has not yet registered themselves as a 
+Company, they can still participate, subject to the condition that all 
+participating team members are Indian citizens. However, they will be required 
+to register as a Company or Start -up if they are selected for stage 2 solution 
+refinement and pilot. 
+8. Terms and Conditions 
+ 
+a. All participants must meet the outlined eligibility criteria (Section 7) to 
+participate.  
+b. If individual innovators are associated with any company, they should 
+provide a No Objection Certificate (NOC) from their employer, stating that 
+the company will have no rights to the prize money and/or intellectual 
+property rights (IPR). Additionally, individuals should inform their employer 
+of their participation in the innovation challenge related to AI solutions.  
+c. The award from this initiative can only be used by the participating team 
+for the purpose of AI solution development.  
+d. Winning entities will retain the rights to the solution/product developed 
+subject to the intellectual property rights outlined in this document (Section 
+5).   
+e. The participants will ensure code is free from viruses and malware. The 
+participants will not use this Challenge to do anything unlawful, misleading, 
+malicious, or discriminatory. 
+f. The solutions must not violate/breach/copy any copyrighted or patented 
+concepts in the AI market. 
+g. The solutions must not violate any data protection and governance 
+regulations and policies of the Government of India. 
+h. The solutions must be in adherence with related cybersecurity standards 
+and guidelines of the Government of India.  
+i. Solutions must adhere to ethical principles and guidelines for the 
+development, deployment and use of AI technologies, including fairness, 
+transparency, accountability, and non-discrimination.  
+j. The developed solution/product will be deployed in the chosen Cloud 
+Environment and used by Union/State/UT government entities. 
+--- PAGE 5 ---
+k. Any new enhancements, features or innovation should be released on the 
+chosen Cloud Environment. At all times, the updated source code shall be 
+shared with the partnering institution for its free use. 
+l. The winning entities shall receive a work contract of a fixed amount to 
+support the solution development and deployment for at least two years 
+from the go -live period. The support includes manpower for end -to-end 
+development, deployment, maintenance, and b ug fixing across the entire 
+application.  
+m. The winning entities shall submit progress -cum-achievement reports at 
+quarterly intervals on the progress made on all aspects of the project, 
+including expenditure incurred on various approved items during the two -
+year contract period. The scope of work, p ayment terms, milestones, and 
+other contract conditions will be as agreed between IndiaAI, partnering 
+institutions and the winning entities , and it shall comply with the General 
+Financial Rules of the Government of India.  
+n. The winning entities are not allowed to entrust the implementation of this 
+project for which the award is received to another institution, or to divert 
+the award received from IndiaAI as assistance to another institution.  
+o. The winning entities should not enter into collaboration with a foreign party 
+(individual/academic institution/industry) in execution of this project 
+without prior approval of IndiaAI.  
+p. The winning entit ies are free to market the product to any entity outside 
+the Union/State/UT Government Organisations of India. 
+q. In case of any dispute on any other matter related to the project during the 
+course of its implementation, the decision of the CEO, IndiaAI shall be final 
+and binding on the winning entities.  
+r. By participating in this Challenge, the winning entities understand and 
+undertake the above commitments and agree to the terms and conditions. 
+9. Plagiarism and Ethics 
+ 
+a. Participants are expected to uphold the highest standards of ethics and 
+integrity throughout the Challenge. 
+b. All work submitted must be original and developed by the participant or 
+their team. 
+c. Plagiarism, or the use of someone else’s work without proper attribution, is 
+strictly prohibited and would result in immediate disqualification. 
+d. Participants must ensure that their solutions are proprietary and not copied 
+from existing projects or code repositories. 
+e. Moreover, the use of any external resources or pre -trained models should 
+be clearly cited, and proper permissions should be obtained where 
+--- PAGE 6 ---
+necessary. Adherence to these ethical guidelines ensures a fair and 
+competitive environment for all participants. 
+f. By registering for this Challenge, participants are giving an undertaking to 
+adhere to all plagiarism and ethical guidelines set forth by the IndiaAI. 
+--- PAGE 7 ---
+Annexure I - Problem Statements 
+Part A: Ministry of Small and Medium Enterprises 
+Problem Statement 1: AI Enabled Virtual Negotiation Assistance 
+Micro, small, medium enterprises frequently encounter delayed payment issues 
+from buyers due to administrative, procedural and operational complexities. 
+Conventional dispute-resolution mechanisms, such as in -person conciliation and 
+arbitration, are resource -intensive, resulting in significant time and cost 
+burdens. To address this, MSME developed first -of-its-kind Online Dispute 
+Resolution (ODR) portal, providing an end -to-end digital workflow that enables 
+micro and small enterprises to resolve d elayed payment disputes remotely and 
+efficiently. 
+The ODR framework supports an optional pre -Micro & Small Enterprises 
+Facilitation Council (MSEFC) stage that facilitates voluntary, out -of-court digital 
+settlement through guided pathways and automated negotiation. To further 
+enhance accessibility, reduce resolution timelines  and improve dispute -handling 
+efficiency, an AI/ML-powered virtual negotiation assistant is proposed to support 
+intelligent dispute processing, containment and resolution. 
+Use Case: Develop an integrated AI-enabled virtual negotiation assistant capable 
+of accepting voice -based inputs for automated form -population; analysing 
+Statements of Claims and supporting documentation; classifying dispute sub -
+categories and identifying missing documentation; predicting probable resolution 
+outcomes based on statutory provisions and judicial precedents; supporting 
+multilingual, real-time, AI-guided negotiation; and assisting in automated drafting 
+of settlement agreements based on negotiated outcomes. 
+Indicative Capabilities: The solution may utilise AI/ML models including (1) 
+Automatic Speech Recognition  (ASR), Text-to-Speech ( TTS), Optical Character 
+Recognition (OCR), and Named Entity Recognition (NER) for automated extraction 
+and structuring of claimant and respondent inputs; (2) Document and case 
+segmentation models  for dispute -type classification and gap detection; (3) 
+Outcome prediction models  using legal precedent datasets and rule -based legal 
+frameworks; (4) Conversational AI  integrating ASR/STT, real -time translation, 
+sentiment analysis and negotiation strategy modelling; (5) Automated document 
+generation and summarisation for drafting settlement agreements and generating 
+structured case summaries. 
+The above AI capabilities are  indicative and not exhaustive. Solution providers 
+could modify, update or prioritise these capabilities to address the provided 
+problem statement. 
+ 
+--- PAGE 8 ---
+Problem Statement 2: AI-powered MSE Agent mapping tool  
+Micro and Small Enterprises (MSEs) frequently struggle to identify appropriate 
+buyers due to limited market outreach, inefficient buyer discovery mechanisms, 
+and inadequate product cataloguing. To resolve these challenges, MSME has 
+launched the Trade Enablement and Marketing (TEAM) initiative to onboard MSEs 
+onto the Open Network for Digital Commerce (ONDC). 
+Under this initiative, MSEs are mapped to relevant Seller Network Participants 
+(SNPs), who support registration, catalogue creation, and transaction fulfilment. 
+However, the current workflow relies heavily on manual data entry, inconsistent 
+product category tagging, and labour-intensive claim verification by the National 
+Small Industries Corporation (NSIC), often leading to onboarding delays and 
+rejection of applications. To streamline operations and enhance efficiency, an AI-
+driven intelligent MSE agent mapping tool is envisaged to automate, optimise, and 
+scale the TEAM process. 
+Use Case: Develop an integrated AI system that supports MSEs and SNPs across 
+the TEAM initiative by enabling multilingual, voice-enabled digital registration and 
+automated form filling; AI -driven product categorisation based on predefined 
+taxonomy and sectoral attributes; and intelligent matching of MSEs to suitable 
+SNPs based on product capabilities, domain relevance, and operational capacity. 
+Indicative Capabilities: The solution may leverage AI/ML components including 
+(1) Natural Language Processing (NLP), OCR, ASR/STT for multilingual automated 
+form filling, document processing, and voice-based data capture; (2) Classification 
+models, semantic mapping, attribute extraction and compliance validation  for 
+accurate product categorisation based on textual descriptions; (3) Clustering and 
+capability assessment models, semantic similarity algorithms, and prioritisation 
+logic to optimise MSE-to-SNP matching based on alignment with sectoral domains, 
+transaction history, and fulfilment capacity. 
+The above AI capabilities are  indicative and not exhaustive. Solution providers 
+could modify, update or prioritise these capabilities to address the provided 
+problem statement. 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 9 ---
+Part B: Ministry of Ayush  
+ 
+Problem Statement 3: AI-enabled Integrated Early Warning, Treatment & 
+Lifestyle Recommendation System 
+The Ayush Hospital Management Information System (AHMIS), now expanded to 
+over 12,000 centres nationwide, generates large-scale data on patient diagnoses 
+and care delivery. This growing and rich dataset presents a significant opportunity 
+to develop an AI -enabled system that can support both population -level public 
+health intelligence and individual-level personalised AYUSH care. 
+Strengthening AYUSH systems through advanced AI capabilities can significantly 
+enhance their effectiveness and scale by enabling voice-based, multilingual inputs 
+for efficient creation of Electronic Health Records (EHRs) by AYUSH professionals; 
+dynamic detection and prediction of disease outbreaks to support proactive public 
+health interventions; and personalised, data -driven treatment and lifestyle 
+recommendations for chronic lifestyle conditions such as nephrolithiasis, 
+urolithiasis, obesity, and hyperten sion. By integrating advanced AI and ML 
+technologies, AHMIS can evolve into an intelligent health system that supports 
+early outbreak detection, public health risk forecasting, and evidence -informed 
+AYUSH treatment planning , thereby strengthening India’s preventive and 
+personalised AYUSH healthcare ecosystem. 
+Use Case: 
+An AI-enabled system that allows AYUSH professionals to create EHRs on AHIMS 
+using secure, voice-based, multilingual inputs, while leveraging historical clinical 
+data to detect early signs of local disease outbreaks and generate real-time alerts. 
+The system facilitates timely AYUSH interventions and informs public health 
+forecasting and preventive planning. It also generates personalised AYUSH 
+treatment plans , including herbal, dietary, yoga  and other lifestyle 
+recommendations, based on diagnoses, comorbidi ties, and past outcomes  of 
+similar demographics , and continuously improves these recommendations 
+through real-time clinical feedback and long-term patient outcomes. 
+Indicative Capabilities: 
+The solution may leverage AI/ML techniques such as  NLP, ensemble learning, 
+reinforcement learning and hybrid recommendation architectures to support: (1) 
+secure, voice-based multilingual EHR creation through advanced speech -to-text 
+and machine translation models across Indian languages, integrated with AHIMS 
+and AYUSH Grid; (2) early detection and forecasting of localised disease surges 
+using anomaly detection on  historical clinical data, combined with geospatial 
+clustering and spatiotemporal graph neural n etworks to predict short -term 
+regional spread; (3) generation of personalised AYUSH treatment plans through 
+hybrid recommendation engines that integrate codified AYUSH knowledge systems 
+--- PAGE 10 ---
+(such as Prakriti -based logic) with patient clustering on historical AHIMS 
+outcomes, with reinforcement learning continuously refining recommendations 
+based on clinician feedback and longitudinal patient outcomes, including in cases 
+of limited patient hist ory; and (4) explainable recommendations supported by 
+evidence-generation and confidence -scoring mechanisms with adaptive learning 
+frameworks ensuring continuous improvement and clinical trust through real -
+world validation. 
+These capabilities are indicative and not exhaustive. Solution providers may 
+modify, update or prioritise features as needed. Applicants may use publicly 
+available datasets including clinical EMR data, AYUSH treatment protocols, 
+hospital/disease registries, and sample data shared via AIKosh. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 11 ---
+Annexure II – Evaluation Details 
+Evaluation Parameters(General and Technical) 
+The evaluation process of the Challenge would be overseen by a distinguished 
+panel of jury members comprising experts from the fields of machine learning, 
+data science, and sectoral expertise. The jury would rigorously assess each 
+submission based on prede fined criteria to ensure a fair and comprehensive 
+evaluation. The evaluation will ensure equitable weightage is given to both the 
+Technical and General parameters. 
+I. General 
+ Parameter Description 
+1 Approach Towards 
+Problem Solving 
+Product Idea, Degree of Innovation, Simplicity 
+of Final Solution, Uniqueness of Solution, 
+Novelty of Approach 
+2 Solution Technical 
+Feasibility 
+Product features, Scalability, Interoperability, 
+enhancement & expansion, Underlying 
+technology components & stack and futuristic 
+orientation 
+3 Product Roadmap 
+Potential Cost to Build, Deploy and Maintain 
+Product for two years from go -live, Regulatory 
+compliance, System Integration plan. 
+4 Team Ability & 
+Culture 
+Prior Experience of the entity in developing and 
+deploying similar solutions in private and public 
+domains specifically healthcare and climate 
+change, Team Leader’s Effectiveness (i.e. 
+Understanding of subject matter, Ability to 
+guide, Ability to present idea), Ability to Market 
+Product, Growth Potential of Organisation 
+5 
+Adherence to 
+Responsible AI 
+Principles 
+Safety and Reliability, Equality, Inclusivity and 
+Non-discrimination, Privacy and Security, 
+Transparency, Accountability, Protection and 
+Reinforcement of positive human values 
+6 
+Adherence to Data 
+Policies and Cyber 
+Security Guidelines 
+Adherence to applicable Government of India 
+policies, guidelines, regulations on Data 
+Governance and Cyber Security 
+II. Technical 
+--- PAGE 12 ---
+ Parameter Description 
+1. Data preparation 
+Participant has  
+- explored the data and removed unnecessary 
+columns. 
+- checked if there is any skewness in the data and 
+tried to mitigate it 
+- performed stratified train-test split successfully to 
+create train & test datasets. 
+- ensured data coverage, size, and quality 
+- integrated data management and governance 
+policy 
+2. Model Building 
+- Participants has performed the required cross -
+validation and has built different models on raw -
+data. 
+- After evaluation on the raw dataset, Model 
+hyperparameters are tuned using correct 
+principles and the approach is explained clearly. 
+- A reasonable number and variety of different 
+models are attempted, and the best one is chosen 
+based on key performance metrics. 
+3. Model Evaluation 
+- Model evaluation is conducted using an 
+appropriate metric. 
+- Integrated model monitoring and enhancement 
+strategy.  
+4. Technical 
+Robustness 
+- Accuracy: The proportion of correctly classified 
+instances (both true positives and true negatives) 
+out of the total instances. 
+- Precision: The proportion of true positive 
+instances out of the instances predicted as 
+positive. 
+- Recall (Sensitivity or True Positive Rate): The 
+proportion of true positive instances out of the 
+actual positive instances. 
+- F1 Score: The harmonic mean of precision and 
+recall, providing a single metric that balances both 
+concerns. 
+- AUC-ROC (Area Under the Receiver Operating 
+Characteristic Curve): Measures how well the 
+model distinguishes between classes. 
+- Confusion Matrix: A table providing a detailed 
+breakdown of true positives (TP), true negatives 
+(TN), false positives (FP), and false negatives 
+(FN). 
+--- PAGE 13 ---
+- Inference latency, cost per inference 
+- Other Metrics (Optional): Log Loss and Balanced 
+Accuracy of the model. 
+- Additional Criteria: Any other metrics as agreed 
+upon by jury members. 
+Evaluation Process (for internal reference only) 
+The evaluation process will follow multiple steps to ensure fairness and technical 
+rigor: 
+● First level quality check & review by the organising team – assess eligibility, 
+completeness and quality of submission 
+● Assessment & screening by the Screening Committee – detailed review and 
+shortlisting of further evaluation by Evaluation Committee. 
+● Shortlisting entries for Pilots – presentation and PoC review for shortlisting 
+top 3 teams for Pilot stage. 
+● Final evaluation – presentations, technical & security audits, and selection 
+of winners based on pilot performance and jury evaluations.  
+IndiaAI and the jury reserve the right to modify the number of qualifying solutions 
+at any stage to ensure competition and operational efficiency. The decision of the 
+jury shall be final and binding across all stages. 
+ 
+  
+--- PAGE 14 ---
+Annexure III – Submission Form 
+Teams should prepare submissions aligning with the following sections. Detailed 
+forms will be available on the IndiaAI portal. 
+Section 1: Team Information 
+1. Applicant Type (Startup/Company/Autonomous body/Others): 
+2. Team Name*:  
+3. Team Leader Information*: 
+● Full Name:  
+● Designation: 
+● Core Expertise Areas: 
+● Email Address: 
+● Phone Number: 
+● LinkedIn Profile:  
+4. Organisation: 
+ • Name of Organisation: 
+ • Registration Number: 
+ • Date of Incorporation: 
+ •        Number of Employees: 
+ •        Core Function of Organisation: 
+ • Address: 
+ • Website: 
+5. Team Members: List each member details including 
+ • Full Name 
+ • Role 
+ • Email 
+ • LinkedIn Profile 
+6. Prior Experience in relevant project implementation and research work*:  
+Describe relevant AI solutions designed and developed, technologies used, 
+and outcomes, publications, etc. (max 200 words). 
+7. Experience collaborating with public and private entities*: 
+Specify partners, nature of engagement for similar projects, and key results 
+(max 200 words). 
+8. Demonstrated expertise in health sector, if any (for applicants applying for 
+problem statement 3, Ministry of Ayush): (max 100 words) 
+Section 2: Project Proposal  
+1. Title of the Solution:**  
+2. Which Ministry is the Solution For?*: Ministry of Ayush/ Ministry of Micro, 
+Small and Medium Enterprises 
+3. Problem Statement Addressed:* (Choose from Annexure I ) 
+3. Proprietary Model*: 
+--- PAGE 15 ---
+o Is the AI model developed in -house (not based on third -party pre-
+trained models)? 
+☐ Yes  ☐ No 
+o   If Yes, provide: 
+▪       Details of a proprietary technology base 
+▪       If the solution is developed on open -source models, share 
+details and customisation approach  
+o If No, provide names of the third-party applications used and licenses 
+details 
+4. Description of the Solution:* Provide a comprehensive overview of the 
+system, including: 
+o Functionality 
+o Features  
+o Core AI technologies used 
+o Training and validation data used, highlighting data provenance, 
+coverage, size and quality 
+o Process and strategies adopted for model training, refinement, 
+solution monitoring and enhancement 
+o Solution replicability across multiple sectors for relevant use cases  
+(Max 300 words) 
+5. Provide technology readiness level (1 -9) for your solution, with clear 
+milestones and risks (max 100 words).* 
+6. Highlight how this improves upon existing open-source models. Provide the 
+benchmarking done for your solution. Provide Performance indicators 
+measured (e.g., accuracy, False Positive/Negative Rates), the 
+methodologies used for measurement, and the outcomes. (Max 300 words). 
+7. Architecture and Design*: Upload or link to technical architecture diagrams, 
+process flow, flowcharts, and other relevant design document. 
+8. Data Governance and Security*: Describe how data collection, 
+confidentiality, encryption, storage, access control, retention and removal 
+will be implemented. Include measures taken to ensure compliance with 
+relevant regulations and standards for data privacy and security measures. 
+(max 100 words) 
+9. Compliance with Responsible AI Principles*: Describe how the solution 
+adheres to principles of fairness and transparency and adopts measures for 
+solution interpretability, auditability, inclusivity and fairness. (max 100 
+words) 
+10.Scalability and Integration Readiness*: Describe deployment mode, 
+integration compatibility, offline operability, and future expansion 
+capability. (max 100 words) 
+11.Has the solution been piloted/deployed?  (Please provide details – Where, 
+how and which region/geographies the solution has been piloted and scaled 
+into) (Max 100 words)* 
+--- PAGE 16 ---
+12.Upload supporting documents for pilot/deployment, if any 
+Section 3: Business Plan  
+1. Business Model: Describe the business model, including revenue generation 
+strategies.  
+2. Market Analysis: Provide an analysis of the market size, competition, and 
+potential market share. 
+3. Go-to-Market Strategy: Outline the plan for bringing the solution to market. 
+4. Partnerships and Collaborations: List any existing or potential partnerships 
+including any assistance from existing products.  
+Section 4: Supporting Documents  
+*Consistent nomenclature is required for all supporting documents E.g., Individual 
+name_Pitch Deck  
+1. Pitch Deck:* (Upload)  
+2. Certificate of Incorporation/Legal Registration* 
+3. Certificate of Recognition (for Startups) 
+4. Technical Documentation/Proof of IPs/Patents, if any 
+5. Proof of IPs/Patents, if any 
+6. Ethics / Regulatory Clearance (if secured) 
+7. Solution demo video (2-3 minutes)*  
+8. Any additional documentation to strengthen the proposal such as model 
+accuracy proof etc. 
+Section 5: Declaration 
+Declaration by Team Leader 
+I/we hereby declare that all the information provided in this application is true and 
+complete to the best of our knowledge.  
+I/we hereby also declare that I am authorised to participate in this Challenge, sign 
+all the documents and agreements related to the Challenge and to commit 
+resources.  
+I/we confirm that we will abide by the conditions mentioned in the Challenge 
+document in full and without any deviation. 
+I/We shall observe confidentiality of all the information passed on to us in the 
+course of the Challenge and shall not use the information for any other purpose 
+than the current Challenge. 
+--- PAGE 17 ---
+I/We confirm that we have not been blacklisted/banned in the last three years by 
+any State/Central Government organisations/Firms / Institutions/ Central PSU / 
+PSE. 
+Date: _________________________________  
+ 

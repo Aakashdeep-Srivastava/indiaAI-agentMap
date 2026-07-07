@@ -1,0 +1,282 @@
+snp_id,name,np_type,node_type,tsp,website,domain_codes,domain_labels_unmapped,geo_coverage,serviceability_type,in_team_scope,commission_pct,rating,capacity_score,avg_onboarding_days,onboarding_support,languages_supported
+SNP-0001,HESPL (Haqdarshak),Seller Network Participant,MSN,,https://www.haqdarshak.com/,RET-MULTI,,Pan India,12,True,6.1,5.0,0.99,4,full,as|en
+SNP-0002,Meghdoot Mercantile Private Limited,Seller Network Participant,ISN,,https://www.meghdootmercantile.com/,,Credit,Pan India,12,False,3.6,4.3,0.73,20,partial,bn|kn|mr|or|ta
+SNP-0003,AIRXY TECH PRIVATE LIMITED,Seller Network Participant,ISN,,https://airxy.in/,,Logistics (B2C),Pan India,12,False,2.1,4.5,0.42,9,partial,bn|te
+SNP-0004,FDPL Finance Private Limited,Seller Network Participant,ISN,,https://www.fdplfinance.com/,,Credit,Pan India,12,False,9.2,4.6,0.57,12,none,bn|kn|mr|te
+SNP-0005,Ethnovista,Seller Network Participant,MSN,,https://www.ethnovista.com,RET-MULTI,,Pan India,12,True,9.0,4.7,0.41,12,none,gu|hi|ml
+SNP-0006,GREEN DRIVE AUTO SERVICES PRIVATE LIMITED,Seller Network Participant,ISN,,https://greendrivemobility.com/,,Logistics (B2C),Pan India,12,False,8.9,4.7,0.88,16,partial,kn|pa|te
+SNP-0007,Dealscoder Consultancy,Seller Network Participant,ISN,,https://dealscoder.com/,,Logistics (B2C),Pan India,12,False,2.6,3.0,0.59,5,partial,kn|ml|ta|te
+SNP-0008,Peaklift Express Logistics Pvt Ltd,Seller Network Participant,ISN,,https://www.peakliftel.com,,Logistics (B2C),Pan India,12,False,5.4,3.3,0.85,15,full,as|en|gu|or
+SNP-0009,Chinmay Finlease Limited,Seller Network Participant,ISN,,https://www.chinmayfinlease.com/,,Credit,Pan India,12,False,9.4,4.9,0.87,10,partial,bn|hi|kn
+SNP-0010,Vyaparlive,Seller NP - Marketplace Seller Node (MSN),ISN,Aarambh.tech,https://mrsoftsolutions.com/,,Logistics (B2C),Pan India,12,False,10.9,3.8,0.53,12,partial,as|en|gu|hi|pa|te
+SNP-0011,Shreeji Enterprise Services,Seller Network Participant,ISN,Aarambh.tech,www.shreejientserv.in,,Logistics (B2C),Pan India,12,False,10.2,3.5,0.91,13,partial,as|en|hi|ml|pa|ta
+SNP-0012,RVJ Premium Garments Pvt Ltd,Seller Network Participant,ISN,,https://rvjgarments.in/'>rvjgarments.in/</a,RET-MULTI,,Pan India,12,True,11.3,4.1,0.71,17,none,as|en|ml|mr|or|pa
+SNP-0013,MyDailyGoods,Seller Network Participant,MSN,,https://mydailygoods.com/'>mydailygoods.com/</a,RET-MULTI,,Pan India,12,True,5.2,3.9,0.78,14,none,bn|en|pa|te
+SNP-0014,Tev HR Solutions,Seller Network Participant,ISN,,https://tevhrsolutions.in/'>tevhrsolutions.in/</a,,Logistics (B2C),Pan India,12,False,7.9,4.8,0.71,16,full,bn|gu|hi|ml|mr
+SNP-0015,Pune Metro,Seller Network Participant,ISN,,https://www.punemetrorail.org/'>www.punemetrorail.org/</a,,Unreserved Ticket Booking,Pan India,12,False,4.4,4.5,0.9,3,full,as|bn|gu|hi|ml|or
+SNP-0016,BRIHAN MUMBAI ELECTRIC SUPPLY AND TRANSPORT,Seller Network Participant,ISN,,https://www.bestundertaking.com/about.asp'>www.bestundertaking.com/about.asp</a,,Unreserved Ticket Booking,Pan India,12,False,2.4,3.9,0.76,15,partial,kn|pa|ta|te
+SNP-0017,Bajaj Allianz General Insurance Co. Ltd.,Seller Network Participant,ISN,Finarkein Analytics,https://www.bajajallianz.com/'>www.bajajallianz.com/</a,,Insurance,Pan India,12,False,7.9,4.6,0.92,7,partial,en|ml
+SNP-0018,tripXOXO,Seller Network Participant,MSN,,https://tripxoxo.com'>tripxoxo.com</a,,Unreserved Entry Pass|Ticketing,Pan India,12,False,5.9,4.6,0.3,3,partial,as|en|ml|mr|pa|te
+SNP-0019,Rzervit,Seller Network Participant,MSN,,https://rzervit.com/'>rzervit.com/</a,,Unreserved Entry Pass|Ticketing,Pan India,12,False,6.9,4.3,0.95,16,partial,as|kn|ta
+SNP-0020,Shreeji Enterprise Services,Seller Network Participant,ISN,,www.shreejientserv.in,,Logistics (B2C),Pan India,12,False,8.0,3.9,0.31,6,none,as|or
+SNP-0021,Mrignayanee,Seller NP - Inventory Seller Node (ISN),ISN,,https://themrignayanee.com/'>themrignayanee/</a,RET-MULTI,,Pan India,12,True,6.9,4.9,0.68,21,none,as|or|te
+SNP-0022,BharatGo,Seller Network Participant,MSN,,https://www.bharatgo.com/'>www.bharatgo.com/</a,RET-MULTI,,Pan India,12,True,11.1,3.2,0.72,9,full,as|en|mr
+SNP-0023,Stelcore,Seller Network Participant,MSN,,www.stelcore.com,RET-MULTI,,Pan India,12,True,8.9,4.6,0.89,19,full,bn|en|ta
+SNP-0024,The TechTonic,Seller Network Participant,ISN,,https://thetechtonic.in/'>thetechtonic.in/</a,RET-MULTI,,Pan India,12,True,11.0,4.3,0.41,5,partial,gu|hi|pa
+SNP-0025,Ogoshops,Seller Network Participant,MSN,,https://www.vasyerp.com/'>www.vasyerp.com/</a,RET-MULTI,,Pan India,12,True,8.2,3.8,0.4,10,none,bn|gu|kn|mr|or
+SNP-0026,Innobits Solutions Pvt Ltd,Seller Network Participant,MSN,,bitsila.com,RET-MULTI,,Pan India,12,True,11.4,3.4,0.41,16,full,bn|en|hi|ta
+SNP-0027,KALASH,Seller Network Participant,MSN,,www.kalash.digiit.ai,RET-MULTI,,Pan India,12,True,9.8,3.5,0.93,12,full,en|te
+SNP-0028,Qwipo,Seller Network Participant,MSN,,https://qwipo.com/'>qwipo.com/</a,RET-MULTI,,Pan India,12,True,3.7,3.7,0.77,14,partial,gu|kn
+SNP-0029,QUCO,Seller Network Participant,MSN,,www.quco.co.in,RET-MULTI,,Pan India,12,True,2.6,3.1,0.43,7,full,as|bn|pa
+SNP-0030,Bharatrath,Seller Network Participant,MSN,,https://www.bharatrath.com/'>www.bharatrath.com/</a,RET-MULTI,,Pan India,12,True,11.4,3.1,0.73,8,partial,as|gu|hi
+SNP-0031,Aurika Tech,Seller Network Participant,MSN,,https://goldenjewellery.netlify.app/'>goldenjewellery.netlify.app/</a,RET-MULTI,,Pan India,12,True,2.6,4.2,0.79,4,partial,as|gu|or|te
+SNP-0032,Gonukkad.com,Seller Network Participant,MSN,,Marico,RET-MULTI,,Pan India,12,True,4.9,3.1,0.63,8,partial,as|hi|ml|or|ta
+SNP-0033,Navankur,Seller Network Participant,MSN,,www.navankur.org,RET-MULTI,,Pan India,12,True,5.0,4.4,0.46,8,none,as|bn|kn
+SNP-0034,Channelier,Seller Network Participant,MSN,,https://sellers.channelier.com/'>sellers.channelier.com/</a,RET-MULTI,,Pan India,12,True,11.8,3.9,0.64,16,partial,kn|or|ta
+SNP-0035,Channelier,Seller Network Participant,MSN,,https://sellers.channelier.com/'>sellers.channelier.com/</a,RET-MULTI,,Pan India,12,True,4.1,4.1,0.56,3,partial,as|bn|en|gu|pa|te
+SNP-0036,Ideamasters,Seller Network Participant,MSN,,https://ideamasters.in'>ideamasters.in</a,RET-MULTI,,Pan India,12,True,9.7,3.4,0.47,17,partial,en|ml|mr|te
+SNP-0037,Avighnaa Compliances India Private Limited,Seller Network Participant,MSN,,https://ondc.brandshops.info'>ondc.brandshops.info</a,RET-MULTI,,Pan India,12,True,11.8,4.1,0.93,20,partial,bn|ml
+SNP-0038,Yuukke Global Ventures private Limited,Seller Network Participant,MSN,,yuukke.com,RET-MULTI,,Pan India,12,True,8.0,3.2,0.88,19,partial,bn|ml|mr|pa
+SNP-0039,DBS,Seller Network Participant,MSN,,www.digiit.biz,RET-MULTI,,Pan India,12,True,4.6,3.8,0.72,12,partial,as|bn|en|ml|te
+SNP-0040,Veltronics India Pvt Ltd,Seller Network Participant,MSN,,https://www.veltronics.com/'>www.veltronics.com/</a,RET-MULTI,,Pan India,12,True,2.6,4.3,0.46,7,none,hi|ml|pa
+SNP-0041,Vistar,Seller Network Participant,MSN,,https://www.earnestdata-analytics.in/'>www.earnestdata-analytics.in/</a,RET-MULTI,,Pan India,12,True,7.8,3.4,0.97,18,full,bn|mr|pa|te
+SNP-0042,Nagpur Metro,Seller Network Participant,ISN,,www.metrorailnagpur.com/,,Unreserved Ticket Booking,Pan India,12,False,6.2,3.8,0.71,14,none,as|hi|or|te
+SNP-0043,AllEvents Informations Pvt Ltd,Seller Network Participant,ISN,,allevents.in,,Unreserved Entry Pass|Ticketing,Pan India,12,False,2.3,3.5,0.35,6,partial,hi|mr
+SNP-0044,Bijliride Private Limited,Seller Network Participant,ISN,,www.bijliride.com,,Logistics (B2C),Pan India,12,False,7.1,3.2,0.99,8,none,bn|gu|mr|pa|te
+SNP-0045,Addble,Seller Network Participant,MSN,,https://addble.com'>addble.com</a,RET-MULTI,,Pan India,12,True,7.2,3.8,0.76,21,full,kn|ta
+SNP-0046,THARAI TRAVELS,Seller Network Participant,ISN,,www.tharaitravels.com,,Reserved Ticket Booking,Pan India,12,False,2.4,4.4,0.99,15,partial,pa|te
+SNP-0047,KRS TRAVELS,Seller Network Participant,ISN,,www.krstravels.in,,Reserved Ticket Booking,Pan India,12,False,8.8,3.5,0.3,21,full,as|bn
+SNP-0048,ESSAAR,Seller Network Participant,ISN,,https://www.essaar.net'>www.essaar.net</a,,Reserved Ticket Booking,Pan India,12,False,11.4,3.1,0.52,11,partial,as|en|hi|ml|pa|te
+SNP-0049,SRI SUGAM TRAVELS,Seller Network Participant,ISN,,www.srisugamtravels.in,,Reserved Ticket Booking,Pan India,12,False,7.3,3.2,0.63,3,none,bn|en|gu|mr|pa|ta
+SNP-0050,ALAGAPPA TOURS AND TRAVELS PRIVATE LIMITED,Seller Network Participant,ISN,,www.alagappatravels.in,,Reserved Ticket Booking,Pan India,12,False,6.9,4.1,0.62,10,full,as|en|ml|or
+SNP-0051,Universal Transport Service,Seller Network Participant,ISN,,www.universaltransportservice.com,,Reserved Ticket Booking,Pan India,12,False,11.7,4.8,0.94,15,partial,gu|mr|pa
+SNP-0052,SWAMY AYYAPPA TRAVELS,Seller Network Participant,ISN,,www.swamyayyappatravels.in,,Reserved Ticket Booking,Pan India,12,False,7.5,4.0,0.62,14,partial,en|or
+SNP-0053,Futuresoft Seller Hub,Seller NP - Marketplace Seller Node (MSN),,,https://futuresoftindia.com/eCommerce/ondc/,RET-MULTI,,Pan India,12,True,9.5,3.5,0.78,18,full,bn|gu|hi|or|pa|te
+SNP-0054,Respo Financial Capital Private Limited,Seller Network Participant,ISN,,https://respo.co.in/'>respo.co.in/</a,,Credit,Pan India,12,False,2.3,4.5,0.94,16,none,bn|or|ta
+SNP-0055,DOTexp LLP,Seller Network Participant,ISN,PROROUTING TECHNOLOGY PRIVATE LIMITED,https://deliveryontime.co.in/'>deliveryontime.co.in</a,,Logistics,Pan India,12,False,2.0,3.5,0.98,8,full,en|kn|mr|ta
+SNP-0056,Shop Khulega,Seller Network Participant,MSN,,https://techsandhya.com/'>techsandhya.com/</a,RET-MULTI,,Pan India,12,True,5.4,4.1,0.85,3,partial,ml|or
+SNP-0057,Mr.Delivery Services,Seller Network Participant,ISN,PROROUTING TECHNOLOGY PRIVATE LIMITED,https://mrdelivery.in/'>mrdelivery.in/</a,,Logistics,Pan India,12,False,6.0,4.7,0.77,10,partial,as|bn|kn|mr|or|te
+SNP-0058,Goodlife Consultants,Seller Network Participant,ISN,,https://arambh.tech/'>Arambh.tech</a,,Logistics,Pan India,12,False,6.3,3.2,0.66,6,none,bn|en|ml|mr
+SNP-0059,Nstore,Seller Network Participant,MSN,,https://www.nstore.in/'>www.nstore.in</a,RET-MULTI,,Pan India,12,True,8.4,4.2,0.82,7,none,en|gu
+SNP-0060,Karanataka Bank,Seller Network Participant,ISN,,https://www.karnatakabank.bank.in/'>karnatakabank.com/</a,,Credit,Pan India,12,False,7.3,4.3,0.98,18,none,ml|or|pa|ta|te
+SNP-0061,ftcash,Seller Network Participant,ISN,,http://ftcash.com/'>ftcash.com</a,,Credit,Pan India,12,False,3.9,3.4,0.84,4,none,ml|pa|ta
+SNP-0062,Jagdamba Polymers Limited,Seller NP - Marketplace Seller Node (MSN),MSN,Grossky Software Services,https://ankur.thebharavi.com/'>https://ankur.thebharavi.com/</a,RET-MULTI,,Pan India,12,True,2.1,4.0,0.43,15,partial,gu|or
+SNP-0063,"Department of Posts , Government of India, Ministry of communications",Seller Network Participant,ISN,,https://www.indiapost.gov.in/'>www.indiapost.gov.in/</a,,Logistics (B2C),Pan India,12,False,7.5,3.2,0.53,7,partial,bn|ml|mr|or|ta|te
+SNP-0064,Sahakar Taxi Cooperative Limited,Seller Network Participant,ISN,Moving Tech Innovations Private Limited,https://bharattaxiapp.com/'>bharattaxiapp.com/</a,,Ride Hailing,Pan India,12,False,4.3,3.5,0.74,17,none,en|ml|mr|ta
+SNP-0065,CareBazar,Seller Network Participant,ISN,ProRouting,https://www.carebazar.in'>www.carebazar.in</a,,Logistics (B2C),Pan India,12,False,9.1,4.4,0.35,21,partial,as|bn|hi|or|pa|te
+SNP-0066,Zigi Electric Services,Seller Network Participant,ISN,ProRouting,https://www.zigiservice.com'>zigiservice.com</a,,Logistics (B2C),Pan India,12,False,7.0,3.1,0.76,19,full,as|ml
+SNP-0067,Mondee.com,Seller Network Participant,MSN,,https://www.mondee.com'>mondee.com</a,,Unreserved Entry Pass|Ticketing,Pan India,12,False,11.4,4.9,0.81,10,partial,hi|ml|or
+SNP-0068,https://getgrun.co/logistics,Seller Network Participant,ISN,,https://getgrun.co/logistics'>getgrun.co/logistics</a,,Logistics (B2C),Pan India,12,False,2.1,4.9,1.0,18,none,as|en|ml|ta
+SNP-0069,mperito,Seller Network Participant,MSN,,https://mindsclik.com'>mindsclik.com</a,RET-MULTI,,Pan India,12,True,2.7,4.6,0.48,11,full,as|en|gu|ml
+SNP-0070,KALASATHI,Seller NP - Marketplace Seller Node (MSN),MSN,,https://kalasathi.com/,RET-MULTI,,Pan India,12,True,5.2,3.1,0.38,19,full,as|hi|ml|or
+SNP-0071,Uber,Seller Network Participant,ISN,,https://www.uber.com/in/en/'>www.uber.com/in/en/</a,,Logistics (B2C),Pan India,12,False,7.9,4.2,0.83,11,full,or|ta
+SNP-0072,APOLLO PHARMALOGISTICS PRIVATE LIMITED,Seller Network Participant,ISN,,https://www.apollo247.com/'>www.apollo247.com/</a,,Logistics (B2C),Pan India,12,False,2.8,4.0,0.56,9,partial,en|kn|ml|mr|pa|te
+SNP-0073,KRider,Seller Network Participant,ISN,,https://www.kpnfresh.com/'>www.kpnfresh.com/</a,,Logistics (B2C),Pan India,12,False,5.8,4.9,0.81,15,full,as|ta
+SNP-0074,highway delite,Seller Network Participant,MSN,,,,Unreserved Entry Pass|Ticketing,Pan India,12,False,3.9,4.5,0.7,20,none,as|kn|ml|mr|ta
+SNP-0075,Bikozee Ecotech Private Limited,Seller Network Participant,MSN,,,,Ride Hailing,Pan India,12,False,5.6,3.2,0.66,21,none,hi|ml
+SNP-0076,NSDL DATABASE MANAGEMENT LIMITED,Seller Network Participant,ISN,,,,Unreserved Entry Pass|Ticketing,Pan India,12,False,8.1,4.6,0.34,20,full,gu|kn|mr|or|pa|ta
+SNP-0077,Hippo Innovations Private Limited,Seller Network Participant,MSN,,,,Skilled and Semi Skilled Services,Pan India,12,False,10.0,4.1,0.97,16,full,kn|or|pa
+SNP-0078,GoodMove,Seller Network Participant,ISN,,https://goodmove.in/'>goodmove.in/</a,,Logistics (B2C),Pan India,12,False,2.4,3.1,0.59,20,full,bn|or|ta
+SNP-0079,Scooton,Seller Network Participant,ISN,,www.scooton.app,,Logistics (B2C),Pan India,12,False,8.5,3.7,0.71,12,none,en|gu|hi|ml|mr|or
+SNP-0080,Mission YUVA,Seller Network Participant,MSN,,missionyuva.in,RET-MULTI,,Pan India,12,True,10.4,4.0,0.58,7,none,as|bn|kn|ml|ta
+SNP-0081,Baayu,Seller Network Participant,MSN,,https://baayu.in/'>baayu.in/</a,,Ride Hailing,Pan India,12,False,9.8,4.9,0.92,15,none,hi|kn|mr|te
+SNP-0082,Dpanda,Seller Network Participant,MSN,,www.dpanda.in/,RET-MULTI,,Pan India,12,True,9.1,3.9,0.86,16,none,bn|gu|ml|mr|or|pa
+SNP-0083,Aspire Finance Private Limited,Seller Network Participant,ISN,,https://www.aspirefinance.in/'>www.aspirefinance.in/</a,,Credit,Pan India,12,False,3.8,4.7,0.65,19,full,as|en|kn|mr|ta
+SNP-0084,SHIPPIN,Seller Network Participant,ISN,,www.shippin.in,,Logistics (B2C),Pan India,12,False,2.4,3.1,0.32,4,none,bn|or
+SNP-0085,ZIPPKARTPRO.COM,Seller Network Participant,ISN,,ZIPPKARTPRO.COM,,Logistics (B2C),Pan India,12,False,2.9,5.0,0.48,18,none,as|bn|hi|ml|ta
+SNP-0086,borzodelivery.com,Seller Network Participant,ISN,,borzodelivery.com,,Logistics (B2C),Pan India,12,False,7.1,3.3,0.76,9,none,as|en|kn|ml|or|pa
+SNP-0087,Gully Routers,Seller Network Participant,ISN,,,,Logistics (B2C),Pan India,12,False,3.5,3.4,0.39,10,full,as|bn|kn|or|ta
+SNP-0088,smr,Seller Network Participant,ISN,,,,Logistics (B2C),Pan India,12,False,10.7,4.8,0.73,15,none,ml|or
+SNP-0089,Neuson Consulting Services,Seller Network Participant,ISN,,,,Logistics (B2C),Pan India,12,False,9.6,4.1,0.45,8,partial,hi|kn
+SNP-0090,Localit manpower solutions,Seller Network Participant,ISN,,,,Logistics (B2C),Pan India,12,False,3.5,3.9,0.83,7,full,as|en|hi|mr|pa|ta
+SNP-0091,smart-link.in,Seller Network Participant,ISN,,smart-link.in,,Logistics (B2C),Pan India,12,False,8.7,4.2,0.74,19,full,as|bn|gu|ml
+SNP-0092,8Quad,Buyer Network Participant and Seller Network Participant,MSN,,https://www.8quad.com'>8quad.com</a,RET10,,Pan India,12,True,10.3,4.1,0.7,11,none,gu|kn
+SNP-0093,Addble,Seller Network Participant,MSN,,https://addble.com'>addble.com</a,AGR|RET13|RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,7.6,3.2,0.55,20,partial,bn|en|gu|ml|te
+SNP-0094,Aditya Birla Capital Limited,Seller Network Participant,ISN,Adya,https://finance.adityabirlacapital.com'>finance.adityabirlacapital.com</a,,Credit|Insurance,Pan India,12,False,8.0,3.4,0.79,20,full,gu|hi|ml|mr|or
+SNP-0095,Alpino,Seller Network Participant,ISN,Shopalyst,https://alpino.store'>alpino.store</a,RET10|RET18,,Pan India,12,True,9.2,3.1,0.9,6,partial,as|bn|kn|ml|te
+SNP-0096,Appacus,Seller Network Participant,ISN,Adya,https://www.techbzar.com'>techbzar.com</a,RET14,,Pan India,12,True,7.1,4.8,0.49,8,full,as|gu|mr|pa|ta
+SNP-0097,Applicate IT Solutions Private Limited/ Salescode,Seller Network Participant,MSN,,https://www.salescode.ai'>salescode.ai</a,,,Pan India,12,False,3.2,3.8,0.63,3,full,as|bn|ml|mr|ta|te
+SNP-0098,AVIGHNAA COMPLIANCES INDIA,Seller Network Participant,MSN,Plotch,https://ondc.brandshops.info'>ondc.brandshops.info</a,RET13|RET14|RET11|RET10|RET18|RET16,,Pan India,12,True,2.7,3.2,0.34,14,partial,en|hi|pa
+SNP-0099,Aavishk Sustainable Solution Pvt Ltd,Seller Network Participant,MSN,,https://www.avysh.com/'>avysh.com</a,RET13|RET14|RET10|RET16,,Pan India,12,True,4.5,4.4,0.48,18,full,as|kn
+SNP-0100,Association of Indian Magazines,Seller Network Participant,,,https://aim.org.in/'>aim.org.in</a,RET-MULTI,,,unknown,True,5.7,4.1,0.32,19,full,as|bn|en|pa|ta
+SNP-0101,Bajaj Allianz General Insurance Co. Ltd.,Seller Network Participant,ISN,,https://www.bajajallianz.com/'>bajajallianz.com</a,,Insurance,Pan India,12,False,9.3,4.7,0.66,10,full,bn|en|ml
+SNP-0102,Bajaj Finance Limited,Seller Network Participant,ISN,Ignosi Systems private limited,https://www.aboutbajajfinserv.com/finance-about-us'>aboutbajajfinserv.com</a,,Credit,Pan India,12,False,6.0,4.3,0.54,17,none,as|bn
+SNP-0103,Bamboology Pvt Ltd,Seller Network Participant,ISN,Futuresoft,https://bamboologytrends.com/'>bamboologytrends.com</a,RET12,,Pan India,12,True,7.9,3.9,0.4,6,partial,as|bn|gu|hi|kn|pa
+SNP-0104,Bangalore Metro,Seller Network Participant,,Sequel String,,,Unreserved Ticketing,,unknown,False,9.5,4.2,0.93,16,partial,bn|en|hi
+SNP-0105,Bech.app by SignCatch,Seller Network Participant,MSN,-,https://www.bech.app'>bech.app</a,RET10,,Pan India,12,True,7.3,4.5,0.78,3,none,as|gu|pa
+SNP-0106,Bhimavaram Online,Seller Network Participant,MSN,,https://bhimavaram.online'>bhimavaram.online</a,,,Pan India,12,False,8.2,4.1,0.66,3,partial,hi|or
+SNP-0107,Billion Careers Private Limited,Buyer Network Participant and Seller Network Participant,MSN,,https://www.billioncareers.in/'>billioncareers.in</a,,Work Opportunities,Pan India,12,False,9.8,4.5,0.99,3,none,bn|gu|kn|ta|te
+SNP-0108,Bizom,Seller Network Participant,MSN,-,https://bizom.com/ondc-seller-registration/'>bizom.com</a,RET-MULTI|RET13|RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,11.6,4.3,0.58,5,partial,as|en|hi|ml
+SNP-0109,Blue Star Limited,Seller Network Participant,ISN,,https://www.bluestarindia.com'>bluestarindia.com</a,RET14,,Pan India,12,True,11.2,5.0,0.48,19,partial,gu|hi|kn|mr|ta|te
+SNP-0110,BLITZ,Seller Network Participant,ISN,,,,Logistics,,unknown,False,8.1,4.1,0.4,14,none,bn|kn|ml
+SNP-0111,BoAt,Seller Network Participant,ISN,Shopalyst,https://www.boat-lifestyle.com/'>boat-lifestyle.com</a,RET14,,Pan India,12,True,5.7,4.6,0.86,3,full,as|hi|mr|or|te
+SNP-0112,Botanic Hearth,Seller Network Participant,ISN,Shopalyst,https://www.botanichearth.in/'>botanichearth.in</a,RET13,,Pan India,12,True,5.6,3.1,0.57,21,none,en|gu|ml|mr
+SNP-0113,BuyNxt Private Limited-Green Receipt,Seller Network Participant,MSN,,https://www.greenreceipt.in'>greenreceipt.in</a,RET13|RET14|RET12|RET11|RET10|RET18|RET16,,Pan India,12,True,9.2,3.5,0.32,10,partial,hi|mr
+SNP-0114,Buyume,Seller Network Participant,MSN,,https://buyume.io/'>buyume.io</a,RET13,,Delhi NCR,11,True,11.8,3.7,0.48,12,full,hi|or
+SNP-0115,Channelier/ Arachnomesh Technologies,Seller Network Participant,MSN,,https://sellers.channelier.com/#/home'>sellers.channelier.com</a,RET15|RET13|RET1C|RET14|RET12|RET10|RET1B,Agri Inputs|Auto Parts and Components|Chemicals|Health and Wellness|Home and Kitchen,Pan India,12,True,6.6,4.4,0.32,4,none,ml|mr|or|te
+SNP-0116,ChattyBao Technologies Pvt Ltd,Seller Network Participant,MSN,,https://chattybao.com/'>chattybao.com</a,RET10,,Lucknow,11,True,9.9,3.5,0.68,19,partial,as|hi
+SNP-0117,Chennai Metro Rail Limited,Seller Network Participant,ISN,,https://chennaimetrorail.org/'>chennaimetrorail.org</a,,Unreserved Ticket Booking,Chennai,11,False,6.5,3.3,0.77,7,full,bn|kn|or|te
+SNP-0118,Cosmos,Seller Network Participant,ISN,,https://cosmos.kiko.live/'>cosmos.kiko.live</a,RET10,,Pan India,12,True,6.3,4.5,0.43,21,partial,bn|kn|ml|te
+SNP-0119,COSTBO Services Pvt Ltd,Seller Network Participant,MSN,,https://costbo.com'>costbo.com</a,RET15|RET13|RET14|RET10|RET18|RET16,,Pan India,12,True,6.2,3.7,0.38,12,partial,as|or
+SNP-0120,Craftsvilla,Buyer Network Participant and Seller Network Participant,MSN,Plotch,https://www.craftsvilla.com'>craftsvilla.com</a,RET13|RET12|RET11|RET10|RET18|RET16,Electronic Appliances,Pan India,12,True,8.6,4.6,0.89,10,partial,as|kn|mr|or|te
+SNP-0121,Cerve,Seller Network Participant,,,,RET-MULTI,,Pan India,12,True,8.9,4.2,0.97,13,none,bn|mr|or|pa|ta
+SNP-0122,CSC Grameen E-Store,Buyer Network Participant and Seller Network Participant,MSN,Protean,https://cscestore.in/'>cscestore.in</a,RET13|RET14|RET12|RET10|RET18|RET16|RET19,,Pan India,12,True,3.8,3.6,0.43,9,partial,as|or
+SNP-0123,Cybrilla Technologies Private Limited,Seller Network Participant,MSN,,https://cybrilla.com'>cybrilla.com</a,,Investment,Pan India,12,False,4.1,4.6,0.66,8,partial,en|ml|mr
+SNP-0124,Dailybee,Seller Network Participant,MSN,,https://www.dailybee.in'>dailybee.in</a,RET11|RET10,,Hyderabad|Warangal,11,True,4.0,3.1,0.53,15,partial,bn|or|ta|te
+SNP-0125,Dehaat,Buyer Network Participant and Seller Network Participant,MSN,,https://agrevolution.in'>agrevolution.in</a,AGR,,Pan India,12,False,4.4,4.8,0.33,17,full,as|pa|ta
+SNP-0126,Delhi Metro Rail Corporation Limited,Seller Network Participant,ISN,SEQUELSTRING AI,https://www.delhimetrorail.com'>delhimetrorail.com</a,,Unreserved Ticket Booking,Delhi NCR,11,False,11.5,3.3,0.95,21,none,bn|hi|or|pa|ta
+SNP-0127,Delhi Transport Corporation,Buyer Network Participant and Seller Network Participant,ISN,,https://dtc.delhi.gov.in'>dtc.delhi.gov.in</a,,Unreserved Ticket Booking,Delhi NCR,11,False,8.7,3.4,0.64,10,full,bn|gu|ml|mr|pa|ta
+SNP-0128,Dharampal Satyapal Limited,Seller Network Participant,ISN,ENS Enterprises,https://rajnigandha.com/'>rajnigandha.com</a,RET10,,Pan India,12,True,11.5,4.4,0.67,4,partial,as|bn|gu|pa|te
+SNP-0129,bhaiyaa,Seller Network Participant,MSN,,https://www.bhaiyaa.com/'>bhaiyaa.com</a,RET10,,,unknown,True,9.3,3.9,0.62,14,none,ml|mr|or
+SNP-0130,Digiit,Seller Network Participant,MSN,-,https://www.digiit.biz'>digiit.biz</a,AGR|RET-MULTI|RET13|RET14|RET12|RET11|RET10|RET16,,Bangalore|Bhubaneswar|Chennai|Chidambaram|Coimbatore|Dharmapuri|Dindigul|Ernakulam|Erode|Guruvayur|Kannur|Karaikudi|Karur|Kollam|Kumbakonam|Madurai|Madurai|Mailaduthurai|Mannar|Mannarkudi|Marathandam|Mettupalayam|Mohali|Mumbai|Nagapattinam|Nagerkovil|Namakal|Pattukottai|Pollachi|Ramanathapuram|Ramanathapuram|Salem|Salem|Srikali|Thanjavur|Thirchungode|Thiruvarur|Thrissur|Tiruchirappalli|Tiruppur|Trivandram|pudukottai|virudthunagar,11,True,8.6,3.9,0.33,8,none,as|bn|en|hi|or
+SNP-0131,Digiledge,Seller Network Participant,MSN,,https://digiledge.in/'>digiledge.in</a,RET13|RET14|RET12|RET10|RET18|RET16,,Bangalore,11,True,7.5,3.9,0.44,10,none,as|kn
+SNP-0132,Digital India Corporation,Seller Network Participant,MSN,,https://dic.gov.in/'>dic.gov.in</a,RET13|RET12|RET16,,Pan India,12,True,4.4,4.6,0.9,12,none,as|bn|gu
+SNP-0133,DMI FINANCE PRIVATE LIMITED,Seller Network Participant,ISN,Refo,,,Credit,Pan India,12,False,3.8,3.5,0.41,13,full,bn|or|pa
+SNP-0134,Dominos,Seller Network Participant,ISN,,https://www.dominos.co.in'>dominos.co.in</a,,Food & Beverage,Pan India,12,False,8.0,3.6,0.67,9,full,gu|ml|pa
+SNP-0135,DP Bazaar,Seller Network Participant,MSN,Grossky Software Services,https://www.dpbazaar.com/'>dpbazaar.com</a,RET-MULTI,,,unknown,True,10.6,3.4,0.81,6,full,bn|en|gu|hi
+SNP-0136,DPI Corporation Private Limited,Seller Network Participant,MSN,,https://dpicorp.io'>dpicorp.io</a,RET10,,Aligarh|Bangalore|Delhi NCR|Ramanagar,11,True,3.0,5.0,0.55,7,full,kn|ta
+SNP-0137,Dunzo,Seller Network Participant,ISN,,https://www.dunzo.com/business'>dunzo.com</a,RET10,,Banglore|Chennai|Delhi|Gurugram|Hyderabad|Kolkata|Mumbai|Noida|Pune,11,True,7.9,3.7,0.7,21,none,kn|or|te
+SNP-0138,Duttmark Bazar Private Limited,Seller Network Participant,MSN,,,RET-MULTI,,a,11,True,10.9,4.3,0.91,6,full,gu|hi|or|pa
+SNP-0139,Early Salary,Seller Network Participant,ISN,,https://earlysalary.in/'>earlysalary.in</a,,Credit,Pan India,12,False,9.3,4.0,0.68,21,none,as|hi|ml|mr|ta|te
+SNP-0140,Earnest Data Analytics Private Limited,Buyer Network Participant and Seller Network Participant,MSN,,https://www.earnestdata-analytics.in/'>earnestdata-analytics.in</a,,Gift Card,Pan India,12,False,3.6,3.4,0.38,5,partial,as|bn|mr
+SNP-0141,easemytrip,Seller Network Participant,MSN,,,,Accommodation Booking,,unknown,False,6.2,4.9,0.6,13,full,as|gu|ml|te
+SNP-0142,easemytrip,Seller Network Participant,,,,,Reserved Ticket Booking,,unknown,False,11.1,3.8,0.85,21,partial,bn|hi|ml|te
+SNP-0143,Easy Pay Pvt. Ltd.,Buyer Network Participant and Seller Network Participant,MSN,,https://easypay.in'>easypay.in</a,RET1A|RET13|RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,2.7,4.7,0.39,15,partial,en|gu|kn|or
+SNP-0144,Eatanytime,Seller Network Participant,ISN,Shopalyst,https://eatanytime.in/'>eatanytime.in</a,RET10,,Pan India,12,True,2.8,4.7,0.52,15,full,as|gu|ml|mr
+SNP-0145,Eatclub Brands Private limited,Seller Network Participant,ISN,,https://www.eatclub.in'>eatclub.in</a,RET11,,Pan India,12,True,9.4,4.9,0.43,11,partial,as|bn|pa|ta
+SNP-0146,Effizent Seele Pvt Ltd,Seller Network Participant,MSN,Plotch,https://www.effizentseele.com'>effizentseele.com</a,RET12|RET10,,Delhi|Gwalior|Mumbai,11,True,2.4,4.2,0.57,12,none,bn|ml
+SNP-0147,Ekbharat Fleet,Seller Network Participant,ISN,Adloggs Technologies Private Limited,,,Logistics,,unknown,False,8.1,4.8,0.71,13,none,ml|pa
+SNP-0148,eSamudaay - Lucknow,Seller Network Participant,MSN,-,https://www.esamudaay.com/'>esamudaay.com</a,RET11|RET10,,Ahmedabad|Bailhongal|Bansur|Bardez|Bengaluru|Bhopal|Bijnor|Chikkamagaluru|Cuttack|Dehradun|Gorakhpur|Hamirpur|Haridwar|Jammu and Kashmir|Kanpur|Kaup|Kotdwar|Kotputli|Lakhimpur Kheri|Lucknow|Mandya|Mangalore|Meerut|Mudbidri|Mysuru|Parsa|Porvorim|Ranebennur|Shillong|Singur|Surathkal|Tiswadi|Udupi,11,True,4.1,3.7,0.35,5,partial,bn|or
+SNP-0149,Euphoria Bakers,Seller Network Participant,ISN,,https://www.euphoriabakers.in'>euphoriabakers.in</a,RET11,,Hyderabad|Secunderabad,11,True,5.6,4.2,0.54,11,none,gu|hi|kn|mr|ta|te
+SNP-0150,Fastrack Eyewear (Titan Company Limited),Seller Network Participant,ISN,,https://www.titancompany.in/'>titancompany.in</a,RET12,,Pan India,12,True,5.8,4.6,0.47,8,partial,as|en|hi|ml|mr|pa
+SNP-0151,FollowG,Seller Network Participant,MSN,Adya,https://www.followg.com/'>followg.com</a,RET14,,Pune,11,True,5.8,4.3,0.46,4,partial,gu|kn|ta
+SNP-0152,Foundation for Development of Rural Value Chains,Seller Network Participant,ISN,,https://www.esaras.in'>esaras.in</a,RET12|RET16,,Delhi NCR,11,True,3.8,3.1,0.55,16,none,bn|gu|kn|or
+SNP-0153,Freshclub,Seller Network Participant,ISN,,https://freshclub.co.in/'>freshclub.co.in</a,RET10,,Hyderabad,11,True,9.9,4.6,0.77,15,partial,as|gu|ml|mr
+SNP-0154,Fynd,Seller Network Participant,MSN,,https://www.fynd.com/'>fynd.com</a,RET13|RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,10.1,3.8,0.89,20,none,en|gu|hi|ml|or|te
+SNP-0155,Getdirect (Alltechlabs Private Ltd),Seller Network Participant,MSN,Adya,https://www.getdirect.co.in'>getdirect.co.in</a,RET10,,Pan India,12,True,5.8,3.9,0.47,11,none,en|hi|kn|ml|ta|te
+SNP-0156,Futuretek Commerce Pvt Ltd,Seller Network Participant,MSN,,,RET-MULTI,,,unknown,True,7.1,3.1,0.31,18,none,as|bn|gu|mr|pa
+SNP-0157,Globallinker,Seller Network Participant,MSN,-,https://www.globallinker.com/'>globallinker.com</a,RET13|RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,7.5,4.2,0.8,18,none,as|gu|ta|te
+SNP-0158,GoFrugal,Seller Network Participant,MSN,-,https://www.gofrugal.com/ondc-ready-erp-software.html'>gofrugal.com</a,RET10,,Pan India,12,True,6.6,3.0,0.31,21,none,en|hi|kn|ml|te
+SNP-0159,GrowthFalcons,Seller Network Participant,MSN,-,https://growthfalcons.com/digitize-smbs/'>growthfalcons.com</a,RET11,,Bengaluru|New Delhi,11,True,4.9,3.8,0.7,13,none,en|mr|or|ta|te
+SNP-0160,Happistores,Seller Network Participant,MSN,,https://www.happistores.com'>happistores.com</a,RET14,,Pan India,12,True,6.9,3.8,0.83,8,none,hi|kn|ml|mr|pa
+SNP-0161,HappyPay,Seller Network Participant,MSN,,https://www.happypay.live/'>happypay.live</a,RET13|RET12|RET11|RET10|RET18|RET16,Eletronics & Appliances,Hyderabad|Vijaywada|Vishakhapatnam,11,True,3.8,3.2,0.72,4,partial,en|gu|kn|pa|ta
+SNP-0162,Hashtag Loyalty Private Limited,Seller Network Participant,MSN,-,https://about.thrivenow.in'>about.thrivenow.in</a,RET11,,Bangalore|Chennai|Delhi|Faridabad|Gurugram|Hyderabad|Jaipur|K.V.Rangareddy|Kolkata|Mumbai|Mysore|Nagpur|Pondicherry|Pune|Raigarh|South 24 Parganas|Thane,11,True,11.9,3.8,0.57,6,full,ml|ta
+SNP-0163,Hedso Health and Wellness Private Limited,Seller Network Participant,ISN,Marble Systems,https://hoophello.com/'>hoophello.com</a,RET18,,Pan India,12,True,9.2,4.4,0.42,21,partial,as|en|mr
+SNP-0164,HELPAGE FINLEASE LIMITED,Seller Network Participant,ISN,FinAGG Technologies,https://www.helpagefinlease.com/'>helpagefinlease</a,,Credit,,unknown,False,2.7,5.0,0.45,9,partial,as|gu|or|te
+SNP-0165,Hexbit,Seller Network Participant,MSN,,https://www.hexbit.io/'>hexbit.io</a,RET13|RET12,,Pan India,12,True,8.5,4.0,0.92,18,partial,as|en|hi
+SNP-0166,Himira,Seller Network Participant,MSN,,http://himira.co.in/'>himira.co.in</a,RET-MULTI,,,unknown,True,7.0,3.6,0.69,18,none,pa|ta
+SNP-0167,Home Triangle,Buyer Network Participant and Seller Network Participant,MSN,,https://hometriangle.com/'>hometriangle.com</a,,Beauty & Personal Care Services|Home and Infrastructure Services|Repair and Maintenance,Pan India,12,False,11.6,3.5,0.35,12,partial,en|kn|ta
+SNP-0168,HUL Shikhar,Seller Network Participant,MSN,,https://easyreach.co.in/'>easyreach.co.in</a,RET10,,Pan India,12,True,9.5,4.1,0.72,21,partial,en|hi|pa|ta
+SNP-0169,HYPERION BIOSCIENCES PRIVATE LIMITED,Seller Network Participant,MSN,,https://www.tazohome.com/'>tazohome.com</a,RET11|RET10,,Mumbai,11,True,8.1,3.6,0.84,8,partial,mr|or|pa|ta|te
+SNP-0170,Ideamasters,Seller Network Participant,MSN,ENS Enterprises,https://ondc.ideamasters.store'>ondc.ideamasters.store</a,RET13|RET14|RET12|RET10|RET18|RET16,,GUJARAT|HARYANA|JAMMU & KASHMIR|NEW DELHI|PUNJAB|UP,11,True,6.0,3.9,0.9,20,partial,en|gu|ml|mr|ta|te
+SNP-0171,IMFAST FINFOTECH PRIVATE LIMITED,Seller Network Participant,MSN,,,,Credit,,unknown,False,6.6,4.9,0.63,9,none,mr|or
+SNP-0172,Implexians Eco Solutions Private Limited,Seller Network Participant,ISN,Shopalyst,https://www.trustbasket.com/'>trustbasket.com</a,RET16,,Banglore|Delhi NCR,11,True,4.7,3.5,0.6,17,partial,gu|pa|te
+SNP-0173,InstaStack,Seller Network Participant,MSN,,https://instastack.io/'>instastack.io</a,RET13|RET14|RET12|RET11|RET10|RET18|RET16,,Ahmed Nagar|Akola|Aurangabad|Bangalore|Beed|Belgaum|Bhopal|Buldhana|Coimbatore|Dakshina Kannada|Davangere|Dharwad|Dhule|Gurgaon|Gurugram|Indore|Jaipur|Jalgaon|Jalna|Kolhapur|Mumbai|Nagpur|Nanded|Nandurbar|Nashik|North Goa|Parbhani|Pune|Raigarh|Ratnagiri|Sangli|Satara|Sindhudurg|Solapur|South Goa|Thane|Udupi|Ujjain|Wardha|Yavatmal,11,True,4.1,4.2,0.89,14,none,as|hi|kn|ta
+SNP-0174,Jajee,Seller Network Participant,ISN,Shopalyst,https://jajee.in'>jajee.in</a,RET10,,Bengaluru,11,True,8.0,3.8,0.53,7,partial,as|kn|mr|or|ta|te
+SNP-0175,Jhakaas Retail Pvt Ltd / Hulsecure,Seller Network Participant,ISN,ENS Enterprises,https://www.globald2c.com/'>globald2c.com</a,RET13|RET10|RET18,,Pan India,12,True,7.4,3.5,0.37,6,none,kn|pa
+SNP-0176,Karnataka Bank,Seller Network Participant,ISN,Ignosis,https://karnatakabank.com/'>karnatakabank.com</a,,Credit,Pan India,12,False,9.9,3.8,0.7,13,partial,bn|hi|te
+SNP-0177,Kairawi Nutrients Pvt. Ltd.,Seller Network Participant,ISN,Futuresoft India Pvt Ltd,https://mooogly.in/'>mooogly.in</a,RET10,,Pan India,12,True,8.1,4.1,0.67,13,none,gu|hi
+SNP-0178,KATCH MOBILITY PRIVATE LIMITED,Seller Network Participant,MSN,,https://katchapp.in/'>katchapp.in</a,,Unreserved Ticket Booking,,unknown,False,11.5,4.3,0.59,10,partial,bn|en|gu|ml|mr|ta
+SNP-0179,Kiko Live,Buyer network Participant and Seller Network Participant,MSN,Zoho,https://sellers.kiko.live/'>sellers.kiko.live</a,RET11|RET10,,Delhi NCR,11,True,8.8,3.4,0.81,5,full,mr|ta
+SNP-0180,KNS Commerce India Private Limited,Seller Network Participant,MSN,,https://mysellercentral.com/'>mysellercentral.com</a,RET16,,Almora|Chandigarh|Dehradun|Dhar|Gautam Buddha Nagar|Ghaziabad|Hazaribag|Imphal West|Jaipur|Jammu|Jodhpur|Kolkata|Madhubani|Nagaon|Patna|Prayagraj|Pune|Saitual|Thoubal|Udaipur|Udhampur|West Midnapore,11,True,6.2,5.0,0.48,16,full,as|kn
+SNP-0181,Krenai,Seller Network Participant,MSN,,https://krenai.com/'>krenai.com</a,RET10,,,unknown,True,11.9,4.6,0.56,20,none,as|hi|kn|ml|te
+SNP-0182,LABOURNET SERVICES INDIA PRIVATE LIMITED,Seller Network Participant,MSN,,https://labournet.in/'>labournet.in</a,,Work Opportunities,Pan India,12,False,9.4,3.2,0.93,8,full,gu|ml|or
+SNP-0183,LKT DigiTech Pvt Ltd,Seller Network Participant,MSN,,https://localekart.com/'>localekart.com</a,RET10,,Pan India,12,True,11.7,3.8,0.67,19,full,en|hi|kn|pa|te
+SNP-0184,Magicpin,Buyer Network Participant and Seller Network Participant,MSN,-,https://magicpin.in/'>magicpin.in</a,RET13|RET11|RET10|RET18,Gift Card,Pan India,12,True,6.1,3.3,0.96,21,full,as|bn|en|pa|ta|te
+SNP-0185,Maha Mumbai Metro (M3) Operation Corporation Limited,Seller Network Participant,ISN,,https://www.mmmocl.co.in'>mmmocl.co.in</a,,Unreserved Ticket Booking,Mumbai,11,False,4.1,4.7,0.43,9,none,kn|mr|pa|ta|te
+SNP-0186,McDonald's,Seller Network Participant,ISN,,https://mcdonaldsindia.com'>mcdonaldsindia.com</a,RET11,,Pan India,12,True,4.8,4.0,0.51,9,full,as|en|kn|ta|te
+SNP-0187,Medpay,Seller Network Participant,MSN,,https://www.medpay.in/'>medpay.in</a,RET13|RET18,,Banglore|Chennai|Delhi|Kolkata|Mumbai|Pune,11,True,3.3,4.8,0.89,20,full,bn|or
+SNP-0188,MeraPashu360,Seller Network Participant,ISN,,https://merapashu360.com'>merapashu360.com</a,AGR|RET-MULTI,,,unknown,True,5.1,4.7,0.77,20,full,as|gu|ml|mr|te
+SNP-0189,Mjunction Services Limited,Seller Network Participant,MSN,,https://www.mjvaluemart.com'>mjvaluemart.com</a,,Hardware & Industrial,,unknown,False,9.3,4.7,0.45,4,partial,en|hi|kn|ta
+SNP-0190,More Retail Private Limited,Seller Network Participant,ISN,-,https://moreretail.in/'>moreretail.in</a,RET10,,Bangalore|Mysore,11,True,5.4,3.4,0.77,16,full,gu|hi|mr
+SNP-0191,MUMBAI METRO RAIL CORPORATION LIMITED,Seller Network Participant,ISN,,https://mmrcl.com/'>mmrcl.com</a,,Unreserved Ticket Booking,Mumbai,11,False,10.5,3.7,0.42,4,full,en|ml
+SNP-0192,Myfitness,Seller Network Participant,ISN,Shopalyst,https://myfitness.in/'>myfitness.in</a,RET10|RET18,,Pan India,12,True,3.9,3.3,0.36,19,none,bn|gu|pa
+SNP-0193,Mystore,Buyer Network Participant and Seller Network Participant,MSN,Hippo Innovations,https://www.mystore.in/en/'>mystore.in</a,AGR|RET13|RET14|RET12|RET11|RET10|RET16,Gift Card,Pan India,12,True,5.5,3.3,0.36,14,partial,as|en|ml|mr
+SNP-0194,Mysuru Super Digital Services Pvt Ltd,Seller Network Participant,MSN,,https://www.mysuruisuper.com'>mysuruisuper.com</a,RET11|RET10,,Mysore,11,True,6.3,4.0,0.57,10,full,bn|te
+SNP-0195,Naffa Innovations Pvt Ltd,Seller Network Participant,MSN,,https://www.tonetag.com/'>tonetag.com</a,RET11|RET10,,,unknown,True,5.0,3.6,0.32,7,none,hi|kn|or|pa|te
+SNP-0196,Namma Yatri,Buyer Network Participant and Seller Network Participant,ISN,Sequel String,https://www.nammayatri.in'>nammayatri.in</a,,Ride Hailing|Unreserved Ticketing,Bengaluru & Mysore,11,False,6.5,4.4,0.94,3,none,bn|gu|hi
+SNP-0197,NCPK RETAIL PVT LTD,Seller Network Participant,MSN,,https://www.beezysuper.com'>beezysuper.com</a,RET11|RET10,,Meerut,11,True,6.7,4.9,0.45,16,partial,bn|gu|kn|or|pa|te
+SNP-0198,NEARSHOP (JTPL),Buyer Network Participant and Seller Network Participant,MSN,,https://www.integramicro.com/'>integramicro.com</a,RET10,,Pan India,12,True,3.5,4.8,0.92,3,none,or|pa
+SNP-0199,Nestlé India Ltd.,Seller Network Participant,ISN,,https://www.mynestle.in/'>mynestle.in</a,RET10,,Pan India,12,True,11.9,3.2,0.38,15,none,as|en|gu|kn|ml
+SNP-0200,NEXXBASE MARKETING PRIVATE LIMITED/Noise,Seller Network Participant,ISN,,https://www.gonoise.com'>gonoise.com</a,RET14,,Pan India,12,True,8.8,4.1,0.9,4,partial,en|te
+SNP-0201,Ninjacart,Buyer Network Participant and Seller Network Participant,MSN,,https://ninjacart.com/'>ninjacart.com</a,AGR|RET10,,Pan India,12,True,6.8,3.5,0.37,11,full,en|kn|ml|pa|te
+SNP-0202,NIVEA India,Seller Network Participant,ISN,,https://www.niveashop.in/'>niveashop.in</a,RET13,,Pan India,12,True,9.9,3.3,0.41,18,partial,as|hi|ml|mr|pa
+SNP-0203,NStore Technologies Pvt Ltd,Buyer Network Participant and Seller Network Participant,MSN,,https://nstore.in'>nstore.in</a,AGR|RET13|RET14|RET12|RET11|RET10|RET18|RET16,Hyperlocal,Pan India,12,True,6.1,4.6,0.96,18,full,as|gu|or|pa|ta
+SNP-0204,Open Financial Technologies Private Limited,Seller Network Participant,MSN,,https://open.money'>open.money</a,RET10,,Pan India,12,True,3.7,3.1,0.4,17,none,ml|or|pa
+SNP-0205,Orickshaw,Buyer Network Participant and Seller Network Participant,ISN,,,,Ride Hailing,Delhi NCR|Pune,11,False,3.3,4.3,0.75,14,partial,en|gu
+SNP-0206,Ortusolis,Seller Network Participant,MSN,,,RET-MULTI,,,unknown,True,2.7,4.9,0.48,5,partial,as|en|gu|hi|kn|ta
+SNP-0207,Pahal Financial Services Ltd.,Seller Network Participant,ISN,,https://pahalfinance.com/'>pahalfinance.com</a,,Credit,,unknown,False,10.1,3.8,0.45,11,partial,bn|en|kn|ml|or|te
+SNP-0208,PARALLELDOTS TECHNOLOGY PRIVATE LIMITED,Seller Network Participant,MSN,,https://ooga.shop/'>ooga.shop</a,RET10,,Delhi NCR,11,True,8.5,4.2,0.95,18,full,as|hi|pa
+SNP-0209,Pashmina.com LLP,Seller NP - Inventory Seller Node (ISN),,,https://www.pashmina.com/'>pashmina.com</a,RET-MULTI,,Pan India,12,True,3.7,3.9,0.95,7,partial,as|hi|or|ta|te
+SNP-0210,Paytm,Buyer Network Participant and Seller Network Participant,MSN,-,https://paytm.com'>paytm.com</a,RET13|RET14|RET12|RET11|RET10|RET18|RET16,Gift Card,Pan India,12,True,6.0,4.9,0.34,16,full,bn|en|gu|kn|ml|pa
+SNP-0211,Pepstore (QUANTUMACH SOLUTIONS & TECHNOLOGIES LLP),Seller Network Participant,MSN,,https://thetechtonic.in/'>thetechtonic.in</a,RET13|RET14|RET10,,Banglore|Delhi NCR|Lucknow,11,True,9.7,3.6,0.59,10,full,ta|te
+SNP-0212,Piramal Pharma Limited,Seller Network Participant,ISN,Shopalyst,https://www.piramal.com/businesses/piramal-pharma/'>piramal.com</a,RET18,,Pan India,12,True,10.8,3.9,0.31,14,full,as|kn
+SNP-0213,Placeorder.com,Buyer Network Participant and Seller Network Participant,MSN,Rapidor,https://www.placeorder.com'>placeorder.com</a,RET1A|RET13|RET1C|RET14|RET12|RET10|RET1B|RET16,Chemical,Pan India,12,True,8.9,3.3,0.31,7,none,en|kn|ml|ta
+SNP-0214,Polestarre,Seller Network Participant,,Arachnomesh Technologies,https://polestarre.com/'>polestarre.com</a,RET10,,Pan India,12,True,3.7,4.2,0.88,19,none,kn|pa|te
+SNP-0215,Paywithring,Seller Network Participant,,,https://paywithring.com/'>paywithring.com</a,,Credit,,unknown,False,7.0,4.8,0.75,3,partial,as|gu|or|te
+SNP-0216,Primarc Pecan Retail Private Limited,Seller Network Participant,ISN,Shopalyst,https://primarcpecan.com'>primarcpecan.com</a,RET13|RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,5.4,3.2,0.35,11,none,gu|hi|ml|mr
+SNP-0217,PRITA DESIGNS PRIVATE LIMITED,Seller Network Participant,ISN,Shopalyst,https://priyaasi.com/'>priyaasi.com</a,RET12,,Pan India,12,True,7.3,3.3,0.37,17,partial,en|ta|te
+SNP-0218,PT INVENT INDIA PVT LTD,Seller Network Participant,ISN,,https://www.soulflower.in/'>soulflower.in</a,RET13,,Bangalore|Mumbai,11,True,6.0,4.2,0.55,4,partial,bn|ml|or
+SNP-0219,Qwipo(Xavica Software Solutions Private Limited),Seller Network Participant,ISN,,https://qwipo.com/'>https://qwipo.com</a,,Logistics,,unknown,False,9.4,4.3,0.63,21,full,bn|en|gu|pa
+SNP-0220,QWQER,Seller NP - Inventory Seller Node (ISN),ISN,,https://qwqer.in/'>qwqer.in</a,,Logistics,Aluva|Bangalore|Calicut|Chennai|Coimbatore|Guntur|Hyderabad|Kakinada|Kochi|Madurai|Mangalore|Mysore|Rajahmundry|Thrissur|Tiruppur|Trivandrum|Vijaywada|Vishakapatnam,11,False,10.1,4.8,0.59,3,none,en|gu|mr|or|pa|te
+SNP-0221,QWQER Shop,Seller Network Participant,MSN,,https://qwqer.in/'>qwqer.in</a,RET-MULTI,,,unknown,True,2.3,3.2,0.3,11,full,bn|en|gu|kn|mr
+SNP-0222,RAPIBIZZ INDIA PRIVATE LIMITED,Seller Network Participant,MSN,Plotch,https://ondc.rapibizz.in/'>ondc.rapibizz.in</a,RET13|RET14|RET12|RET11|RET10|RET18|RET16,,Ahmedabad|Bangalore|Delhi NCR|Junagadh|Kanchipuram|Mumbai|Surat,11,True,7.9,4.3,0.7,10,partial,or|ta|te
+SNP-0223,Rebelfoods Retail Technologies Private Limited,Seller Network Participant,MSN,Bitsila,https://www.rebelfoods.com/'>rebelfoods.com</a,RET11,,Pan India,12,True,2.7,5.0,0.74,12,partial,bn|kn|ml
+SNP-0224,Retailconnect (ITC),Seller Network Participant,ISN,-,https://thetechtonic.in/'>thetechtonic.in</a,RET10,,Bangalore|Gurugram|Hooghly|Hyderabad|Thane,11,True,11.2,4.0,0.38,5,full,as|kn|ml|or|ta
+SNP-0225,Retailware Softech Pvt. Ltd.,Seller Network Participant,MSN,,https://www.retailware.in'>retailware.in</a,,,Pan India,12,False,3.6,4.1,0.72,16,full,as|en|hi|pa
+SNP-0226,RK OneStep Private Limited,Seller Network Participant,ISN,Plotch,https://www.onestep.co.in'>onestep.co.in</a,RET14,,Pan India,12,True,6.3,3.9,1.0,4,none,as|kn|ml|mr|ta|te
+SNP-0227,Rubanbridge Private Ltd (1bridge),Seller Network Participant,MSN,,https://www.1bridge.one'>1bridge.one</a,RET10,,Bangalore|Hyderabad|K.V. Rangareddy,11,True,11.0,3.5,0.54,10,none,gu|mr
+SNP-0228,Sabhyasha Retail Tech Private Limited,Seller Network Participant,MSN,,https://www.artisanswizard.com'>artisanswizard.com</a,RET12|RET10|RET16,,Khorda|Thane,11,True,8.3,4.0,0.97,13,partial,bn|or|pa|ta
+SNP-0229,Samhita Good CSR Ventures Private Limited,Buyer Network Participant and Seller Network Participant,MSN,Plotch,https://samhita.org/home/'>samhita.org</a,RET-MULTI,,Gautam Buddha Nagar|Mayurbhanj|Mumbai,11,True,7.6,4.2,0.66,5,none,as|hi|ml|pa
+SNP-0230,Samhita Social Ventures Private Limited,Buyer Network Participant and Seller Network Participant,MSN,Samhita Good CSR Ventures Private Limited,https://samhita.org/home/'>samhita.org</a,RET13|RET14|RET12|RET11|RET10|RET18|RET16,,Latur,11,True,9.1,3.9,0.69,13,full,en|hi|te
+SNP-0231,Samhita Social Ventures Private Limited,Buyer Network Participant and Seller Network Participant,MSN,Samhita Good CSR Ventures Private Limited,https://samhita.org/home/'>samhita.org</a,,Work Opportunities,Latur,11,False,2.2,3.8,0.4,13,none,kn|ta
+SNP-0232,Scholarlify,Seller Network Participant,,,https://www.scholarlify.com'>scholarlify.com</a,,Scholarships,Pan India,12,False,2.9,3.9,0.53,21,partial,as|hi|te
+SNP-0233,SellerApp,Seller Network Participant,MSN,-,https://www.sellerapp.com/ondc'>sellerapp.com</a,AGR|RET-MULTI|RET13|RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,9.1,3.1,0.91,14,none,as|bn|en|or|ta|te
+SNP-0234,SellerSetu Private Limited,Seller Network Participant,MSN,,https://sellersetu.in'>sellersetu.in</a,RET13|RET14|RET12|RET10|RET18|RET16,,Ahmedabad|Bangalore|Coimbatore|Delhi NCR|K. V. Rangareddy|Mandi|Moradabad|Mumbai|Nalgonda|Vishakapatnam,11,True,8.8,3.2,0.45,16,full,ml|te
+SNP-0235,Shathabdhi Organics,Seller Network Participant,ISN,,https://shathabdhiorganics.com/'>shathabdhiorganics.com</a,RET10,,Hyderabad,11,True,4.5,4.2,0.99,10,none,as|en|ml|ta
+SNP-0236,Shiprocket,Seller Network Participant,MSN,Shopalyst,https://www.shiprocket.in/'>shiprocket.in</a,RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,6.3,4.0,0.87,6,full,as|en|gu|ml
+SNP-0237,Shipyaari,Seller Network Participant,MSN,,https://www.shipyaari.com/'>shipyaari.com</a,,Logistics,Pan India,12,False,10.2,3.1,0.53,3,full,en|gu|ml|or|ta
+SNP-0238,Shipyaari,Seller Network Participant,MSN,,https://www.shipyaari.com/'>shipyaari.com</a,RET13|RET10|RET18|RET16,,Pan India,12,True,3.6,4.5,0.57,9,partial,bn|pa
+SNP-0239,Shopcircuit,Buyer network Participant and Seller Network Participant,-,,https://shopcircuit.ai/'>shopcircuit.ai</a,RET13|RET12|RET16,,Pan India,12,True,4.4,3.4,0.49,18,none,kn|or|pa|ta
+SNP-0240,Shopclues,Seller Network Participant,MSN,,https://www.shopclues.com'>shopclues.com</a,RET14|RET12|RET16,,Pan India,12,True,11.8,4.4,0.36,18,full,kn|pa
+SNP-0241,ShopEG,Seller Network Participant,MSN,,https://shopeg.in'>shopeg.in</a,RET10,,Bangalore,11,True,11.3,3.8,0.49,3,full,bn|te
+SNP-0242,SleepyOwl,Seller Network Participant,ISN,Shopalyst,https://sleepyowl.co'>sleepyowl.co</a,RET10,,Pan India,12,True,9.7,3.1,0.65,12,full,gu|mr|or|pa|ta|te
+SNP-0243,SMALL FARMERS' AGRIBUSINESS CONSORTIUM / e-NAM,Seller Network Participant,MSN,Bitxia,https://enam.gov.in/web/'>enam.gov.in</a,AGR|RET10,,Pan India,12,True,9.0,4.1,0.7,18,partial,as|bn|hi|pa|ta
+SNP-0244,Snapbizz,Seller Network Participant,MSN,,https://www.snapbizz.com'>snapbizz.com</a,RET13|RET14|RET11|RET10|RET18|RET16,,Bangalore|Chennai|Delhi|Mumbai|kolkata,11,True,3.7,4.3,0.36,20,partial,as|en|mr|pa
+SNP-0245,Snapdeal,Buyer network Participant and Seller Network Participant,MSN,ENS Enterprises Limited,https://www.snapdeal.com'>snapdeal.com</a,RET13|RET14|RET12|RET18|RET16,,Pan India,12,True,4.1,4.0,0.37,15,none,ml|pa
+SNP-0246,SRK Powertech Private Limited,Seller Network Participant,ISN,Shopalyst,https://www.pebblecart.com/'>pebblecart.com</a,RET14,,Pan India,12,True,9.1,4.4,0.4,5,full,as|bn|kn|mr|or|pa
+SNP-0247,StelCore Management Service Private Limited,Seller Network Participant,MSN,,https://merchants.nuniverse.in/login'>merchants.nuniverse.in</a,RET1A|RET13|RET1C|RET14|RET12|RET10|RET1B|RET16,Chemical,Cross-Border,11,True,6.8,3.4,0.35,13,full,as|en|hi
+SNP-0248,Tata Capital Limited,Seller Network Participant,ISN,Ignosi Systems private limited,https://www.tatacapital.com/'>tatacapital.com</a,,Credit,Pan India,12,False,10.3,3.2,0.81,7,none,kn|pa
+SNP-0249,The Body Shop,Seller Network Participant,ISN,Shopalyst,https://thebodyshop.in/'>thebodyshop.in</a,RET13,,Pan India,12,True,6.7,3.7,0.54,19,partial,bn|hi|ml|mr|or
+SNP-0250,The Peninsular Export Company,Seller Network Participant,ISN,,https://www.thepeninsularexportcompany.com'>thepeninsularexportcompany.com</a,RET10,,Pan India,12,True,10.7,3.4,0.52,10,none,as|kn|pa|ta
+SNP-0251,Tiber Taber,Seller Network Participant,ISN,,https://www.tibertaber.com/'>tibertaber.com</a,RET12,,Delhi NCR,11,True,8.5,4.3,0.39,6,full,as|bn|hi|or|ta
+SNP-0252,Tipplr,Seller Network Participant,MSN,,https://www.tipplr.in'>tipplr.in</a,RET11,,Bangalore|Delhi NCR,11,True,4.3,4.6,0.38,8,none,bn|ml|ta
+SNP-0253,TMBill,Seller Network Participant,MSN,,https://www.tmbill.com'>tmbill.com</a,RET11,,Pan India,12,True,12.0,3.9,0.56,10,none,as|en|hi
+SNP-0254,Tradeindia,Seller Network Participant,MSN,Rapidor,https://www.tradeindia.com/'>tradeindia.com</a,RET13|RET14|RET10,,Pan India,12,True,8.3,3.6,0.64,5,partial,ml|or|ta|te
+SNP-0255,UdyamWell,Seller Network Participant,MSN,,https://www.udyamwell.com'>udyamwell.com</a,RET12|RET10|RET16,,Pan India,12,True,9.1,4.8,0.98,11,full,or|pa|te
+SNP-0256,Uengage,Seller Network Participant,MSN,-,https://www.uengage.in'>uengage.in</a,RET11,,Pan India,12,True,7.1,4.3,0.78,5,none,hi|pa|ta
+SNP-0257,Unbundle Technologies Pvt Ltd,Seller Network Participant,MSN,eSamudaay,https://www.khaugully.in/'>khaugully.in</a,RET11|RET10,,Mumbai|Surat,11,True,2.6,4.1,0.43,5,partial,bn|gu
+SNP-0258,Universal Sompo General Insurance,Seller Network Participant,ISN,,http://www.universalsompo.com/'>universalsompo</a,,Insurance,,unknown,False,4.6,3.7,0.51,11,none,ml|or
+SNP-0259,Unizap.ai,Seller Network Participant,MSN,,https://unizap.ai/'>unizap.ai</a,RET13|RET14|RET12|RET11|RET10|RET18|RET16,,Pan India,12,True,8.0,4.3,0.78,10,partial,pa|te
+SNP-0260,Ushop,Seller Network Participant,ISN,ENS enterprises,https://www.theushop.in'>theushop.in</a,RET13|RET10,,Pan India,12,True,10.7,4.4,0.78,9,full,en|gu|or|ta
+SNP-0261,UniSouk,Seller Network Participant,,,unisouk.com,RET-MULTI,,,unknown,True,10.4,3.7,0.6,21,none,bn|en|ta
+SNP-0262,VALAR DIGITAL COMMERCE PRIVATE LIMITED,Seller Network Participant,MSN,,https://valardigital.in'>valardigital.in</a,RET16|RET12|RET10|RET13|RET18|RET11,,Pan India,12,True,9.2,4.3,0.66,11,partial,gu|ml|mr|te
+SNP-0263,Vallur Digital Initiatives Private Limited,Seller Network Participant,MSN,,https://www.hometownsuper.app'>hometownsuper.app</a,RET11|RET10,,Bellary,11,True,7.2,3.9,0.31,19,partial,ml|or|te
+SNP-0264,Villain,Seller Network Participant,ISN,Shopalyst,https://www.villain.in/'>villain.in</a,RET13|RET12,,,unknown,True,2.9,3.0,0.57,13,none,mr|ta
+SNP-0265,Waayu,Seller Network Participant,ISN,,https://waayu.app'>waayu.app</a,RET11,,Hyderabad|Mumbai|Pune,11,True,11.1,3.0,0.35,19,partial,as|bn|ml|te
+SNP-0266,Wallic Technologies Private Limited,Seller Network Participant,MSN,,https://unistack.ai/'>unistack.ai</a,RET12,,Delhi NCR,11,True,8.6,3.9,0.88,14,partial,en|gu|te
+SNP-0267,Wcommerce,Seller Network Participant,MSN,,https://www.wcommerce.store/'>wcommerce.store</a,RET-MULTI,,,unknown,True,6.6,3.6,0.43,17,full,bn|gu|hi|mr|or|ta
+SNP-0268,Webkul Software Pvt Ltd,Seller Network Participant,MSN,,https://seller.ecomviser.com/index.php?p=login'>seller.ecomviser.com</a,RET13|RET14|RET12|RET11|RET10|RET18|RET16,Electronics and Appliances,Pan India,12,True,7.5,4.1,0.47,13,full,as|en|kn|ml|or|ta
+SNP-0269,Whirlpool India,Seller Network Participant,ISN,Shopalyst,,RET14,,Pan India,12,True,3.7,3.5,0.89,6,partial,gu|ta
+SNP-0270,Wholsum Food Pvt. Ltd.,Seller Network Participant,ISN,,https://slurrpfarm.com/'>slurrpfarm.com</a,RET10,,Pan India,12,True,2.2,4.7,0.87,6,full,hi|pa
+SNP-0271,WonderSoft,Seller Network Participant,MSN,,https://www.wondersoft.com'>wondersoft.com</a,RET12,,Pan India,12,True,7.6,4.7,0.67,16,partial,en|hi|kn
+SNP-0272,WOW,Seller Network Participant,ISN,Shopalyst,https://www.buywow.in'>buywow.in</a,RET13,Health&Wellness,Pan India,12,True,2.1,4.6,0.55,12,full,en|ml|mr|pa|te
+SNP-0273,Xpressbaazaar,Buyer Network Participant and Seller Network Participant,ISN,ENS Enterprises Limited,https://xpressbaazaar.com'>xpressbaazaar.com</a,RET13|RET14|RET12|RET11|RET10|RET16,Electricals,Pan India,12,True,3.9,4.0,0.67,12,none,bn|hi|kn|mr|or|te
+SNP-0274,Yaary,Buyer Network Participant and Seller Network Participant,ISN,,https://yaary.com/'>yaary.com</a,,Ride Hailing,Hyderabad,11,False,5.1,4.9,0.5,8,full,bn|ml
+SNP-0275,Yatri,Buyer Network Participant and Seller Network Participant,ISN,-,https://www.getyatri.com'>getyatri.com</a,,Ride Hailing,Kochi,11,False,10.3,4.9,0.36,21,none,or|te
+SNP-0276,Yanolja Cloud Solution,Seller Network Participant,,,https://www.yanoljacloudsolution.com/'>yanoljacloudsolution.com</a,,Accommodation Booking,,unknown,False,9.2,3.9,0.67,10,none,bn|mr
+SNP-0277,Yumzy (Laalsa Business Insights Private Limited),Seller Network Participant,MSN,,https://yumzyx.com/'>yumzyx.com</a,RET11|RET10,,Guntur|Hyderabad|K.V. Rangareddy|Mumbai,11,True,7.2,4.6,0.48,10,none,as|bn|hi|ml|mr|ta
+SNP-0278,Zeppstore (Zeitgeist Retail Private Limited),Seller Network Participant,ISN,,https://zrpl.co.in/'>zrpl.co.in</a,,Eletronics,Bangalore,11,False,5.5,3.7,0.4,15,partial,as|gu|te
+SNP-0279,Zion Commerce Private Limited,Buyer Network Participant and Seller Network Participant,MSN,Cyberexpert,https://www.zioncommerce.in'>zioncommerce.in</a,RET13|RET10|RET18,Electronics and Appliances|Food & Beverages Fashion,Pan India,12,True,6.0,5.0,0.51,7,none,as|gu|hi|kn|ta|te
+SNP-0280,ZOHO COMMERCE TECHNOLOGIES PRIVATE LIMITED,Seller Network Participant,MSN,,https://www.vikra.com/en-in/seller/'>vikra.com</a,RET13|RET14|RET12|RET10|RET18|RET16,,Pan India,12,True,7.3,3.9,0.35,13,none,bn|pa|te
+SNP-0281,Zyapaar,Seller Network Participant,MSN,Easy Pay,https://www.zyapaar.com/'>zyapaar.com</a,RET10,,Ahmedabad,11,True,11.9,4.3,0.82,6,none,as|ml|ta|te

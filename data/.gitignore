@@ -1,0 +1,7 @@
+# Large raw source files — regenerable via SOURCE.md recipes in each subdir
+raw/flipkart/*.csv
+raw/aikosh/*.csv
+raw/aikosh/*.pdf
+raw/ondc/protocol-network-extension/
+raw/ondc/*tree*.json
+# Keep: SOURCE.md files, livenetwork JSON (366KB), ret-enums (small), udyam CSVs (80KB)
