@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,9 +10,12 @@ import {
   GitMerge,
   ClipboardList,
   Shield,
-  Upload,
+  ShieldCheck,
+  Store,
+  LogOut,
   X,
 } from "lucide-react";
+import { getSession, logout, type Session } from "@/lib/auth";
 
 /* ── Journey steps (Sathi → VargBot → JodakAI) ──────────────── */
 const JOURNEY = [
@@ -24,10 +28,6 @@ const JOURNEY = [
 const TOOLS = [
   { label: "Review Queue", href: "/review", icon: ClipboardList },
   { label: "Audit Trail", href: "/audit", icon: Shield },
-] as const;
-
-const ADMIN = [
-  { label: "Upload Taxonomy", href: "/upload", icon: Upload },
 ] as const;
 
 /* ── Step state helper ───────────────────────────────────────── */
@@ -49,8 +49,22 @@ export default function AppSidebar({
   onClose: () => void;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const mseId = searchParams.get("mseId");
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    setSession(getSession());
+  }, [pathname]);
+
+  const visibleTools =
+    session?.role === "admin" ? TOOLS : ([] as unknown as typeof TOOLS);
+
+  function handleLogout() {
+    logout();
+    router.replace("/login");
+  }
 
   /* Which journey step is active? */
   const activeJourneyIndex = JOURNEY.findIndex((s) =>
@@ -187,13 +201,14 @@ export default function AppSidebar({
             </nav>
           </div>
 
-          {/* ── TOOLS ───────────────────────────────────────────── */}
+          {/* ── TOOLS (NSIC admin only) ─────────────────────────── */}
+          {visibleTools.length > 0 && (
           <div className="mb-6">
             <span className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400">
-              Tools
+              Oversight
             </span>
             <nav className="space-y-1">
-              {TOOLS.map((item) => {
+              {visibleTools.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
                 return (
@@ -214,37 +229,38 @@ export default function AppSidebar({
               })}
             </nav>
           </div>
-
-          {/* ── ADMIN ───────────────────────────────────────────── */}
-          <div className="mb-6">
-            <span className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400">
-              Admin
-            </span>
-            <nav className="space-y-1">
-              {ADMIN.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                      active
-                        ? "bg-brand-50 text-brand-900"
-                        : "text-surface-500 hover:bg-surface-50 hover:text-surface-700"
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 ${active ? "text-brand-500" : ""}`} />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+          )}
 
           {/* Spacer */}
           <div className="flex-1" />
+
+          {/* ── Signed-in identity ──────────────────────────────── */}
+          {session && (
+            <div className="mb-4 flex items-center gap-3 rounded-2xl border border-surface-200 bg-surface-50 px-3 py-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand-50">
+                {session.role === "admin" ? (
+                  <ShieldCheck className="h-4 w-4 text-brand-500" />
+                ) : (
+                  <Store className="h-4 w-4 text-saffron-500" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-semibold text-brand-900">
+                  {session.name}
+                </p>
+                <p className="text-[10px] text-surface-400">
+                  {session.role === "admin" ? "NSIC Administrator" : "MSE Owner"}
+                </p>
+              </div>
+              <button
+                onClick={handleLogout}
+                title="Sign out"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-surface-400 transition-colors hover:bg-surface-100 hover:text-red-500"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
 
           {/* ── Bottom badge ─────────────────────────────────────── */}
           <div className="border-t border-surface-100 pt-4">

@@ -1,12 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Suspense } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import AppSidebar from "@/components/AppSidebar";
+import { canAccess, getSession } from "@/lib/auth";
 
 function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authed, setAuthed] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  /* Portal gate — everyone signs in at /login; MSE users can't open admin pages. */
+  useEffect(() => {
+    const session = getSession();
+    if (!session) {
+      router.replace("/login");
+      return;
+    }
+    if (!canAccess(session, pathname)) {
+      router.replace("/register");
+      return;
+    }
+    setAuthed(true);
+  }, [router, pathname]);
+
+  if (!authed) {
+    return <div className="h-screen bg-surface-50" />;
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface-50">
