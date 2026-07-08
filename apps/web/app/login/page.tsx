@@ -231,15 +231,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Demo access hint */}
-          <div className="mt-3 rounded-2xl border border-dashed border-surface-300 bg-white p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-surface-400">
-              Demo access — {role === "mse" ? "MSE Owner" : "NSIC Administrator"}
-            </p>
-            <p className="mt-1.5 font-mono text-xs text-surface-600">
-              ID: {DEMO_IDS[role]} · Passcode: issued with your demo pack
-            </p>
-          </div>
         </motion.div>
       </div>
     </div>
