@@ -81,6 +81,7 @@ class MSEResponse(BaseModel):
     consent_at: Optional[datetime] = None
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[datetime] = None
+    review_note: Optional[str] = None
     created_at: datetime
     # Populated ONLY on account auto-creation at registration (one-time display)
     login_id: Optional[str] = None
@@ -171,12 +172,20 @@ def list_mses(
     db: Session = Depends(get_db),
     user: User = Depends(require_admin),  # bulk PII — NSIC admins only
 ):
-    """List MSEs with optional state filter — pending first, newest first."""
-    from sqlalchemy import case
+    """List MSEs — pending first, newest first.
+
+    By default only PORTAL REGISTRATIONS (complete TEAM-form data) appear:
+    the analytical corpus rows stay out of the officer's queue but keep
+    powering clustering and matching."""
+    from sqlalchemy import case, or_
 
     query = db.query(MSE)
     if state:
         query = query.filter(MSE.state == state)
+    query = query.filter(or_(
+        MSE.entrepreneur_name.isnot(None),
+        MSE.status == "pending_review",
+    ))
     return (
         query.order_by(
             case((MSE.status == "pending_review", 0), else_=1),

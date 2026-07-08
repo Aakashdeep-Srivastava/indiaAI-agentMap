@@ -27,6 +27,7 @@ interface MSE {
   consent_at?: string | null;
   reviewed_by?: string | null;
   reviewed_at?: string | null;
+  review_note?: string | null;
 }
 
 const STATUS_STYLE: Record<string, string> = {
@@ -50,19 +51,36 @@ export default function ReviewPage() {
   }, []);
 
   async function review(id: number, action: "approve" | "reject") {
+    let note: string | null = null;
+    if (action === "reject") {
+      note = window.prompt(
+        "Reason for rejection (recorded on the audit trail and shown to the applicant):",
+      );
+      if (note === null) return; // officer cancelled
+      if (!note.trim()) {
+        window.alert("A rejection must carry a reason.");
+        return;
+      }
+    }
     setActing(id);
     try {
       const res = await apiFetch(`/mse/${id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, note }),
       });
       if (res.ok) {
         const updated = await res.json();
         setMses((prev) =>
           prev.map((m) =>
             m.id === id
-              ? { ...m, status: updated.status, reviewed_by: updated.reviewed_by, reviewed_at: updated.reviewed_at }
+              ? {
+                  ...m,
+                  status: updated.status,
+                  reviewed_by: updated.reviewed_by,
+                  reviewed_at: updated.reviewed_at,
+                  review_note: updated.review_note,
+                }
               : m,
           ),
         );
@@ -258,9 +276,12 @@ export default function ReviewPage() {
                             <svg className="h-3 w-3 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
                             </svg>
-                            {mse.status === "approved" ? "Approved" : "Reviewed"} by{" "}
+                            {mse.status === "approved" ? "Approved" : "Rejected"} by{" "}
                             <b>{mse.reviewed_by}</b>
                             {mse.reviewed_at ? ` · ${new Date(mse.reviewed_at).toLocaleString("en-IN")}` : ""}
+                            {mse.review_note ? (
+                              <span className="text-red-600"> — Reason: {mse.review_note}</span>
+                            ) : null}
                           </span>
                         ) : (
                           <span className="text-[11px] text-saffron-600">
