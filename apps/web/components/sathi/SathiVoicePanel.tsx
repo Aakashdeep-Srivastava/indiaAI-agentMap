@@ -639,8 +639,21 @@ export default function SathiVoicePanel({
   }
 
   /* ─── Document upload ─── */
+  const [uploadedDoc, setUploadedDoc] = useState<{
+    name: string;
+    label: string;
+    status: "ok" | "info" | "bad";
+  } | null>(null);
+
+  function sayDocMessage(msg: string) {
+    setCurrentQuestion(msg);
+    setOrbPhase("speaking");
+    speak(msg);
+  }
+
   async function handleDocUpload(file: File) {
     setDocUploading(true);
+    setUploadedDoc(null);
     try {
       const fd = new FormData();
       fd.append("file", file, file.name);
@@ -653,6 +666,24 @@ export default function SathiVoicePanel({
 
       if (!res.ok) throw new Error();
       const data = await res.json();
+      const msg =
+        form.language === "hi" && data.message_hi
+          ? data.message_hi
+          : data.message_en;
+
+      // Intelligent triage: catalogues belong to the next step; junk is junk.
+      if (data.relevance === "catalog_next_step") {
+        setUploadedDoc({ name: file.name, label: "Catalogue — next step", status: "info" });
+        if (msg) sayDocMessage(msg);
+        return;
+      }
+      if (data.relevance === "not_relevant") {
+        setUploadedDoc({ name: file.name, label: "Not relevant here", status: "bad" });
+        if (msg) sayDocMessage(msg);
+        return;
+      }
+
+      const docLabel = String(data.document_type || "document").replace(/_/g, " ");
       const fields: Record<string, string> = data.extracted_fields || {};
 
       const localForm: Record<string, string> = {
@@ -668,13 +699,19 @@ export default function SathiVoicePanel({
         }
       }
 
+      setUploadedDoc({ name: file.name, label: docLabel, status: "ok" });
+
       if (filledKeys.length > 0) {
         onHighlight(filledKeys);
         markRecentlyFilled(filledKeys);
+        setTimeout(() => askNextField(localForm), 600);
+      } else {
+        sayDocMessage(
+          "I read the document but everything it covers is already filled. Let's continue!",
+        );
       }
-
-      setTimeout(() => askNextField(localForm), 600);
     } catch {
+      setUploadedDoc({ name: file.name, label: "Could not read", status: "bad" });
       setCurrentQuestion(
         "Couldn't read the document. Try a clearer image or type instead.",
       );
@@ -733,6 +770,76 @@ export default function SathiVoicePanel({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
     >
+      {/* ── Document scanning overlay ── */}
+      <AnimatePresence>
+        {docUploading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-white/85 backdrop-blur-sm"
+          >
+            <div className="relative flex h-20 w-16 items-center justify-center overflow-hidden rounded-xl border-2 border-brand-200 bg-white shadow-md">
+              <svg className="h-8 w-8 text-brand-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <motion.div
+                className="absolute inset-x-1 h-1 rounded-full bg-gradient-to-r from-saffron-400 to-saffron-500 shadow-[0_0_8px_rgba(232,104,12,0.5)]"
+                animate={{ top: ["8%", "85%", "8%"] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
+            <p className="animate-pulse text-xs font-medium text-surface-500">
+              Sathi is reading your document… दस्तावेज़ पढ़ा जा रहा है…
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Uploaded document chip ── */}
+      {uploadedDoc && !docUploading && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute right-3 top-12 z-30 flex max-w-[230px] items-center gap-2 rounded-xl border border-surface-200 bg-white/95 px-2.5 py-1.5 shadow-sm backdrop-blur"
+        >
+          <svg
+            className={`h-4 w-4 shrink-0 ${
+              uploadedDoc.status === "ok"
+                ? "text-emerald-500"
+                : uploadedDoc.status === "info"
+                  ? "text-saffron-500"
+                  : "text-red-400"
+            }`}
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          <div className="min-w-0">
+            <p className="truncate text-[10px] font-semibold text-brand-900">{uploadedDoc.name}</p>
+            <p className={`text-[9px] capitalize ${
+              uploadedDoc.status === "ok"
+                ? "text-emerald-600"
+                : uploadedDoc.status === "info"
+                  ? "text-saffron-600"
+                  : "text-red-500"
+            }`}>
+              {uploadedDoc.label}
+            </p>
+          </div>
+          <button
+            onClick={() => setUploadedDoc(null)}
+            className="shrink-0 text-surface-300 transition-colors hover:text-surface-500"
+            title="Dismiss"
+          >
+            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </motion.div>
+      )}
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between px-3 py-2">
         <div className="flex items-center gap-2">

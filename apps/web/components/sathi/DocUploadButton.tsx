@@ -45,7 +45,7 @@ export default function DocUploadButton({
       <input
         ref={fileRef}
         type="file"
-        accept="image/*,.pdf"
+        accept="image/*,.pdf,.csv,.tsv,.xlsx,.xls"
         onChange={handleChange}
         className="hidden"
       />

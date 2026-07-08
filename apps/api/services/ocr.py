@@ -92,7 +92,14 @@ async def extract_from_document(
 ) -> dict:
     """Extract fields from a document. Digital PDFs are parsed directly;
     scanned PDFs/images go through Sarvam Document Intelligence OCR."""
-    is_pdf = filename.lower().endswith(".pdf") or file_bytes[:5] == b"%PDF-"
+    lower_name = filename.lower()
+
+    # Spreadsheets during registration are almost always product catalogues —
+    # those belong to the NEXT step (catalogue onboarding via the matched SNP).
+    if lower_name.endswith((".csv", ".tsv", ".xlsx", ".xls")):
+        return _triage_spreadsheet(file_bytes, filename)
+
+    is_pdf = lower_name.endswith(".pdf") or file_bytes[:5] == b"%PDF-"
 
     if is_pdf:
         result = await _extract_pdf(file_bytes)
@@ -222,6 +229,79 @@ def _sanitize_fields(fields: dict) -> dict:
     return clean
 
 
+# ── Document triage ────────────────────────────────────────────────────
+
+_DOC_LABELS = {
+    "udyam_certificate": "Udyam Registration Certificate",
+    "incorporation_certificate": "Certificate of Incorporation",
+    "aoa": "Articles of Association",
+    "moa": "Memorandum of Association",
+    "gst_certificate": "GST Certificate",
+    "pan_card": "PAN Card",
+    "business_document": "Business document",
+}
+
+_PRODUCT_HEADER_WORDS = (
+    "product", "item", "sku", "price", "mrp", "qty", "quantity",
+    "category", "hsn", "stock", "unit", "description", "brand",
+)
+
+
+def _classify_doc_text(text: str) -> str:
+    """Identify the certificate type from its text."""
+    u = text.upper()
+    if "UDYAM" in u:
+        return "udyam_certificate"
+    if "CERTIFICATE OF INCORPORATION" in u or re.search(r"\bCIN[:\s]", u):
+        return "incorporation_certificate"
+    if "ARTICLES OF ASSOCIATION" in u:
+        return "aoa"
+    if "MEMORANDUM OF ASSOCIATION" in u:
+        return "moa"
+    if "GSTIN" in u or "GOODS AND SERVICES TAX" in u:
+        return "gst_certificate"
+    if "PERMANENT ACCOUNT NUMBER" in u or "INCOME TAX DEPARTMENT" in u:
+        return "pan_card"
+    return "business_document"
+
+
+def _triage_spreadsheet(file_bytes: bytes, filename: str) -> dict:
+    """CSV/Excel dropped at registration = product catalogue for the NEXT step."""
+    is_catalog = True
+    if filename.lower().endswith((".csv", ".tsv")):
+        try:
+            head = file_bytes[:2048].decode("utf-8", errors="replace").lower()
+            is_catalog = any(w in head for w in _PRODUCT_HEADER_WORDS)
+        except Exception:
+            pass
+
+    if is_catalog:
+        return {
+            "extracted_fields": {},
+            "document_type": "product_catalogue",
+            "relevance": "catalog_next_step",
+            "message_en": "Product catalogue detected! Great — but that's for the next step. "
+                          "After registration, your matched seller platform will onboard your catalogue. "
+                          "Let's finish your registration details first.",
+            "message_hi": "उत्पाद सूची मिली! यह अगले चरण के लिए है — पहले पंजीकरण पूरा करें, "
+                          "फिर आपका seller platform catalogue onboard करेगा।",
+            "confidence": 0.9,
+            "engine": "doc-triage",
+            "is_mock": False,
+        }
+    return {
+        "extracted_fields": {},
+        "document_type": "spreadsheet",
+        "relevance": "not_relevant",
+        "message_en": "This spreadsheet doesn't look relevant here. Please upload your Udyam, "
+                      "incorporation, or GST certificate — or a product catalogue for the next step.",
+        "message_hi": "यह फ़ाइल यहाँ काम की नहीं लगती। कृपया Udyam या GST प्रमाणपत्र अपलोड करें।",
+        "confidence": 0.6,
+        "engine": "doc-triage",
+        "is_mock": False,
+    }
+
+
 async def _fields_from_text(text: str, base_engine: str) -> dict:
     """Shared post-processing: label regexes first, Sarvam-30B for the rest."""
     fields = _parse_udyam_text(text)
@@ -238,10 +318,26 @@ async def _fields_from_text(text: str, base_engine: str) -> dict:
         logger.warning(f"LLM assist on document text failed: {e}")
 
     fields = _sanitize_fields(fields)
-    doc_type = "udyam_certificate" if "udyam_number" in fields else "business_document"
+    doc_type = _classify_doc_text(text)
+    label = _DOC_LABELS.get(doc_type, "Document")
+
+    # A relevant document should yield at least a couple of usable fields.
+    if len(fields) >= 2 or doc_type != "business_document":
+        relevance = "relevant"
+        message_en = f"{label} detected — I've filled {len(fields)} field(s) from it."
+        message_hi = f"{label} मिला — मैंने {len(fields)} फ़ील्ड भर दी हैं।"
+    else:
+        relevance = "not_relevant"
+        message_en = ("This document doesn't look relevant to MSE registration. "
+                      "Please upload your Udyam, incorporation, or GST certificate.")
+        message_hi = "यह दस्तावेज़ पंजीकरण से संबंधित नहीं लगता। कृपया Udyam या GST प्रमाणपत्र अपलोड करें।"
+
     return {
         "extracted_fields": fields,
         "document_type": doc_type,
+        "relevance": relevance,
+        "message_en": message_en,
+        "message_hi": message_hi,
         "confidence": 0.97 if "udyam_number" in fields else 0.75,
         "engine": engine,
         "is_mock": False,
