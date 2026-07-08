@@ -16,6 +16,7 @@ import {
   X,
   PanelLeftClose,
   PanelLeftOpen,
+  PackageOpen,
 } from "lucide-react";
 import { getSession, logout, type Session } from "@/lib/auth";
 
@@ -24,6 +25,7 @@ const JOURNEY = [
   { label: "Register", codename: "Sathi", href: "/register", icon: UserPlus },
   { label: "Classify", codename: "VargBot", href: "/classify", icon: Layers },
   { label: "Match", codename: "JodakAI", href: "/match", icon: GitMerge },
+  { label: "Catalogue", codename: "ONDC-ready", href: "/catalogue", icon: PackageOpen },
 ] as const;
 
 /* ── Tool links ──────────────────────────────────────────────── */
