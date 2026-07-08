@@ -471,27 +471,60 @@ export default function SathiVoicePanel({
   /* ─── Silence detection refs ─── */
   const silenceStartRef = useRef<number | null>(null);
   const silenceCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const SILENCE_THRESHOLD = 10; // avg frequency value below this = silence
-  const SILENCE_TIMEOUT = 5000; // 5 seconds of silence → auto-stop
+  const recordStartRef = useRef<number>(0);
+  const ambientRef = useRef<number | null>(null);
+  const SILENCE_TIMEOUT = 8000;  // 8s of true silence → auto-stop
+  const MIN_RECORD_MS = 4000;    // never auto-stop in the first 4s
+  const MAX_RECORD_MS = 120000;  // hard cap so a forgotten mic doesn't run forever
 
   function startSilenceDetection() {
     silenceStartRef.current = null;
+    ambientRef.current = null;
+    recordStartRef.current = Date.now();
+    const samples: number[] = [];
+
     silenceCheckRef.current = setInterval(() => {
       if (!analyserRef.current) return;
-      const buf = new Uint8Array(analyserRef.current.frequencyBinCount);
-      analyserRef.current.getByteFrequencyData(buf);
-      const avg = buf.reduce((a, b) => a + b, 0) / buf.length;
 
-      if (avg < SILENCE_THRESHOLD) {
+      // Time-domain RMS is far more reliable than a frequency average
+      // (noise suppression makes frequency bins read near-zero mid-speech).
+      const buf = new Uint8Array(analyserRef.current.fftSize);
+      analyserRef.current.getByteTimeDomainData(buf);
+      let sum = 0;
+      for (let i = 0; i < buf.length; i++) {
+        const dev = buf[i] - 128;
+        sum += dev * dev;
+      }
+      const rms = Math.sqrt(sum / buf.length);
+
+      const elapsed = Date.now() - recordStartRef.current;
+
+      // Calibrate the room's ambient level from the first ~750ms.
+      if (elapsed < 750) {
+        samples.push(rms);
+        return;
+      }
+      if (ambientRef.current === null) {
+        const ambient = samples.length
+          ? samples.reduce((a, b) => a + b, 0) / samples.length
+          : 1;
+        ambientRef.current = Math.max(1.5, ambient * 1.4);
+      }
+
+      if (elapsed > MAX_RECORD_MS) {
+        stopRecording();
+        return;
+      }
+
+      if (rms < ambientRef.current) {
+        if (elapsed < MIN_RECORD_MS) return; // grace period — user is starting
         if (!silenceStartRef.current) {
           silenceStartRef.current = Date.now();
         } else if (Date.now() - silenceStartRef.current > SILENCE_TIMEOUT) {
-          // 5 seconds of silence — auto-stop
           stopRecording();
         }
       } else {
-        // Sound detected — reset silence timer
-        silenceStartRef.current = null;
+        silenceStartRef.current = null; // speech detected — reset timer
       }
     }, 250);
   }
@@ -575,6 +608,9 @@ export default function SathiVoicePanel({
         setRecording(true);
         setOrbPhase("listening");
         setLatestTranscript("");
+        setCurrentQuestion(
+          "Listening… speak everything in one go — बोलते रहिए। Tap the orb when you're done.",
+        );
       } catch {
         setCurrentQuestion(
           "Couldn't access your microphone. Please check browser permissions.",
