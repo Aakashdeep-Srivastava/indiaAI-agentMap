@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "sources": [
+      "AIKosh: ONDC-MyStore_App_Products_Orders.xlsx",
+      "AIKosh: ONDC-WowGeni_App_Orders.xlsx"
+    ],
+    "total_orders_mapped": 129591,
+    "orders_unmapped": 45137,
+    "method": "keyword mapping of real order lines to ONDC retail domains"
+  },
+  "domains": {
+    "RET12": {
+      "orders": 70041,
+      "value_inr": 11975304.76,
+      "share": 0.5405,
+      "level": "high"
+    },
+    "RET10": {
+      "orders": 34380,
+      "value_inr": 5002692.1,
+      "share": 0.2653,
+      "level": "high"
+    },
+    "RET16": {
+      "orders": 19163,
+      "value_inr": 2103772.2,
+      "share": 0.1479,
+      "level": "medium"
+    },
+    "RET13": {
+      "orders": 4810,
+      "value_inr": 595862.73,
+      "share": 0.0371,
+      "level": "medium"
+    },
+    "RET11": {
+      "orders": 1055,
+      "value_inr": 119469.96,
+      "share": 0.0081,
+      "level": "medium"
+    },
+    "RET18": {
+      "orders": 98,
+      "value_inr": 7166.79,
+      "share": 0.0008,
+      "level": "low"
+    },
+    "RET14": {
+      "orders": 37,
+      "value_inr": 3293.2,
+      "share": 0.0003,
+      "level": "low"
+    },
+    "RET15": {
+      "orders": 7,
+      "value_inr": 1505.66,
+      "share": 0.0001,
+      "level": "low"
+    }
+  }
+}

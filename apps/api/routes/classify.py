@@ -2,6 +2,7 @@
 
 import json
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,6 +13,28 @@ from database import MSE, AuditLog, ClassificationResult, get_db
 from services.classifier import classify_mse_description_async, get_compliance_checklist
 
 router = APIRouter()
+
+# Real ONDC demand signal (129K+ order lines from AIKosh transaction data)
+_DEMAND: dict = {}
+try:
+    _demand_file = Path(__file__).resolve().parent.parent / "data" / "category_demand.json"
+    _DEMAND = json.loads(_demand_file.read_text()).get("domains", {})
+except Exception:
+    pass
+
+
+def _demand_for(domain: str) -> Optional[dict]:
+    d = _DEMAND.get(domain)
+    if not d:
+        return None
+    return {
+        "level": d["level"],
+        "orders_observed": d["orders"],
+        "note": (
+            f"Based on {d['orders']:,} real ONDC order lines in this category "
+            f"(AIKosh transaction data)."
+        ),
+    }
 
 
 # ── Pydantic models ─────────────────────────────────────────────────
@@ -53,6 +76,8 @@ class ClassifyResponse(BaseModel):
     attributes: dict[str, str] = {}
     # Advisory readiness checklist for the predicted domain (PS2: compliance validation)
     compliance: list[ComplianceItem] = []
+    # Real ONDC market demand for the predicted domain (AIKosh order data)
+    demand: Optional[dict] = None
 
 
 class ClassificationHistoryItem(BaseModel):
@@ -115,6 +140,7 @@ async def classify(payload: ClassifyRequest, db: Session = Depends(get_db)):
                 has_pan=bool(mse.pan_number),
             )
         ],
+        demand=_demand_for(top_pred["domain"]),
     )
 
 
@@ -144,6 +170,7 @@ async def classify_text(payload: ClassifyTextRequest):
             ComplianceItem(**c)
             for c in get_compliance_checklist(top_pred["domain"])
         ],
+        demand=_demand_for(top_pred["domain"]),
     )
 
 

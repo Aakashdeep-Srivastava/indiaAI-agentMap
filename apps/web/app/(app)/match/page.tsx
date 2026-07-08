@@ -13,6 +13,7 @@ const SNPCard = dynamic(
   () => import("@/components/SNPCard").then((m) => ({ default: m.SNPCard })),
   { ssr: false }
 );
+const MSEPicker = dynamic(() => import("@/components/MSEPicker"), { ssr: false });
 const ClusterMap = dynamic(() => import("@/components/ClusterMap"), {
   ssr: false,
   loading: () => (
@@ -96,33 +97,43 @@ export default function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mseId]);
 
-  async function handleMatch() {
-    if (!mseId) return;
+  async function handleMatch(idOverride?: number) {
+    const id = idOverride ?? Number(mseId);
+    if (!id) return;
     setLoading(true);
     setError(null);
     try {
-      await apiFetch(`/classify/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mse_id: Number(mseId) }),
-      });
+      const runMatch = () =>
+        apiFetch(`/match/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mse_id: id, top_k: 5 }),
+        });
 
-      const res = await apiFetch(`/match/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mse_id: Number(mseId), top_k: 5 }),
-      });
-
-      if (!res.ok) {
+      // Lightning path: match directly using the stored classification.
+      // Only classify first when this business has never been classified.
+      let res = await runMatch();
+      if (res.ok) {
+        let data: MatchResponse = await res.json();
+        if (!data.predicted_domain) {
+          await apiFetch(`/classify/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mse_id: id }),
+          });
+          res = await runMatch();
+          if (!res.ok) throw new Error("Match request failed");
+          data = await res.json();
+        }
+        setResult(data);
+      } else {
         const err = await res.json();
         throw new Error(err.detail ?? "Match request failed");
       }
 
-      setResult(await res.json());
-
       // Cluster insights load in the background — the map appears when ready.
       setClusters(null);
-      apiFetch(`/mse/${Number(mseId)}/clusters`)
+      apiFetch(`/mse/${id}/clusters`)
         .then((r) => (r.ok ? r.json() : null))
         .then((c) => setClusters(c))
         .catch(() => {});
@@ -158,25 +169,18 @@ export default function DashboardPage() {
 
         <div className="flex items-end gap-3">
           <div className="flex-1">
-            <label
-              htmlFor="mse-id"
-              className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-surface-500"
-            >
-              MSE ID
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-surface-500">
+              Your Business
             </label>
-            <input
-              id="mse-id"
-              type="number"
-              min={1}
-              placeholder="Enter MSE ID (e.g. 1)"
-              value={mseId}
-              onChange={(e) => setMseId(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleMatch()}
-              className="input-field"
+            <MSEPicker
+              onSelect={(m) => {
+                setMseId(String(m.id));
+                handleMatch(m.id);
+              }}
             />
           </div>
           <button
-            onClick={handleMatch}
+            onClick={() => handleMatch()}
             disabled={loading || !mseId}
             className="btn-primary"
           >

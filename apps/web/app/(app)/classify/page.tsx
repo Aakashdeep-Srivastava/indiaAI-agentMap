@@ -29,6 +29,7 @@ const ClassificationHistory = dynamic(
 const VoiceInput = dynamic(() => import("@/components/VoiceInput"), {
   ssr: false,
 });
+const MSEPicker = dynamic(() => import("@/components/MSEPicker"), { ssr: false });
 
 import { apiFetch } from "@/lib/auth";
 
@@ -309,26 +310,27 @@ export default function ClassifyPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mseId]);
 
-  const classifyByMSE = async () => {
-    if (!mseId.trim()) return;
+  const classifyByMSE = async (idArg?: string) => {
+    const id = (idArg ?? mseId).trim();
+    if (!id) return;
     setLoading(true);
     setError(null);
     setResult(null);
     setMseInfo(null);
     setHistory([]);
     try {
-      const mseRes = await apiFetch(`/mse/${mseId}`);
-      if (!mseRes.ok) throw new Error("MSE not found");
+      const mseRes = await apiFetch(`/mse/${id}`);
+      if (!mseRes.ok) throw new Error("Business not found");
       const mse: MSEInfo = await mseRes.json();
       setMseInfo(mse);
       const classifyRes = await apiFetch(`/classify/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mse_id: parseInt(mseId) }),
+        body: JSON.stringify({ mse_id: parseInt(id) }),
       });
       if (!classifyRes.ok) throw new Error("Classification failed");
       setResult(await classifyRes.json());
-      const histRes = await apiFetch(`/classify/history/${mseId}`);
+      const histRes = await apiFetch(`/classify/history/${id}`);
       if (histRes.ok) setHistory(await histRes.json());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Classification failed");
@@ -425,7 +427,7 @@ export default function ClassifyPage() {
               },
               {
                 key: "mse" as TabMode,
-                label: "By MSE ID",
+                label: "My Business",
                 icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z",
               },
             ] as const
@@ -468,16 +470,13 @@ export default function ClassifyPage() {
               >
                 <div>
                   <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-surface-400">
-                    MSE ID
+                    Your Business
                   </label>
-                  <input
-                    type="number"
-                    value={mseId}
-                    onChange={(e) => setMseId(e.target.value)}
-                    placeholder="Enter MSE ID (e.g. 1, 2, 3...)"
-                    className="input-field"
-                    min={1}
-                    onKeyDown={(e) => e.key === "Enter" && handleClassify()}
+                  <MSEPicker
+                    onSelect={(m) => {
+                      setMseId(String(m.id));
+                      classifyByMSE(String(m.id));
+                    }}
                   />
                 </div>
                 <button

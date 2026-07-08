@@ -1,6 +1,8 @@
 """MSE (Micro/Small Enterprise) CRUD routes."""
 
+import json
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -11,6 +13,14 @@ from database import MSE, AuditLog, ClassificationResult, MatchResult, User, get
 from services.auth import get_current_user, get_optional_user, require_admin
 
 router = APIRouter()
+
+# Official Udyam district-wise MSME counts (AIKosh, government data)
+_DISTRICT_MSME: dict[str, int] = {}
+try:
+    _dm_file = Path(__file__).resolve().parent.parent / "data" / "district_msme.json"
+    _DISTRICT_MSME = json.loads(_dm_file.read_text()).get("counts", {})
+except Exception:
+    pass
 
 
 # ── Schemas ───────────────────────────────────────────────────────────
@@ -104,6 +114,11 @@ def register_mse(
     db.add(mse)
     db.flush()
 
+    # Link the enterprise to the signed-in MSE account so classify/match
+    # auto-load "your business" — no numeric IDs anywhere in the UX.
+    if user and user.role == "mse" and not user.mse_id:
+        user.mse_id = mse.id
+
     db.add(AuditLog(
         action="mse_registered",
         entity_type="mse",
@@ -129,6 +144,36 @@ def list_mses(
     if state:
         query = query.filter(MSE.state == state)
     return query.offset(skip).limit(limit).all()
+
+
+class MSESearchItem(BaseModel):
+    id: int
+    name: str
+    udyam_number: str
+    district: Optional[str]
+    state: Optional[str]
+
+    model_config = {"from_attributes": True}
+
+
+@router.get("/search", response_model=list[MSESearchItem])
+def search_mses(
+    q: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Find a business by name or Udyam number (type-ahead; no numeric IDs)."""
+    q = q.strip()
+    if len(q) < 2:
+        return []
+    like = f"%{q}%"
+    return (
+        db.query(MSE)
+        .filter((MSE.name.ilike(like)) | (MSE.udyam_number.ilike(like)))
+        .order_by(MSE.id.desc())
+        .limit(8)
+        .all()
+    )
 
 
 @router.get("/{mse_id}", response_model=MSEResponse)
@@ -291,6 +336,13 @@ def mse_clusters(
         insights.append(
             f"{snp_cover} seller platforms cover your state — strong onboarding options."
         )
+    if mse.district and mse.state:
+        official = _DISTRICT_MSME.get(f"{mse.district.title()}|{mse.state.title()}")
+        if official:
+            insights.append(
+                f"Official Udyam data: {official:,} registered MSMEs in "
+                f"{mse.district} — the digital-commerce opportunity your district holds."
+            )
 
     return ClusterResponse(
         industry_label=industry_label,

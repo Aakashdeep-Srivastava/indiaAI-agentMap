@@ -11,20 +11,21 @@ from typing import Any
 
 # ── Templates ─────────────────────────────────────────────────────────
 
+# Qualitative labels only — raw factor scores are trade-secret internals.
 _EN_TEMPLATE = (
     "{snp_name} is recommended for {mse_name} because: "
-    "Domain fit is {domain_label} ({domain_score:.0%}), "
-    "geographic coverage is {geo_label} ({geo_score:.0%}), "
-    "and commission rate is {comm_label} ({commission_pct:.1f}%). "
-    "Overall confidence: {band_label} ({composite:.0%})."
+    "domain fit is {domain_label}, "
+    "geographic coverage is {geo_label}, "
+    "and the commission rate is {comm_label} ({commission_pct:.1f}%). "
+    "Overall confidence: {band_label}."
 )
 
 _HI_TEMPLATE = (
     "{snp_name} को {mse_name} के लिए सुझाया गया है क्योंकि: "
-    "डोमेन मिलान {domain_label_hi} है ({domain_score:.0%}), "
-    "भौगोलिक कवरेज {geo_label_hi} है ({geo_score:.0%}), "
+    "डोमेन मिलान {domain_label_hi} है, "
+    "भौगोलिक कवरेज {geo_label_hi} है, "
     "और कमीशन दर {comm_label_hi} है ({commission_pct:.1f}%)। "
-    "कुल विश्वास: {band_label_hi} ({composite:.0%})।"
+    "कुल विश्वास: {band_label_hi}।"
 )
 
 _LABELS = {
