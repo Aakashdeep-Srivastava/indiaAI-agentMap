@@ -9,7 +9,7 @@ import { Store, ShieldCheck, LogIn, KeyRound, User } from "lucide-react";
 import { getSession, login, type Role } from "@/lib/auth";
 
 /** Demo usernames shown as a hint — passcodes are issued separately (never shipped in the bundle). */
-const DEMO_IDS: Record<Role, string> = { mse: "mse@demo", admin: "nsic@demo" };
+const DEMO_IDS: Record<Role, string> = { mse: "mse@msmemate.com", admin: "nsic@msmemate.com" };
 
 const ROLES: {
   role: Role;
@@ -213,8 +213,26 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* New-enterprise registration — PS2 entry point, no account needed */}
+          <div className="mt-6 rounded-2xl border border-saffron-400/40 bg-saffron-500/5 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-brand-900">
+                  New enterprise? Register free
+                </p>
+                <p className="mt-0.5 text-[11px] leading-snug text-surface-500">
+                  Voice-first, in your language — no account needed.
+                  नया उद्यम? बोलकर रजिस्टर करें।
+                </p>
+              </div>
+              <Link href="/register" className="btn-saffron shrink-0 !px-4 !py-2 !text-xs">
+                Register →
+              </Link>
+            </div>
+          </div>
+
           {/* Demo access hint */}
-          <div className="mt-6 rounded-2xl border border-dashed border-surface-300 bg-white p-4">
+          <div className="mt-3 rounded-2xl border border-dashed border-surface-300 bg-white p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-surface-400">
               Demo access — {role === "mse" ? "MSE Owner" : "NSIC Administrator"}
             </p>

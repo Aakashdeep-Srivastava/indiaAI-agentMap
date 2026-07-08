@@ -13,9 +13,15 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  /* Portal gate — everyone signs in at /login; MSE users can't open admin pages. */
+  /* Portal gate — everyone signs in at /login; MSE users can't open admin pages.
+   * Exception: /register is PUBLIC — a brand-new MSE has no account yet
+   * (PS2 voice-first onboarding is the entry point, not a logged-in feature). */
   useEffect(() => {
     const session = getSession();
+    if (pathname.startsWith("/register")) {
+      setAuthed(true);
+      return;
+    }
     if (!session) {
       router.replace("/login");
       return;

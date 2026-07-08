@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import MSE, AuditLog, ClassificationResult, MatchResult, User, get_db
-from services.auth import get_current_user, require_admin
+from services.auth import get_current_user, get_optional_user, require_admin
 
 router = APIRouter()
 
@@ -78,9 +78,9 @@ class MSEResponse(BaseModel):
 def register_mse(
     payload: MSECreate,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User | None = Depends(get_optional_user),
 ):
-    """Register a new Micro/Small Enterprise for onboarding."""
+    """Register a new MSE. Public (PS2 voice-first onboarding), rate-limited per IP."""
     if not payload.consent_given:
         raise HTTPException(
             status_code=422,
@@ -109,7 +109,7 @@ def register_mse(
         entity_type="mse",
         entity_id=mse.id,
         details=f"Registered {payload.name} ({payload.udyam_number}), consent recorded",
-        performed_by=user.username,
+        performed_by=user.username if user else "public-registration",
     ))
     db.commit()
     db.refresh(mse)
@@ -132,7 +132,11 @@ def list_mses(
 
 
 @router.get("/{mse_id}", response_model=MSEResponse)
-def get_mse(mse_id: int, db: Session = Depends(get_db)):
+def get_mse(
+    mse_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),  # profile PII — signed-in only
+):
     """Retrieve a single MSE by ID."""
     mse = db.query(MSE).get(mse_id)
     if not mse:

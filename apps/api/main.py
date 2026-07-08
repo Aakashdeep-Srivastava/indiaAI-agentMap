@@ -63,14 +63,18 @@ app.include_router(health_router, tags=["Health"])           # load balancer pro
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])  # login / me
 app.include_router(domains_router, prefix="/domains", tags=["Domains"])  # public taxonomy
 
+# Public onboarding path (PS2: a new MSE has no account yet). Voice/vision
+# helpers + registration are anonymous but rate-limited per IP; the MSE
+# router enforces its own per-route guards (list/erase = admin only).
+app.include_router(mse_router, prefix="/mse", tags=["MSE"])
+app.include_router(stt_router, prefix="/stt", tags=["STT"])
+app.include_router(ocr_router, prefix="/ocr", tags=["OCR"])
+app.include_router(tts_router, prefix="/tts", tags=["TTS"])
+app.include_router(ner_router, prefix="/ner", tags=["NER"])
+
 # ── Authenticated (valid signed token required) ─────────────────────────
-app.include_router(mse_router, prefix="/mse", tags=["MSE"], dependencies=authed)
 app.include_router(classify_router, prefix="/classify", tags=["Classification"], dependencies=authed)
 app.include_router(match_router, prefix="/match", tags=["Matching"], dependencies=authed)
-app.include_router(stt_router, prefix="/stt", tags=["STT"], dependencies=authed)
-app.include_router(ocr_router, prefix="/ocr", tags=["OCR"], dependencies=authed)
-app.include_router(tts_router, prefix="/tts", tags=["TTS"], dependencies=authed)
-app.include_router(ner_router, prefix="/ner", tags=["NER"], dependencies=authed)
 
 # ── Admin only (NSIC oversight) ─────────────────────────────────────────
 app.include_router(audit_router, prefix="/audit", tags=["Audit"], dependencies=admin_only)

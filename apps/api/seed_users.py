@@ -16,13 +16,13 @@ from services.auth import hash_password
 
 DEMO_USERS = [
     {
-        "username": "mse@demo",
+        "username": "mse@msmemate.com",
         "password": os.getenv("MSE_DEMO_PASSWORD", "bharat123"),
         "role": "mse",
         "display_name": "Demo MSE Owner",
     },
     {
-        "username": "nsic@demo",
+        "username": "nsic@msmemate.com",
         "password": os.getenv("ADMIN_DEMO_PASSWORD", "nsic123"),
         "role": "admin",
         "display_name": "NSIC Reviewer",

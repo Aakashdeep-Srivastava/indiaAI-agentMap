@@ -140,3 +140,21 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != "admin":
         raise HTTPException(status_code=403, detail="Administrator access required")
     return user
+
+
+def get_optional_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """Return the user if a valid token is present, else None (public flows).
+
+    Used by the registration path: a brand-new MSE has no account yet, so
+    onboarding must work anonymously (rate-limited per IP)."""
+    if credentials is None:
+        return None
+    try:
+        payload = jwt.decode(credentials.credentials, _JWT_SECRET, algorithms=[JWT_ALG])
+        user = db.get(User, int(payload["sub"]))
+        return user if user and user.is_active else None
+    except (jwt.PyJWTError, KeyError, ValueError):
+        return None

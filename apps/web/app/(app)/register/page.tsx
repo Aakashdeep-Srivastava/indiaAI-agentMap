@@ -18,7 +18,7 @@ const SathiVoicePanel = dynamic(
   }
 );
 
-import { apiFetch } from "@/lib/auth";
+import { apiFetch, getSession } from "@/lib/auth";
 
 const STATES = [
   "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Delhi", "Goa",
@@ -126,9 +126,13 @@ export default function RegisterPage() {
       }
       const data = await res.json();
       setSuccess(data.id);
-      setTimeout(() => {
-        router.push(`/classify?mseId=${data.id}`);
-      }, 4000);
+      // Signed-in users continue straight to classification; anonymous
+      // registrants are prompted to sign in first (classify/match are gated).
+      if (getSession()) {
+        setTimeout(() => {
+          router.push(`/classify?mseId=${data.id}`);
+        }, 4000);
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -173,10 +177,15 @@ export default function RegisterPage() {
                   <span className="font-mono text-2xl font-bold text-brand-900">{success}</span>
                 </div>
                 <p className="text-sm text-surface-500">
-                  Redirecting to classification...
+                  {getSession()
+                    ? "Redirecting to classification..."
+                    : "Sign in to see your AI classification and seller-platform matches."}
                 </p>
-                <Link href={`/classify?mseId=${success}`} className="btn-primary inline-flex">
-                  Continue to Classification
+                <Link
+                  href={getSession() ? `/classify?mseId=${success}` : "/login"}
+                  className="btn-primary inline-flex"
+                >
+                  {getSession() ? "Continue to Classification" : "Sign in to Continue"}
                   <svg className="ml-1.5 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12" />
                     <polyline points="12 5 19 12 12 19" />
