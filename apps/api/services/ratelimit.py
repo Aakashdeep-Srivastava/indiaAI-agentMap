@@ -19,7 +19,8 @@ from fastapi.responses import JSONResponse
 WINDOW_SECONDS = 60
 
 LOGIN_LIMIT = int(os.getenv("RATE_LIMIT_LOGIN", "10"))      # per IP / min
-LLM_LIMIT = int(os.getenv("RATE_LIMIT_LLM", "30"))          # per user / min
+# Voice sessions burst (each turn = STT + NER + TTS), so keep real headroom.
+LLM_LIMIT = int(os.getenv("RATE_LIMIT_LLM", "60"))          # per user / min
 DEFAULT_LIMIT = int(os.getenv("RATE_LIMIT_DEFAULT", "120")) # per user / min
 
 # Path prefixes that proxy to external AI services (Sarvam / NVIDIA quotas).

@@ -35,7 +35,7 @@ export async function extractFieldsFromAPI(
         language: "auto",
         existing_fields: existingFields,
       }),
-    });
+    }, 60000);
 
     if (!res.ok) throw new Error(`API error: ${res.status}`);
 

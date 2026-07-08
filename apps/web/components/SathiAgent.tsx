@@ -253,7 +253,7 @@ export default function SathiAgent({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, language }),
-      });
+      }, 60000);
       if (!res.ok) return;
       const data = await res.json();
       if (data.audio_base64 && data.content_type) {
@@ -424,7 +424,7 @@ export default function SathiAgent({
       const res = await apiFetch(`/stt/transcribe`, {
         method: "POST",
         body: fd,
-      });
+      }, 120000);
 
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -466,7 +466,7 @@ export default function SathiAgent({
       const res = await apiFetch(`/ocr/extract`, {
         method: "POST",
         body: fd,
-      });
+      }, 180000);
 
       if (!res.ok) throw new Error();
       const data = await res.json();

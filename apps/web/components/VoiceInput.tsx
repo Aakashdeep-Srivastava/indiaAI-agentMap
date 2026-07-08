@@ -91,7 +91,7 @@ export default function VoiceInput({
         const res = await apiFetch(`/stt/transcribe`, {
           method: "POST",
           body: formData,
-        });
+        }, 120000);
 
         if (!res.ok) throw new Error("Transcription failed");
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -59,6 +59,11 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
+  // Ref mirror so the voice panel's submit callback always sees fresh consent
+  const consentRef = useRef(false);
+  useEffect(() => {
+    consentRef.current = consent;
+  }, [consent]);
   const [highlighted, setHighlighted] = useState<Set<string>>(new Set());
   const highlightTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -85,6 +90,12 @@ export default function RegisterPage() {
   }, []);
 
   async function handleSubmit() {
+    if (!consentRef.current) {
+      setError(
+        "Please tick the consent box next to the Submit button to finish. / कृपया सबमिट से पहले सहमति बॉक्स चुनें।",
+      );
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
