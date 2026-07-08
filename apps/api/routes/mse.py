@@ -171,11 +171,21 @@ def list_mses(
     db: Session = Depends(get_db),
     user: User = Depends(require_admin),  # bulk PII — NSIC admins only
 ):
-    """List MSEs with optional state filter."""
+    """List MSEs with optional state filter — pending first, newest first."""
+    from sqlalchemy import case
+
     query = db.query(MSE)
     if state:
         query = query.filter(MSE.state == state)
-    return query.offset(skip).limit(limit).all()
+    return (
+        query.order_by(
+            case((MSE.status == "pending_review", 0), else_=1),
+            MSE.id.desc(),
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 class ReviewRequest(BaseModel):
