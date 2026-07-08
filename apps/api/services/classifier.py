@@ -51,7 +51,9 @@ ONDC_DOMAINS: dict[str, list[str]] = {
     ],
     "RET16": [  # Home & Kitchen
         "furniture", "kitchen", "utensil", "steel", "vessel", "wooden",
-        "craft", "pottery", "home", "décor", "mat", "basket", "bamboo",
+        "craft", "pottery", "home", "décor", "decor", "mat", "basket", "bamboo",
+        "brass", "diya", "thali", "urli", "figurine", "idol", "murti",
+        "lamp", "candle", "frame", "terracotta", "handicraft", "pooja",
     ],
     "RET18": [  # Health & Wellness
         "ayurved", "herbal", "medicine", "health", "wellness", "organic",
