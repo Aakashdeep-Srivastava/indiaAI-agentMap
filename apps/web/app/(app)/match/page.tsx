@@ -13,6 +13,14 @@ const SNPCard = dynamic(
   () => import("@/components/SNPCard").then((m) => ({ default: m.SNPCard })),
   { ssr: false }
 );
+const ClusterMap = dynamic(() => import("@/components/ClusterMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center rounded-2xl bg-surface-50">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+    </div>
+  ),
+});
 
 import { apiFetch } from "@/lib/auth";
 
@@ -44,6 +52,18 @@ interface MatchResponse {
   nudges?: string[];
 }
 
+interface ClusterData {
+  industry_label: string;
+  total_similar: number;
+  your_state: string | null;
+  your_district: string | null;
+  your_location: [number, number] | null;
+  by_state: { state: string; count: number; lat: number; lng: number }[];
+  by_district: { district: string; state: string; count: number; lat: number; lng: number }[];
+  top_districts: { district: string; state: string; count: number }[];
+  insights: string[];
+}
+
 const DOMAIN_LABELS: Record<string, { label: string; icon: string }> = {
   RET10: { label: "Grocery", icon: "\u{1F6D2}" },
   RET12: { label: "Fashion", icon: "\u{1F457}" },
@@ -56,6 +76,7 @@ export default function DashboardPage() {
   const searchParams = useSearchParams();
   const [mseId, setMseId] = useState("");
   const [result, setResult] = useState<MatchResponse | null>(null);
+  const [clusters, setClusters] = useState<ClusterData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const autoTriggered = useRef(false);
@@ -98,6 +119,13 @@ export default function DashboardPage() {
       }
 
       setResult(await res.json());
+
+      // Cluster insights load in the background — the map appears when ready.
+      setClusters(null);
+      apiFetch(`/mse/${Number(mseId)}/clusters`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((c) => setClusters(c))
+        .catch(() => {});
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -248,6 +276,77 @@ export default function DashboardPage() {
               <SNPCard key={m.snp_id} match={m} rank={i + 1} />
             ))}
           </div>
+
+          {/* ── Cluster Insights map (PS2: clustering & capability assessment) ── */}
+          {clusters && (clusters.by_district.length > 0 || clusters.by_state.length > 0) && (
+            <div className="glass-card overflow-hidden">
+              <div className="flex items-center justify-between border-b border-surface-100 px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50">
+                    <svg className="h-4 w-4 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" />
+                      <line x1="8" y1="2" x2="8" y2="18" />
+                      <line x1="16" y1="6" x2="16" y2="22" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-display text-sm font-semibold text-brand-900">
+                      Cluster Insights
+                    </h3>
+                    <p className="text-[11px] text-surface-400">
+                      {clusters.total_similar.toLocaleString("en-IN")} similar
+                      businesses across India · OpenStreetMap
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid gap-0 lg:grid-cols-[1fr_320px]">
+                <div className="h-[380px] p-4">
+                  <ClusterMap
+                    byDistrict={clusters.by_district}
+                    byState={clusters.by_state}
+                    yourLocation={clusters.your_location}
+                    yourDistrict={clusters.your_district}
+                  />
+                </div>
+                <div className="space-y-4 border-t border-surface-100 p-5 lg:border-l lg:border-t-0">
+                  <div>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                      What this means for you
+                    </span>
+                    <ul className="mt-2 space-y-2">
+                      {clusters.insights.map((ins) => (
+                        <li key={ins} className="flex items-start gap-2 text-xs leading-relaxed text-surface-600">
+                          <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-400" />
+                          {ins}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  {clusters.top_districts.length > 0 && (
+                    <div>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                        Top clusters
+                      </span>
+                      <div className="mt-2 space-y-1">
+                        {clusters.top_districts.slice(0, 5).map((t, i) => (
+                          <div key={`${t.district}-${t.state}`} className="flex items-center justify-between text-xs">
+                            <span className={`truncate ${t.district === clusters.your_district ? "font-semibold text-saffron-600" : "text-surface-600"}`}>
+                              {i + 1}. {t.district}, {t.state}
+                              {t.district === clusters.your_district ? " (you)" : ""}
+                            </span>
+                            <span className="ml-2 shrink-0 font-mono font-semibold text-brand-900">
+                              {t.count}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* CTA to Review Queue */}
           <div className="flex justify-center pt-2">

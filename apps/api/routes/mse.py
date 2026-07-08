@@ -144,6 +144,167 @@ def get_mse(
     return mse
 
 
+class ClusterBubble(BaseModel):
+    state: str
+    count: int
+    lat: float
+    lng: float
+
+
+class ClusterDistrict(BaseModel):
+    district: str
+    state: str
+    count: int
+
+
+class DistrictBubble(BaseModel):
+    district: str
+    state: str
+    count: int
+    lat: float
+    lng: float
+
+
+class ClusterResponse(BaseModel):
+    industry_label: str
+    total_similar: int
+    your_state: Optional[str] = None
+    your_district: Optional[str] = None
+    your_location: Optional[list[float]] = None  # [lat, lng]
+    by_state: list[ClusterBubble]
+    # District-level bubbles with real OSM-geocoded coordinates
+    by_district: list[DistrictBubble]
+    top_districts: list[ClusterDistrict]
+    insights: list[str]
+
+
+@router.get("/{mse_id}/clusters", response_model=ClusterResponse)
+def mse_clusters(
+    mse_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Cluster of similar businesses (same NIC industry) across India —
+    geographic insight for the MSE (PS2: clustering & capability assessment)."""
+    from sqlalchemy import func
+
+    from database import SNP
+    from services.geo import state_centroid
+
+    mse = db.query(MSE).get(mse_id)
+    if not mse:
+        raise HTTPException(status_code=404, detail="MSE not found")
+
+    # Similar = same 2-digit NIC industry; fall back to the whole corpus.
+    nic2 = (mse.nic_code or "")[:2]
+    q = db.query(MSE.state, MSE.district, func.count(MSE.id))
+    if nic2:
+        q = q.filter(MSE.nic_code.like(f"{nic2}%"))
+        industry_label = f"NIC {nic2} industry peers"
+    else:
+        industry_label = "registered MSEs"
+    rows = q.group_by(MSE.state, MSE.district).all()
+
+    state_counts: dict[str, int] = {}
+    district_counts: dict[tuple[str, str], int] = {}
+    total = 0
+    for state, district, count in rows:
+        total += count
+        if state:
+            state_counts[state] = state_counts.get(state, 0) + count
+        if district and state:
+            district_counts[(district, state)] = (
+                district_counts.get((district, state), 0) + count
+            )
+
+    by_state = []
+    for state, count in sorted(state_counts.items(), key=lambda x: -x[1]):
+        coords = state_centroid(state)
+        if coords:
+            by_state.append(ClusterBubble(state=state, count=count, lat=coords[0], lng=coords[1]))
+
+    # District bubbles using the OSM-geocoded gazetteer (geo_districts)
+    from sqlalchemy import text as _text
+    gazetteer: dict[tuple[str, str], tuple[float, float]] = {}
+    try:
+        for d, s, lat, lng in db.execute(
+            _text("SELECT district, state, lat, lng FROM geo_districts")
+        ).fetchall():
+            gazetteer[(d.lower(), s.lower())] = (lat, lng)
+    except Exception:
+        pass  # gazetteer table empty/unavailable — state bubbles still work
+
+    by_district: list[DistrictBubble] = []
+    your_location = None
+    for (district, state), count in sorted(district_counts.items(), key=lambda x: -x[1]):
+        coords = gazetteer.get((district.lower(), (state or "").lower()))
+        if coords:
+            by_district.append(DistrictBubble(
+                district=district, state=state, count=count,
+                lat=coords[0], lng=coords[1],
+            ))
+    if mse.district and mse.state:
+        own = gazetteer.get((mse.district.lower(), mse.state.lower()))
+        if own:
+            your_location = [own[0], own[1]]
+
+    top_districts = [
+        ClusterDistrict(district=d, state=s, count=c)
+        for (d, s), c in sorted(district_counts.items(), key=lambda x: -x[1])[:8]
+    ]
+
+    # SNP coverage of the MSE's own state
+    snp_cover = 0
+    if mse.state:
+        state_l = mse.state.lower()
+        for (geo,) in db.query(SNP.geo_coverage).all():
+            g = (geo or "").lower()
+            if state_l in g or "pan" in g or "all" in g:
+                snp_cover += 1
+
+    insights: list[str] = []
+    own_district_count = next(
+        (c for (d, s), c in district_counts.items()
+         if mse.district and d.lower() == mse.district.lower()),
+        0,
+    )
+    if own_district_count > 1:
+        insights.append(
+            f"You are one of {own_district_count} similar businesses in "
+            f"{mse.district} — a local cluster that seller platforms actively target."
+        )
+    elif mse.district:
+        insights.append(
+            f"You'd be an early mover for this category in {mse.district} — "
+            f"less local competition on ONDC."
+        )
+    if top_districts:
+        t = top_districts[0]
+        insights.append(
+            f"The largest cluster of similar businesses is {t.district}, "
+            f"{t.state} ({t.count}) — pricing and catalogue benchmarks to watch."
+        )
+    if len(by_state) >= 3:
+        top3 = ", ".join(b.state for b in by_state[:3])
+        insights.append(f"This industry is concentrated in {top3}.")
+    if snp_cover:
+        insights.append(
+            f"{snp_cover} seller platforms cover your state — strong onboarding options."
+        )
+
+    return ClusterResponse(
+        industry_label=industry_label,
+        total_similar=total,
+        your_state=mse.state,
+        your_district=mse.district,
+        your_location=your_location,
+        by_state=by_state,
+        by_district=by_district,
+        top_districts=top_districts,
+        insights=insights,
+    )
+
+
 @router.delete("/{mse_id}", status_code=204)
 def erase_mse(
     mse_id: int,
