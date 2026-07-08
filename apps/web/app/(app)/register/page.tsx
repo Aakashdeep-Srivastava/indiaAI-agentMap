@@ -211,212 +211,208 @@ export default function RegisterPage() {
         </p>
       </div>
 
-      {/* ── Entrepreneur & Enterprise (official TEAM form) ── */}
+      {/* ── Essentials (always visible) ── */}
       <div className="grid grid-cols-2 gap-3">
         <Field
-          label="Name of Entrepreneur *"
+          label="Entrepreneur *"
           placeholder="Your full name"
           value={form.entrepreneur_name}
           onChange={(v) => update("entrepreneur_name", v)}
           highlighted={highlighted.has("entrepreneur_name")}
         />
         <Field
-          label="Name of Enterprise *"
+          label="Enterprise *"
           placeholder="Business name"
           value={form.name}
           onChange={(v) => update("name", v)}
           highlighted={highlighted.has("name")}
         />
       </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label="Type of Organization *"
-          value={form.org_type}
-          onChange={(v) => update("org_type", v)}
-          type="select"
-          options={[
-            ["Proprietary", "Proprietary"],
-            ["Partnership", "Partnership"],
-            ["Private Limited Company", "Private Limited Company"],
-            ["LLP", "LLP"],
-            ["Others", "Others"],
-          ]}
-          highlighted={highlighted.has("org_type")}
-        />
-        <Field
-          label="Udyam Number *"
-          placeholder="UDYAM-XX-00-0000001"
-          value={form.udyam_number}
-          onChange={(v) => update("udyam_number", v)}
-          highlighted={highlighted.has("udyam_number")}
-        />
-      </div>
-
-      {/* ── Contact ── */}
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label="Email *"
-          placeholder="name@example.com"
-          value={form.email}
-          onChange={(v) => update("email", v)}
-          highlighted={highlighted.has("email")}
-        />
-        <Field
-          label="Mobile Number"
-          placeholder="9876543210"
-          value={form.mobile_number}
-          onChange={(v) => update("mobile_number", v)}
-          highlighted={highlighted.has("mobile_number")}
-        />
-      </div>
-
       <Field
-        label="Address *"
-        placeholder="Building, street, locality"
-        value={form.address}
-        onChange={(v) => update("address", v)}
-        highlighted={highlighted.has("address")}
+        label="Udyam Number *"
+        placeholder="UDYAM-XX-00-0000001"
+        value={form.udyam_number}
+        onChange={(v) => update("udyam_number", v)}
+        highlighted={highlighted.has("udyam_number")}
       />
 
-      <div className="grid grid-cols-3 gap-3">
+      <Section title="Contact & Address" defaultOpen>
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="Email *"
+            placeholder="name@example.com"
+            value={form.email}
+            onChange={(v) => update("email", v)}
+            highlighted={highlighted.has("email")}
+          />
+          <Field
+            label="Mobile"
+            placeholder="9876543210"
+            value={form.mobile_number}
+            onChange={(v) => update("mobile_number", v)}
+            highlighted={highlighted.has("mobile_number")}
+          />
+        </div>
         <Field
-          label="State *"
-          value={form.state}
-          onChange={(v) => update("state", v)}
-          type="select"
-          options={STATES.map((s) => [s, s])}
-          highlighted={highlighted.has("state")}
+          label="Address *"
+          placeholder="Building, street, locality"
+          value={form.address}
+          onChange={(v) => update("address", v)}
+          highlighted={highlighted.has("address")}
         />
-        <Field
-          label="District *"
-          placeholder="e.g. Varanasi"
-          value={form.district}
-          onChange={(v) => update("district", v)}
-          highlighted={highlighted.has("district")}
-        />
-        <Field
-          label="PIN Code"
-          placeholder="221001"
-          value={form.pin_code}
-          onChange={(v) => update("pin_code", v)}
-          highlighted={highlighted.has("pin_code")}
-        />
-      </div>
+        <div className="grid grid-cols-3 gap-3">
+          <Field
+            label="State *"
+            value={form.state}
+            onChange={(v) => update("state", v)}
+            type="select"
+            options={STATES.map((s) => [s, s])}
+            highlighted={highlighted.has("state")}
+          />
+          <Field
+            label="District *"
+            placeholder="e.g. Varanasi"
+            value={form.district}
+            onChange={(v) => update("district", v)}
+            highlighted={highlighted.has("district")}
+          />
+          <Field
+            label="PIN"
+            placeholder="221001"
+            value={form.pin_code}
+            onChange={(v) => update("pin_code", v)}
+            highlighted={highlighted.has("pin_code")}
+          />
+        </div>
+      </Section>
 
-      {/* ── Classification & compliance ── */}
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label="MSE Classification *"
-          value={form.turnover_band}
-          onChange={(v) => update("turnover_band", v)}
-          type="select"
-          options={[
-            ["micro", "Micro"],
-            ["small", "Small"],
-            ["medium", "Medium"],
-          ]}
-          highlighted={highlighted.has("turnover_band")}
-        />
-        <Field
-          label="Major Activity of Unit *"
-          value={form.major_activity}
-          onChange={(v) => update("major_activity", v)}
-          type="select"
-          options={[
-            ["Manufacturing", "Manufacturing"],
-            ["Services", "Services"],
-            ["Trading", "Trading"],
-          ]}
-          highlighted={highlighted.has("major_activity")}
-        />
-      </div>
+      <Section title="Business Profile">
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="Organization Type *"
+            value={form.org_type}
+            onChange={(v) => update("org_type", v)}
+            type="select"
+            options={[
+              ["Proprietary", "Proprietary"],
+              ["Partnership", "Partnership"],
+              ["Private Limited Company", "Private Limited Company"],
+              ["LLP", "LLP"],
+              ["Others", "Others"],
+            ]}
+            highlighted={highlighted.has("org_type")}
+          />
+          <Field
+            label="MSE Classification *"
+            value={form.turnover_band}
+            onChange={(v) => update("turnover_band", v)}
+            type="select"
+            options={[
+              ["micro", "Micro"],
+              ["small", "Small"],
+              ["medium", "Medium"],
+            ]}
+            highlighted={highlighted.has("turnover_band")}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="Major Activity *"
+            value={form.major_activity}
+            onChange={(v) => update("major_activity", v)}
+            type="select"
+            options={[
+              ["Manufacturing", "Manufacturing"],
+              ["Services", "Services"],
+              ["Trading", "Trading"],
+            ]}
+            highlighted={highlighted.has("major_activity")}
+          />
+          <Field
+            label="Transactions *"
+            value={form.transaction_type}
+            onChange={(v) => update("transaction_type", v)}
+            type="select"
+            options={[
+              ["B2B", "B2B"],
+              ["B2C", "B2C"],
+              ["Both", "Both"],
+            ]}
+            highlighted={highlighted.has("transaction_type")}
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-surface-500">
+            Products / Services
+            {highlighted.has("products") && <SathiBadge />}
+          </label>
+          <textarea
+            rows={2}
+            placeholder="e.g. Cotton sarees, Silk fabric, Dupattas"
+            value={form.products}
+            onChange={(e) => update("products", e.target.value)}
+            className={`input-field resize-none !py-2.5 text-sm ${highlighted.has("products") ? "magic-fill" : ""}`}
+          />
+        </div>
+      </Section>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label="PAN Number *"
-          placeholder="AAACX1234H"
-          value={form.pan_number}
-          onChange={(v) => update("pan_number", v.toUpperCase())}
-          highlighted={highlighted.has("pan_number")}
-        />
-        <Field
-          label="GST Number"
-          placeholder="Optional"
-          value={form.gst_number}
-          onChange={(v) => update("gst_number", v.toUpperCase())}
-          highlighted={highlighted.has("gst_number")}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label="Type of Transaction *"
-          value={form.transaction_type}
-          onChange={(v) => update("transaction_type", v)}
-          type="select"
-          options={[
-            ["B2B", "B2B"],
-            ["B2C", "B2C"],
-            ["Both", "Both"],
-          ]}
-          highlighted={highlighted.has("transaction_type")}
-        />
-        <Field
-          label="Turnover (Previous FY)"
-          placeholder="e.g. 18 lakh"
-          value={form.turnover_prev_fy}
-          onChange={(v) => update("turnover_prev_fy", v)}
-          highlighted={highlighted.has("turnover_prev_fy")}
-        />
-      </div>
-
-      {/* ── Business profile (drives AI classification & matching) ── */}
-      <div>
-        <label className="mb-1.5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-surface-500">
-          Products / Services
-          {highlighted.has("products") && <SathiBadge />}
-        </label>
-        <textarea
-          rows={2}
-          placeholder="e.g. Cotton sarees, Silk fabric, Dupattas"
-          value={form.products}
-          onChange={(e) => update("products", e.target.value)}
-          className={`input-field resize-none !py-2.5 text-sm ${highlighted.has("products") ? "magic-fill" : ""}`}
-        />
-      </div>
-
-      {/* ── ONDC ── */}
-      <div className="grid grid-cols-3 gap-3">
-        <Field
-          label="ONDC Awareness?"
-          value={form.ondc_awareness}
-          onChange={(v) => update("ondc_awareness", v)}
-          type="select"
-          options={[
-            ["yes", "Yes"],
-            ["no", "No"],
-          ]}
-        />
-        <Field
-          label="Select an SNP?"
-          value={form.wish_snp}
-          onChange={(v) => update("wish_snp", v)}
-          type="select"
-          options={[
-            ["yes", "Yes"],
-            ["no", "No"],
-          ]}
-        />
-        <Field
-          label="Language"
-          value={form.language}
-          onChange={(v) => update("language", v)}
-          type="select"
-          options={LANGUAGES}
-          highlighted={highlighted.has("language")}
-        />
-      </div>
+      <Section title="Compliance & Preferences">
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="PAN *"
+            placeholder="AAACX1234H"
+            value={form.pan_number}
+            onChange={(v) => update("pan_number", v.toUpperCase())}
+            highlighted={highlighted.has("pan_number")}
+          />
+          <Field
+            label="GST (optional)"
+            placeholder="15-char GSTIN"
+            value={form.gst_number}
+            onChange={(v) => update("gst_number", v.toUpperCase())}
+            highlighted={highlighted.has("gst_number")}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="Turnover (Prev FY)"
+            placeholder="e.g. 18 lakh"
+            value={form.turnover_prev_fy}
+            onChange={(v) => update("turnover_prev_fy", v)}
+            highlighted={highlighted.has("turnover_prev_fy")}
+          />
+          <Field
+            label="Language"
+            value={form.language}
+            onChange={(v) => update("language", v)}
+            type="select"
+            options={LANGUAGES}
+            highlighted={highlighted.has("language")}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            label="ONDC Awareness?"
+            value={form.ondc_awareness}
+            onChange={(v) => update("ondc_awareness", v)}
+            type="select"
+            options={[
+              ["yes", "Yes"],
+              ["no", "No"],
+            ]}
+          />
+          <Field
+            label="Select an SNP?"
+            value={form.wish_snp}
+            onChange={(v) => update("wish_snp", v)}
+            type="select"
+            options={[
+              ["yes", "Yes"],
+              ["no", "No"],
+            ]}
+          />
+        </div>
+      </Section>
 
       {/* Error */}
       {error && (
@@ -517,6 +513,40 @@ export default function RegisterPage() {
         <div className="glass-card p-5">{formContent}</div>
       </div>
     </>
+  );
+}
+
+/* ─── Collapsible form section ─── */
+function Section({
+  title,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details
+      open={defaultOpen}
+      className="group rounded-xl border border-surface-200 bg-surface-50/50 [&[open]]:bg-white"
+    >
+      <summary className="flex cursor-pointer select-none items-center justify-between rounded-xl px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-surface-500 hover:text-brand-900">
+        {title}
+        <svg
+          className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </summary>
+      <div className="space-y-3 px-3.5 pb-3.5">{children}</div>
+    </details>
   );
 }
 

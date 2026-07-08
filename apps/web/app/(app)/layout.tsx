@@ -9,6 +9,7 @@ import { canAccess, getSession } from "@/lib/auth";
 
 function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [authed, setAuthed] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -39,8 +40,13 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface-50">
-      <AppSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex flex-1 flex-col lg:ml-64">
+      <AppSidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapse={() => setCollapsed((c) => !c)}
+      />
+      <div className={`flex flex-1 flex-col ${collapsed ? "lg:ml-[72px]" : "lg:ml-64"}`}>
         {/* Mobile-only hamburger */}
         <button
           onClick={() => setSidebarOpen(true)}

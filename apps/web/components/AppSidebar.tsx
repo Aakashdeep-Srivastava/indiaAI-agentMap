@@ -14,6 +14,8 @@ import {
   Store,
   LogOut,
   X,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { getSession, logout, type Session } from "@/lib/auth";
 
@@ -44,9 +46,13 @@ function getStepState(
 export default function AppSidebar({
   open,
   onClose,
+  collapsed = false,
+  onToggleCollapse,
 }: {
   open: boolean;
   onClose: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -92,12 +98,12 @@ export default function AppSidebar({
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
-        className={`fixed top-0 left-0 z-50 flex h-full w-64 flex-col border-r border-surface-200 bg-white transition-transform duration-300 lg:translate-x-0 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 z-50 flex h-full flex-col border-r border-surface-200 bg-white transition-all duration-300 lg:translate-x-0 ${
+          collapsed ? "w-64 lg:w-[72px]" : "w-64"
+        } ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
         {/* ── Logo ──────────────────────────────────────────────── */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-surface-100 px-5">
+        <div className={`flex h-14 shrink-0 items-center border-b border-surface-100 ${collapsed ? "justify-center px-2 lg:flex-col lg:h-auto lg:gap-1 lg:py-2" : "justify-between px-5"}`}>
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/logo.png"
@@ -106,10 +112,26 @@ export default function AppSidebar({
               height={28}
               className="h-7 w-7"
             />
-            <span className="font-display text-sm font-bold tracking-tight text-brand-900">
-              MSME<span className="text-brand-500">Mate</span>
-            </span>
+            {!collapsed && (
+              <span className="font-display text-sm font-bold tracking-tight text-brand-900">
+                MSME<span className="text-brand-500">Mate</span>
+              </span>
+            )}
           </Link>
+          {/* Desktop collapse toggle */}
+          {onToggleCollapse && (
+            <button
+              onClick={onToggleCollapse}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className="hidden h-7 w-7 items-center justify-center rounded-lg text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 lg:flex"
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </button>
+          )}
           <button
             onClick={onClose}
             className="flex h-7 w-7 items-center justify-center rounded-lg text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-600 lg:hidden"
@@ -122,7 +144,7 @@ export default function AppSidebar({
         <div className="flex flex-1 flex-col overflow-y-auto px-4 py-5 sidebar-no-scrollbar">
           {/* MSE Context Card */}
           {mseId && (
-            <div className="mb-5 rounded-xl border border-brand-100 bg-brand-50/50 px-4 py-3">
+            <div className={`mb-5 rounded-xl border border-brand-100 bg-brand-50/50 px-4 py-3 ${collapsed ? "lg:hidden" : ""}`}>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
                 Active MSE
               </span>
@@ -134,7 +156,7 @@ export default function AppSidebar({
 
           {/* ── JOURNEY ─────────────────────────────────────────── */}
           <div className="mb-6">
-            <span className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400">
+            <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400 ${collapsed ? "lg:hidden" : ""}`}>
               Journey
             </span>
             <nav className="space-y-1">
@@ -146,7 +168,8 @@ export default function AppSidebar({
                     key={step.href}
                     href={journeyHref(step.href)}
                     onClick={onClose}
-                    className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                    title={`${step.label} · ${step.codename}`}
+                    className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${collapsed ? "lg:justify-center lg:px-0" : ""} ${
                       state === "active"
                         ? "bg-brand-50 text-brand-900"
                         : state === "completed"
@@ -181,7 +204,7 @@ export default function AppSidebar({
                       )}
                     </div>
 
-                    <div className="flex-1">
+                    <div className={`flex-1 ${collapsed ? "lg:hidden" : ""}`}>
                       <span className="block leading-tight">{step.label}</span>
                       <span
                         className={`text-[10px] ${
@@ -204,7 +227,7 @@ export default function AppSidebar({
           {/* ── TOOLS (NSIC admin only) ─────────────────────────── */}
           {visibleTools.length > 0 && (
           <div className="mb-6">
-            <span className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400">
+            <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400 ${collapsed ? "lg:hidden" : ""}`}>
               Oversight
             </span>
             <nav className="space-y-1">
@@ -216,14 +239,15 @@ export default function AppSidebar({
                     key={item.href}
                     href={item.href}
                     onClick={onClose}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                    title={item.label}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${collapsed ? "lg:justify-center lg:px-0" : ""} ${
                       active
                         ? "bg-brand-50 text-brand-900"
                         : "text-surface-500 hover:bg-surface-50 hover:text-surface-700"
                     }`}
                   >
-                    <Icon className={`h-4 w-4 ${active ? "text-brand-500" : ""}`} />
-                    {item.label}
+                    <Icon className={`h-4 w-4 shrink-0 ${active ? "text-brand-500" : ""}`} />
+                    <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
                   </Link>
                 );
               })}
@@ -237,7 +261,7 @@ export default function AppSidebar({
           {/* ── Signed-in identity (role-coloured) ──────────────── */}
           {session && (
             <div
-              className={`mb-4 flex items-center gap-3 rounded-2xl border px-3 py-2.5 ${
+              className={`mb-4 flex items-center gap-3 rounded-2xl border px-3 py-2.5 ${collapsed ? "lg:flex-col lg:gap-1.5 lg:px-1.5" : ""} ${
                 session.role === "admin"
                   ? "border-brand-100 bg-brand-50/60"
                   : "border-saffron-400/30 bg-saffron-500/5"
@@ -254,7 +278,7 @@ export default function AppSidebar({
                   <Store className="h-4 w-4 text-white" />
                 )}
               </div>
-              <div className="min-w-0 flex-1">
+              <div className={`min-w-0 flex-1 ${collapsed ? "lg:hidden" : ""}`}>
                 <p className="truncate text-xs font-semibold text-brand-900">
                   {session.name}
                 </p>
@@ -280,13 +304,13 @@ export default function AppSidebar({
 
           {/* ── Bottom badge ─────────────────────────────────────── */}
           <div className="border-t border-surface-100 pt-4">
-            <div className="flex items-center gap-2 text-[11px] text-surface-400">
+            <div className={`flex items-center gap-2 text-[11px] text-surface-400 ${collapsed ? "lg:justify-center" : ""}`}>
               <span className="inline-flex gap-0.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#FF9933]" />
                 <span className="h-1.5 w-1.5 rounded-full bg-surface-300" />
                 <span className="h-1.5 w-1.5 rounded-full bg-[#138808]" />
               </span>
-              Sovereign AI
+              <span className={collapsed ? "lg:hidden" : ""}>Sovereign AI</span>
             </div>
           </div>
         </div>
