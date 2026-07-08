@@ -30,6 +30,7 @@ interface MatchItem {
   composite_score: number;
   confidence_band: "green" | "yellow" | "red";
   factor_bands: Record<string, "high" | "medium" | "low">;
+  fit_reasons?: string[];
   factors?: FactorBreakdown; // NSIC admin sessions only
   explainer_en: string;
   explainer_hi: string;
@@ -40,6 +41,7 @@ interface MatchResponse {
   mse_name: string;
   predicted_domain: string | null;
   matches: MatchItem[];
+  nudges?: string[];
 }
 
 const DOMAIN_LABELS: Record<string, { label: string; icon: string }> = {
@@ -218,6 +220,28 @@ export default function DashboardPage() {
               score={result.matches[0]?.composite_score ?? 0}
             />
           </div>
+
+          {/* Capability-gap nudges — what unlocks better onboarding */}
+          {result.nudges && result.nudges.length > 0 && (
+            <div className="rounded-2xl border border-saffron-400/30 bg-saffron-500/5 p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <svg className="h-4 w-4 text-saffron-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-saffron-600">
+                  Boost your onboarding
+                </span>
+              </div>
+              <ul className="space-y-1">
+                {result.nudges.map((n) => (
+                  <li key={n} className="flex items-start gap-2 text-xs leading-relaxed text-surface-600">
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-saffron-400" />
+                    {n}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {result.matches.map((m, i) => (

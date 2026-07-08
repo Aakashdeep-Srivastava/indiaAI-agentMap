@@ -113,6 +113,12 @@ interface PredictionItem {
   explanation?: string;
 }
 
+interface ComplianceItem {
+  name: string;
+  note: string;
+  status: "done" | "action";
+}
+
 interface ClassifyResult {
   mse_id: number;
   top3: PredictionItem[];
@@ -122,6 +128,8 @@ interface ClassifyResult {
   selected_category_name?: string;
   explanation?: string;
   engine?: string;
+  attributes?: Record<string, string>;
+  compliance?: ComplianceItem[];
 }
 
 interface MSEInfo {
@@ -1064,6 +1072,60 @@ export default function ClassifyPage() {
                           </span>
                         )}
                       </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sectoral attributes (PS2: attribute extraction) */}
+                {result.attributes && Object.keys(result.attributes).length > 0 && (
+                  <div className="mt-4 border-t border-surface-100 pt-4">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                      Sectoral Attributes
+                    </span>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {Object.entries(result.attributes).map(([k, v]) => (
+                        <span
+                          key={k}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-brand-100 bg-brand-50/60 px-2.5 py-1 text-[11px]"
+                        >
+                          <span className="font-medium capitalize text-surface-400">
+                            {k.replace(/_/g, " ")}
+                          </span>
+                          <span className="font-semibold text-brand-900">{v}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ONDC readiness checklist (PS2: compliance validation) */}
+                {result.compliance && result.compliance.length > 0 && (
+                  <div className="mt-4 border-t border-surface-100 pt-4">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                      ONDC Readiness Checklist
+                    </span>
+                    <div className="mt-2 space-y-1.5">
+                      {result.compliance.map((c) => (
+                        <div key={c.name} className="flex items-start gap-2.5">
+                          {c.status === "done" ? (
+                            <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          ) : (
+                            <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-saffron-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="12" y1="8" x2="12" y2="12" />
+                              <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                          )}
+                          <p className="text-xs leading-snug text-surface-500">
+                            <span className={`font-semibold ${c.status === "done" ? "text-emerald-700" : "text-brand-900"}`}>
+                              {c.name}
+                            </span>{" "}
+                            — {c.note}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

@@ -48,9 +48,60 @@ def compute_match_scores(mse: Any, snps: list[Any], predicted_domain: str | None
             "history": h,
             "sentiment": s,
             "composite": composite,
+            "fit_reasons": _fit_reasons(mse, snp, d, g),
         })
 
     return results
+
+
+# ── Human-readable fit reasons (qualitative — safe for every role) ────
+
+def _fit_reasons(mse: Any, snp: Any, d: float, g: float) -> list[str]:
+    reasons: list[str] = []
+    if d >= 1.0:
+        reasons.append("Covers your product domain")
+    if g >= 1.0 and mse.district:
+        reasons.append(f"Serves {mse.district}")
+    elif g >= 0.6 and mse.state:
+        reasons.append(f"Serves {mse.state}")
+    elif snp.geo_coverage and "pan" in snp.geo_coverage.lower():
+        reasons.append("Pan-India reach")
+    if (snp.commission_pct or 0) <= 4:
+        reasons.append("Low commission")
+    if (snp.rating or 0) >= 4.3:
+        reasons.append(f"Highly rated ({snp.rating:.1f}★)")
+    if snp.onboarding_support == "full":
+        reasons.append("Full onboarding support")
+    if snp.languages_supported and mse.language:
+        langs = [l.strip().lower() for l in snp.languages_supported.split(",")]
+        if mse.language.lower() in langs and mse.language.lower() != "en":
+            names = {"hi": "Hindi", "ta": "Tamil", "te": "Telugu", "kn": "Kannada",
+                     "bn": "Bengali", "mr": "Marathi", "gu": "Gujarati", "ml": "Malayalam",
+                     "pa": "Punjabi", "or": "Odia", "as": "Assamese"}
+            reasons.append(f"{names.get(mse.language.lower(), mse.language)} support")
+    return reasons[:4]
+
+
+# ── Capability-gap nudges (what unlocks better onboarding) ────────────
+
+def readiness_nudges(mse: Any) -> list[str]:
+    """Actionable, honest suggestions that improve the MSE's onboarding odds."""
+    nudges: list[str] = []
+    if not getattr(mse, "gst_number", None):
+        nudges.append(
+            "Add your GST number — most seller platforms require it to list "
+            "products, and B2B platforms won't onboard without it."
+        )
+    if not getattr(mse, "pan_number", None):
+        nudges.append("Add your PAN — needed for seller-platform payouts.")
+    if not getattr(mse, "products", None):
+        nudges.append(
+            "List your top products — a richer catalogue improves both matching "
+            "and your visibility once live on ONDC."
+        )
+    if not getattr(mse, "mobile_number", None):
+        nudges.append("Add a mobile number so your seller platform can reach you.")
+    return nudges[:3]
 
 
 # ── Factor functions ──────────────────────────────────────────────────

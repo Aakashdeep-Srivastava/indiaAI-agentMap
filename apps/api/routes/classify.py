@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import MSE, AuditLog, ClassificationResult, get_db
-from services.classifier import classify_mse_description_async
+from services.classifier import classify_mse_description_async, get_compliance_checklist
 
 router = APIRouter()
 
@@ -34,6 +34,12 @@ class PredictionItem(BaseModel):
     explanation: Optional[str] = None
 
 
+class ComplianceItem(BaseModel):
+    name: str
+    note: str
+    status: str  # "done" | "action"
+
+
 class ClassifyResponse(BaseModel):
     mse_id: int
     top3: list[PredictionItem]
@@ -43,6 +49,10 @@ class ClassifyResponse(BaseModel):
     selected_category_name: Optional[str] = None
     explanation: Optional[str] = None
     engine: Optional[str] = None
+    # Sectoral attributes extracted from the description (PS2: attribute extraction)
+    attributes: dict[str, str] = {}
+    # Advisory readiness checklist for the predicted domain (PS2: compliance validation)
+    compliance: list[ComplianceItem] = []
 
 
 class ClassificationHistoryItem(BaseModel):
@@ -64,7 +74,9 @@ async def classify(payload: ClassifyRequest, db: Session = Depends(get_db)):
     if not mse:
         raise HTTPException(status_code=404, detail="MSE not found")
 
-    predictions, engine = await classify_mse_description_async(mse.description, mse.language)
+    predictions, engine, attributes = await classify_mse_description_async(
+        mse.description, mse.language
+    )
 
     top_pred = predictions[0]
 
@@ -94,6 +106,15 @@ async def classify(payload: ClassifyRequest, db: Session = Depends(get_db)):
         selected_category_name=top_pred.get("category_name"),
         explanation=top_pred.get("explanation"),
         engine=engine,
+        attributes=attributes,
+        compliance=[
+            ComplianceItem(**c)
+            for c in get_compliance_checklist(
+                top_pred["domain"],
+                has_gst=bool(mse.gst_number),
+                has_pan=bool(mse.pan_number),
+            )
+        ],
     )
 
 
@@ -103,7 +124,9 @@ async def classify_text(payload: ClassifyTextRequest):
     if not payload.description.strip():
         raise HTTPException(status_code=400, detail="Description cannot be empty")
 
-    predictions, engine = await classify_mse_description_async(payload.description, payload.language)
+    predictions, engine, attributes = await classify_mse_description_async(
+        payload.description, payload.language
+    )
 
     top_pred = predictions[0]
 
@@ -116,6 +139,11 @@ async def classify_text(payload: ClassifyTextRequest):
         selected_category_name=top_pred.get("category_name"),
         explanation=top_pred.get("explanation"),
         engine=engine,
+        attributes=attributes,
+        compliance=[
+            ComplianceItem(**c)
+            for c in get_compliance_checklist(top_pred["domain"])
+        ],
     )
 
 

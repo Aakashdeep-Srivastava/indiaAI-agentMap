@@ -21,6 +21,8 @@ interface MatchItem {
   confidence_band: "green" | "yellow" | "red";
   /** Qualitative per-factor strength — the only per-factor signal for MSE users. */
   factor_bands: Record<string, FactorLevel>;
+  /** Human-readable reasons this SNP fits (qualitative). */
+  fit_reasons?: string[];
   /** Raw factor scores — present only for NSIC admin sessions. */
   factors?: FactorBreakdown;
   explainer_en: string;
@@ -94,6 +96,23 @@ export function SNPCard({ match, rank }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Why this platform fits — human-readable chips */}
+      {match.fit_reasons && match.fit_reasons.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-5 pt-3">
+          {match.fit_reasons.map((r) => (
+            <span
+              key={r}
+              className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700"
+            >
+              <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              {r}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Composite score arc */}
       <div className="px-5 pt-4">

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from database import MSE, SNP, AuditLog, ClassificationResult, MatchResult, User, get_db
 from services.auth import get_current_user
-from services.matcher import compute_match_scores
+from services.matcher import compute_match_scores, readiness_nudges
 from services.explainer import generate_explainer
 
 router = APIRouter()
@@ -36,6 +36,8 @@ class MatchItem(BaseModel):
     confidence_band: str
     # Qualitative per-factor bands (high/medium/low) — safe for all roles.
     factor_bands: dict[str, str]
+    # Human-readable reasons this SNP fits (qualitative, all roles).
+    fit_reasons: list[str] = []
     # Raw factor scores are NSIC-admin only; never sent to MSE clients.
     factors: Optional[FactorBreakdown] = None
     explainer_en: str
@@ -47,6 +49,8 @@ class MatchResponse(BaseModel):
     mse_name: str
     predicted_domain: Optional[str]
     matches: list[MatchItem]
+    # Capability-gap suggestions that improve onboarding odds.
+    nudges: list[str] = []
 
 
 @router.post("/", response_model=MatchResponse, response_model_exclude_none=True)
@@ -113,6 +117,7 @@ def match_mse_to_snps(
                 "history": _factor_band(m["history"]),
                 "sentiment": _factor_band(m["sentiment"]),
             },
+            fit_reasons=m.get("fit_reasons", []),
             factors=FactorBreakdown(
                 domain_score=round(m["domain"], 4),
                 geo_score=round(m["geo"], 4),
@@ -138,6 +143,7 @@ def match_mse_to_snps(
         mse_name=mse.name,
         predicted_domain=predicted_domain,
         matches=items,
+        nudges=readiness_nudges(mse),
     )
 
 
