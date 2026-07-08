@@ -26,6 +26,10 @@ logger = logging.getLogger(__name__)
 USE_MOCK_OCR = os.getenv("USE_MOCK_OCR", "false").lower() == "true"
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
 
+# Secondary OCR engine — reliability safety net only (primary is Sarvam)
+OCR_FALLBACK_KEY = os.getenv("OCR_FALLBACK_KEY", "")
+OCR_FALLBACK_ENDPOINT = os.getenv("OCR_FALLBACK_ENDPOINT", "").rstrip("/")
+
 # Realistic MSE certificate data for mock responses
 _MOCK_UDYAM_CERTS = [
     {
@@ -101,6 +105,13 @@ async def extract_from_document(
             return await _extract_docint(file_bytes, filename, language)
         except Exception as e:
             logger.error(f"Sarvam Document Intelligence failed: {e}")
+
+    # Secondary OCR engine (demo reliability)
+    if OCR_FALLBACK_KEY and OCR_FALLBACK_ENDPOINT and not USE_MOCK_OCR:
+        try:
+            return await _extract_fallback_ocr(file_bytes)
+        except Exception as e:
+            logger.error(f"Fallback OCR failed: {e}")
 
     return _extract_mock(filename)
 
@@ -284,6 +295,40 @@ def _docint_ocr_sync(file_bytes: bytes, filename: str, language: str) -> str:
                 if name.endswith(".md"):
                     return z.read(name).decode("utf-8", errors="replace")
     return ""
+
+
+async def _extract_fallback_ocr(file_bytes: bytes) -> dict:
+    """Secondary OCR engine (prebuilt-read REST): analyze, poll, extract text."""
+    import httpx
+
+    async with httpx.AsyncClient(timeout=90.0) as client:
+        resp = await client.post(
+            f"{OCR_FALLBACK_ENDPOINT}/documentintelligence/documentModels/"
+            f"prebuilt-read:analyze?api-version=2024-11-30",
+            headers={
+                "Ocp-Apim-Subscription-Key": OCR_FALLBACK_KEY,
+                "Content-Type": "application/octet-stream",
+            },
+            content=file_bytes,
+        )
+        resp.raise_for_status()
+        poll_url = resp.headers["Operation-Location"]
+
+        text = ""
+        for _ in range(45):  # ≤ 90s of polling
+            await asyncio.sleep(2)
+            status = (await client.get(
+                poll_url, headers={"Ocp-Apim-Subscription-Key": OCR_FALLBACK_KEY},
+            )).json()
+            if status.get("status") == "succeeded":
+                text = status.get("analyzeResult", {}).get("content", "")
+                break
+            if status.get("status") == "failed":
+                raise ValueError("fallback OCR job failed")
+
+    if len(text.strip()) < 40:
+        raise ValueError("fallback OCR returned no text")
+    return await _fields_from_text(text, "fallback-ocr")
 
 
 DOCINT_TIMEOUT_S = int(os.getenv("DOCINT_TIMEOUT_S", "120"))

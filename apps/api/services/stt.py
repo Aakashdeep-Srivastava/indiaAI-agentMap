@@ -15,11 +15,17 @@ logger = logging.getLogger(__name__)
 
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
 
+# Secondary STT engine — reliability safety net only (primary is Sarvam Saras)
+STT_FALLBACK_KEY = os.getenv("STT_FALLBACK_KEY", "")
+STT_FALLBACK_REGION = os.getenv("STT_FALLBACK_REGION", "centralindia")
+
 USE_MOCK_STT = os.getenv("USE_MOCK_STT", "false" if SARVAM_API_KEY else "true").lower() == "true"
 
 _stt_chain = []
 if SARVAM_API_KEY:
     _stt_chain.append("Sarvam Saras")
+if STT_FALLBACK_KEY:
+    _stt_chain.append("fallback")
 _stt_chain.append("Mock")
 logger.info(f"STT chain: {' → '.join(_stt_chain)}")
 
@@ -210,8 +216,15 @@ async def transcribe_audio(
             result["detected_language"] = _detect_language_from_text(result["text"])
             return result
 
-    # 2. Last resort: mock
-    logger.warning("Sarvam STT unavailable, using mock")
+    # 2. Secondary engine (demo reliability)
+    if STT_FALLBACK_KEY:
+        result = await _transcribe_fallback(audio_bytes, effective_lang, filename, content_type)
+        if result is not None:
+            result["detected_language"] = _detect_language_from_text(result["text"])
+            return result
+
+    # 3. Last resort: mock
+    logger.warning("STT engines unavailable, using mock")
     if is_auto:
         effective_lang = random.choice(["en", "hi"])
     result = _transcribe_mock(effective_lang, field_hint)
@@ -293,3 +306,49 @@ async def _transcribe_sarvam(
         result = _transcribe_mock(language, field_hint)
         result["engine"] = "mock-fallback"
         return result
+
+
+async def _transcribe_fallback(
+    audio_bytes: bytes,
+    language: str,
+    filename: str,
+    content_type: str,
+) -> dict | None:
+    """Secondary STT engine (fast-transcription REST). Returns None on failure."""
+    import json
+
+    import httpx
+
+    lang_map = {
+        "en": "en-IN", "hi": "hi-IN", "ta": "ta-IN", "te": "te-IN",
+        "kn": "kn-IN", "bn": "bn-IN", "mr": "mr-IN", "gu": "gu-IN",
+    }
+    locale = lang_map.get(language, "en-IN")
+
+    try:
+        async with httpx.AsyncClient(timeout=45.0) as client:
+            resp = await client.post(
+                f"https://{STT_FALLBACK_REGION}.api.cognitive.microsoft.com"
+                f"/speechtotext/transcriptions:transcribe?api-version=2024-11-15",
+                headers={"Ocp-Apim-Subscription-Key": STT_FALLBACK_KEY},
+                files={
+                    "audio": (filename, audio_bytes, content_type),
+                    "definition": (None, json.dumps({"locales": [locale]}), "application/json"),
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        text = " ".join(p.get("text", "") for p in data.get("combinedPhrases", [])).strip()
+        if not text:
+            return None
+        logger.info(f"Fallback STT result: '{text[:100]}'")
+        return {
+            "text": text,
+            "language": language,
+            "confidence": 0.9,
+            "engine": "fallback-stt",
+            "is_mock": False,
+        }
+    except Exception as e:
+        logger.error(f"Fallback STT failed: {e}")
+        return None
