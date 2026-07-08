@@ -127,6 +127,11 @@ class MSE(Base):
     review_note = Column(Text, nullable=True)
     reviewed_by = Column(String(100), nullable=True)
     reviewed_at = Column(DateTime, nullable=True)
+    # Official TEAM allocation — the government act of mapping MSE → SNP
+    assigned_snp_id = Column(Integer, ForeignKey("snps.id"), nullable=True)
+    assigned_by = Column(String(100), nullable=True)
+    assigned_at = Column(DateTime, nullable=True)
+    assignment_note = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     classifications = relationship("ClassificationResult", back_populates="mse")

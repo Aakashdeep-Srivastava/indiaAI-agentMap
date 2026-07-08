@@ -82,6 +82,10 @@ class MSEResponse(BaseModel):
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[datetime] = None
     review_note: Optional[str] = None
+    assigned_snp_id: Optional[int] = None
+    assigned_snp_name: Optional[str] = None
+    assigned_by: Optional[str] = None
+    assigned_at: Optional[datetime] = None
     created_at: datetime
     # Populated ONLY on account auto-creation at registration (one-time display)
     login_id: Optional[str] = None
@@ -186,7 +190,7 @@ def list_mses(
         MSE.entrepreneur_name.isnot(None),
         MSE.status == "pending_review",
     ))
-    return (
+    rows = (
         query.order_by(
             case((MSE.status == "pending_review", 0), else_=1),
             MSE.id.desc(),
@@ -195,6 +199,21 @@ def list_mses(
         .limit(limit)
         .all()
     )
+    # Resolve allocated SNP names for the officer views
+    from database import SNP
+    snp_ids = {r.assigned_snp_id for r in rows if r.assigned_snp_id}
+    names = {}
+    if snp_ids:
+        names = dict(
+            db.query(SNP.id, SNP.name).filter(SNP.id.in_(snp_ids)).all()
+        )
+    out = []
+    for r in rows:
+        item = MSEResponse.model_validate(r)
+        if r.assigned_snp_id:
+            item.assigned_snp_name = names.get(r.assigned_snp_id)
+        out.append(item)
+    return out
 
 
 class ReviewRequest(BaseModel):
@@ -231,6 +250,53 @@ def review_mse(
     db.commit()
     db.refresh(mse)
     return mse
+
+
+class AllocateRequest(BaseModel):
+    snp_id: int
+    note: Optional[str] = None
+
+
+@router.post("/{mse_id}/allocate", response_model=MSEResponse)
+def allocate_snp(
+    mse_id: int,
+    payload: AllocateRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_admin),
+):
+    """Official TEAM allocation: the NSIC officer maps an APPROVED MSE to an
+    SNP — confirming the AI recommendation or reassigning. Fully audited."""
+    from database import SNP
+
+    mse = db.query(MSE).get(mse_id)
+    if not mse:
+        raise HTTPException(status_code=404, detail="MSE not found")
+    if mse.status != "approved":
+        raise HTTPException(
+            status_code=409,
+            detail="Only approved registrations can be officially allocated.",
+        )
+    snp = db.query(SNP).get(payload.snp_id)
+    if not snp:
+        raise HTTPException(status_code=404, detail="SNP not found")
+
+    mse.assigned_snp_id = snp.id
+    mse.assigned_by = user.username
+    mse.assigned_at = datetime.utcnow()
+    mse.assignment_note = payload.note
+    db.add(AuditLog(
+        action="mse_allocated",
+        entity_type="mse",
+        entity_id=mse.id,
+        details=f"Official allocation → {snp.name} ({snp.subscriber_id})"
+                + (f" — {payload.note}" if payload.note else ""),
+        performed_by=user.username,
+    ))
+    db.commit()
+    db.refresh(mse)
+    resp = MSEResponse.model_validate(mse)
+    resp.assigned_snp_name = snp.name
+    return resp
 
 
 class MSESearchItem(BaseModel):

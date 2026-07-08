@@ -31,6 +31,7 @@ const JOURNEY = [
 /* ── NSIC officer navigation (oversight-first — a different job entirely) ── */
 const OVERSIGHT = [
   { label: "Review Queue", desc: "Approve registrations", href: "/review", icon: ClipboardList },
+  { label: "SNP Allocation", desc: "Official mapping", href: "/allocate", icon: GitMerge },
   { label: "Audit Trail", desc: "Every AI decision", href: "/audit", icon: Shield },
 ] as const;
 
