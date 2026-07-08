@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { apiFetch } from "@/lib/auth";
 
@@ -11,7 +11,22 @@ interface MSE {
   description: string;
   state: string | null;
   district: string | null;
+  pin_code?: string | null;
   status?: string | null;
+  entrepreneur_name?: string | null;
+  email?: string | null;
+  mobile_number?: string | null;
+  address?: string | null;
+  org_type?: string | null;
+  major_activity?: string | null;
+  transaction_type?: string | null;
+  pan_number?: string | null;
+  gst_number?: string | null;
+  turnover_band?: string | null;
+  products?: string | null;
+  consent_at?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
 }
 
 const STATUS_STYLE: Record<string, string> = {
@@ -24,6 +39,7 @@ export default function ReviewPage() {
   const [mses, setMses] = useState<MSE[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   useEffect(() => {
     apiFetch(`/mse/?limit=20`)
@@ -44,7 +60,11 @@ export default function ReviewPage() {
       if (res.ok) {
         const updated = await res.json();
         setMses((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, status: updated.status } : m)),
+          prev.map((m) =>
+            m.id === id
+              ? { ...m, status: updated.status, reviewed_by: updated.reviewed_by, reviewed_at: updated.reviewed_at }
+              : m,
+          ),
         );
       }
     } finally {
@@ -134,9 +154,10 @@ export default function ReviewPage() {
             </thead>
             <tbody className="divide-y divide-surface-100">
               {mses.map((mse, i) => (
+                <React.Fragment key={mse.id}>
                 <tr
-                  key={mse.id}
-                  className="group transition-colors hover:bg-brand-50/30"
+                  onClick={() => setExpanded(expanded === mse.id ? null : mse.id)}
+                  className="group cursor-pointer transition-colors hover:bg-brand-50/30"
                   style={{ animationDelay: `${i * 0.03}s` }}
                 >
                   <td className="px-5 py-4">
@@ -167,25 +188,17 @@ export default function ReviewPage() {
                   <td className="px-5 py-4 text-right">
                     <div className="inline-flex items-center gap-1.5">
                       {mse.status === "pending_review" && (
-                        <>
-                          <button
-                            onClick={() => review(mse.id, "approve")}
-                            disabled={acting === mse.id}
-                            className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => review(mse.id, "reject")}
-                            disabled={acting === mse.id}
-                            className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
-                          >
-                            Reject
-                          </button>
-                        </>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setExpanded(mse.id); }}
+                          disabled={acting === mse.id}
+                          className="rounded-lg border border-saffron-400/50 bg-saffron-500/10 px-3 py-1.5 text-xs font-semibold text-saffron-600 transition hover:bg-saffron-500/20 disabled:opacity-50"
+                        >
+                          Review
+                        </button>
                       )}
                       <a
                         href={`/match?mseId=${mse.id}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-brand-600 hover:shadow-glow"
                       >
                         <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -198,6 +211,85 @@ export default function ReviewPage() {
                     </div>
                   </td>
                 </tr>
+
+                {/* ── Audit card: the data the officer verifies ── */}
+                {expanded === mse.id && (
+                  <tr className="bg-surface-50/60">
+                    <td colSpan={6} className="px-6 py-5">
+                      <div className="grid gap-x-8 gap-y-2.5 text-xs sm:grid-cols-2 lg:grid-cols-3">
+                        {[
+                          ["Entrepreneur", mse.entrepreneur_name],
+                          ["Email", mse.email],
+                          ["Mobile", mse.mobile_number],
+                          ["Organization", mse.org_type],
+                          ["Activity", mse.major_activity],
+                          ["Transactions", mse.transaction_type],
+                          ["PAN", mse.pan_number],
+                          ["GST", mse.gst_number ?? "— not provided"],
+                          ["Classification", mse.turnover_band],
+                          ["Address", mse.address],
+                          ["Location", [mse.district, mse.state, mse.pin_code].filter(Boolean).join(", ")],
+                          ["Consent", mse.consent_at ? `Recorded ${new Date(mse.consent_at).toLocaleString("en-IN")}` : "—"],
+                        ].map(([label, value]) => (
+                          <div key={label as string}>
+                            <span className="block text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                              {label}
+                            </span>
+                            <span className="font-medium text-brand-900">{value || "—"}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 border-t border-surface-200 pt-3">
+                        <span className="block text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                          Business Description (AI-extracted)
+                        </span>
+                        <p className="mt-0.5 max-w-3xl text-xs leading-relaxed text-surface-600">
+                          {mse.description}
+                        </p>
+                        {mse.products && (
+                          <p className="mt-1.5 text-xs text-surface-500">
+                            <b className="text-surface-600">Products:</b> {mse.products}
+                          </p>
+                        )}
+                      </div>
+                      <div className="mt-3 flex items-center justify-between border-t border-surface-200 pt-3">
+                        {mse.reviewed_by ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-surface-200 bg-white px-2.5 py-1 text-[11px] text-surface-600">
+                            <svg className="h-3 w-3 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
+                            </svg>
+                            {mse.status === "approved" ? "Approved" : "Reviewed"} by{" "}
+                            <b>{mse.reviewed_by}</b>
+                            {mse.reviewed_at ? ` · ${new Date(mse.reviewed_at).toLocaleString("en-IN")}` : ""}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-saffron-600">
+                            Awaiting NSIC confirmation — verify the details above, then approve.
+                          </span>
+                        )}
+                        {mse.status === "pending_review" && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); review(mse.id, "approve"); }}
+                              disabled={acting === mse.id}
+                              className="rounded-lg bg-emerald-500 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+                            >
+                              Approve Registration
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); review(mse.id, "reject"); }}
+                              disabled={acting === mse.id}
+                              className="rounded-lg border border-red-200 bg-white px-4 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>

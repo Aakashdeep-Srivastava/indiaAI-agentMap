@@ -78,6 +78,9 @@ class MSEResponse(BaseModel):
     turnover_prev_fy: Optional[str] = None
     ondc_awareness: Optional[bool] = None
     wish_snp: Optional[bool] = None
+    consent_at: Optional[datetime] = None
+    reviewed_by: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
     created_at: datetime
     # Populated ONLY on account auto-creation at registration (one-time display)
     login_id: Optional[str] = None
