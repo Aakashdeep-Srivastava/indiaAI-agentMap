@@ -468,26 +468,36 @@ export default function SathiVoicePanel({
     setTimeout(() => askNextField(localForm), 600);
   }
 
-  /* ─── Silence detection refs ─── */
+  /* ─── Voice-activity detection ────────────────────────────────────
+   * People explain their business for 1–5 minutes with natural pauses.
+   * The detector must never mistake speech for silence:
+   * - the noise floor ADAPTS continuously (tracks the quietest recent
+   *   level, creeping up only slowly) — no one-shot calibration that can
+   *   lock onto speech if the user starts talking immediately
+   * - auto-finish only after a LONG true pause, with a visible countdown
+   * - the UI shows live "Hearing you / Waiting" so sensitivity is visible */
   const silenceStartRef = useRef<number | null>(null);
   const silenceCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recordStartRef = useRef<number>(0);
-  const ambientRef = useRef<number | null>(null);
-  const SILENCE_TIMEOUT = 8000;  // 8s of true silence → auto-stop
-  const MIN_RECORD_MS = 4000;    // never auto-stop in the first 4s
-  const MAX_RECORD_MS = 120000;  // hard cap so a forgotten mic doesn't run forever
+  const floorRef = useRef<number | null>(null);
+  const [micStatus, setMicStatus] = useState<
+    { kind: "hearing" } | { kind: "waiting" } | { kind: "finishing"; seconds: number } | null
+  >(null);
+  const SILENCE_TIMEOUT = 12000; // 12s of true silence → auto-finish
+  const COUNTDOWN_FROM = 5000;   // show "finishing in…" for the last 5s
+  const MIN_RECORD_MS = 5000;    // never auto-finish in the first 5s
+  const MAX_RECORD_MS = 360000;  // 6 minutes — long-form business stories welcome
 
   function startSilenceDetection() {
     silenceStartRef.current = null;
-    ambientRef.current = null;
+    floorRef.current = null;
     recordStartRef.current = Date.now();
-    const samples: number[] = [];
+    setMicStatus({ kind: "waiting" });
 
     silenceCheckRef.current = setInterval(() => {
       if (!analyserRef.current) return;
 
-      // Time-domain RMS is far more reliable than a frequency average
-      // (noise suppression makes frequency bins read near-zero mid-speech).
+      // Time-domain RMS — reliable across noise-suppressed mics.
       const buf = new Uint8Array(analyserRef.current.fftSize);
       analyserRef.current.getByteTimeDomainData(buf);
       let sum = 0;
@@ -497,36 +507,45 @@ export default function SathiVoicePanel({
       }
       const rms = Math.sqrt(sum / buf.length);
 
+      // Adaptive noise floor: drops instantly to the quietest level heard,
+      // creeps upward very slowly (0.6/s) if the environment gets louder.
+      floorRef.current =
+        floorRef.current === null ? rms : Math.min(floorRef.current + 0.15, rms);
+      const floor = floorRef.current;
+      const speaking = rms > Math.max(floor + 3, floor * 1.8);
+
       const elapsed = Date.now() - recordStartRef.current;
-
-      // Calibrate the room's ambient level from the first ~750ms.
-      if (elapsed < 750) {
-        samples.push(rms);
-        return;
-      }
-      if (ambientRef.current === null) {
-        const ambient = samples.length
-          ? samples.reduce((a, b) => a + b, 0) / samples.length
-          : 1;
-        ambientRef.current = Math.max(1.5, ambient * 1.4);
-      }
-
       if (elapsed > MAX_RECORD_MS) {
         stopRecording();
         return;
       }
 
-      if (rms < ambientRef.current) {
-        if (elapsed < MIN_RECORD_MS) return; // grace period — user is starting
-        if (!silenceStartRef.current) {
-          silenceStartRef.current = Date.now();
-        } else if (Date.now() - silenceStartRef.current > SILENCE_TIMEOUT) {
-          stopRecording();
-        }
-      } else {
-        silenceStartRef.current = null; // speech detected — reset timer
+      if (speaking) {
+        silenceStartRef.current = null;
+        setMicStatus({ kind: "hearing" });
+        return;
       }
-    }, 250);
+
+      // Quiet — but only start the auto-finish clock after the grace period.
+      if (elapsed < MIN_RECORD_MS) {
+        setMicStatus({ kind: "waiting" });
+        return;
+      }
+      if (!silenceStartRef.current) {
+        silenceStartRef.current = Date.now();
+      }
+      const quietFor = Date.now() - silenceStartRef.current;
+      if (quietFor > SILENCE_TIMEOUT) {
+        stopRecording();
+      } else if (quietFor > SILENCE_TIMEOUT - COUNTDOWN_FROM) {
+        setMicStatus({
+          kind: "finishing",
+          seconds: Math.ceil((SILENCE_TIMEOUT - quietFor) / 1000),
+        });
+      } else {
+        setMicStatus({ kind: "waiting" });
+      }
+    }, 200);
   }
 
   function stopSilenceDetection() {
@@ -535,6 +554,7 @@ export default function SathiVoicePanel({
       silenceCheckRef.current = null;
     }
     silenceStartRef.current = null;
+    setMicStatus(null);
   }
 
   // Need a ref for the analyser to access from silence detection
@@ -643,7 +663,7 @@ export default function SathiVoicePanel({
       const res = await apiFetch(`/stt/transcribe`, {
         method: "POST",
         body: fd,
-      }, 120000);
+      }, 240000);
 
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -832,6 +852,35 @@ export default function SathiVoicePanel({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Live mic sensitivity indicator ── */}
+      {recording && micStatus && (
+        <div className="pointer-events-none absolute left-1/2 top-12 z-30 -translate-x-1/2">
+          <div
+            className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-semibold shadow-sm backdrop-blur ${
+              micStatus.kind === "hearing"
+                ? "border-emerald-200 bg-emerald-50/95 text-emerald-700"
+                : micStatus.kind === "finishing"
+                  ? "border-saffron-400/50 bg-saffron-500/10 text-saffron-600"
+                  : "border-surface-200 bg-white/95 text-surface-500"
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                micStatus.kind === "hearing"
+                  ? "animate-pulse bg-emerald-500"
+                  : micStatus.kind === "finishing"
+                    ? "animate-ping bg-saffron-500"
+                    : "bg-surface-300"
+              }`}
+            />
+            {micStatus.kind === "hearing" && "Hearing you · सुन रहा हूँ"}
+            {micStatus.kind === "waiting" && "Waiting… speak now · बोलिए"}
+            {micStatus.kind === "finishing" &&
+              `Finishing in ${micStatus.seconds}s — keep speaking to continue`}
+          </div>
+        </div>
+      )}
 
       {/* ── Uploaded document chip ── */}
       {uploadedDoc && !docUploading && (
