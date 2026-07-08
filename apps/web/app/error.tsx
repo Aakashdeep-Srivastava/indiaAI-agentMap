@@ -12,7 +12,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("[AgentMap] page error:", error);
+    console.error("[MSMEMate] page error:", error);
   }, [error]);
 
   return (

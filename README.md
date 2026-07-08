@@ -1,6 +1,6 @@
-# AgentMap AI
+# MSMEMate
 
-**Sovereign AI mapping layer for ONDC MSE-to-SNP onboarding**
+**Sovereign AI onboarding layer for ONDC MSE-to-SNP matching — [msmemate.com](https://www.msmemate.com)**
 
 Built for the **IndiaAI Innovation Challenge 2026** (Problem Statement 2) — an AI-native system that classifies Micro/Small Enterprises into ONDC domains and matches them with the best Seller Network Participants using multi-factor scoring.
 

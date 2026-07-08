@@ -36,13 +36,13 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2.5">
           <Image
             src="/logo.png"
-            alt="AgentMap AI"
+            alt="MSMEMate"
             width={32}
             height={32}
             className="h-8 w-8 invert brightness-200 drop-shadow-[0_0_10px_rgba(255,169,66,0.5)]"
           />
           <span className="font-display text-lg font-bold leading-tight tracking-tight text-saffron-400">
-            AgentMap<span className="text-white">AI</span>
+            MSME<span className="text-white">Mate</span>
           </span>
         </Link>
 

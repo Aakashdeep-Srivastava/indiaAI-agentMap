@@ -1,4 +1,4 @@
-"""AgentMap AI – FastAPI Application Entry Point."""
+"""MSMEMate – FastAPI Application Entry Point."""
 
 import os
 from contextlib import asynccontextmanager
@@ -30,13 +30,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="AgentMap AI",
-    description="Sovereign AI mapping layer for ONDC MSE-to-SNP matching",
+    title="MSMEMate",
+    description="Sovereign AI onboarding layer for ONDC MSE-to-SNP matching",
     version="0.1.0",
     lifespan=lifespan,
 )
 
-_default_origins = "http://localhost:3000,http://localhost:3001"
+_default_origins = (
+    "http://localhost:3000,http://localhost:3001,"
+    "https://www.msmemate.com,https://msmemate.com,"
+    "https://msmseagentmap56.vercel.app"
+)
 _cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", _default_origins).split(",") if o.strip()]
 
 app.add_middleware(

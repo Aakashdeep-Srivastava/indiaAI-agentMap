@@ -7,4 +7,4 @@ router = APIRouter()
 
 @router.get("/health")
 def health():
-    return {"status": "ok", "service": "agentmap-ai", "version": "0.1.0"}
+    return {"status": "ok", "service": "msmemate-api", "version": "0.1.0"}

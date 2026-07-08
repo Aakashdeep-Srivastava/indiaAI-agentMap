@@ -104,7 +104,7 @@ export default function LandingPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-relaxed text-surface-600">
             Whether you&apos;re a small business owner, a network partner,
-            or a government officer — AgentMap AI makes your workflow faster.
+            or a government officer — MSMEMate makes your workflow faster.
           </p>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
@@ -558,7 +558,7 @@ export default function LandingPage() {
               },
               {
                 title: "About the Team",
-                desc: "AgentMap AI is built by Team XphoraAI for the IndiaAI Innovation Challenge 2026.",
+                desc: "MSMEMate is built by Team XphoraAI for the IndiaAI Innovation Challenge 2026.",
                 link: "Learn more",
               },
             ].map((item) => (

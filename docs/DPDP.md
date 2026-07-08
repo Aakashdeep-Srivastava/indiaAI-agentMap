@@ -1,6 +1,6 @@
 # DPDP Act 2023 — Compliance Posture (Stage-1 PoC)
 
-How AgentMap AI handles the personal data of MSE owners under the Digital
+How MSMEMate handles the personal data of MSE owners under the Digital
 Personal Data Protection Act, 2023.
 
 ## Data residency

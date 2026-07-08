@@ -1,4 +1,4 @@
-"""SQLAlchemy models and database setup for AgentMap AI."""
+"""SQLAlchemy models and database setup for MSMEMate."""
 
 import os
 from datetime import datetime

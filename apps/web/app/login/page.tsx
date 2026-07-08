@@ -79,13 +79,13 @@ export default function LoginPage() {
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/logo.png"
-            alt="AgentMap AI"
+            alt="MSMEMate"
             width={40}
             height={40}
             className="rounded-lg"
           />
           <span className="font-display text-xl font-bold text-saffron-400">
-            AgentMap<span className="text-white">AI</span>
+            MSME<span className="text-white">Mate</span>
           </span>
         </Link>
 

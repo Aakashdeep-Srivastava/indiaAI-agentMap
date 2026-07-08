@@ -1,4 +1,4 @@
-"""Test fixtures for AgentMap AI integration tests.
+"""Test fixtures for MSMEMate integration tests.
 
 Uses the configured Postgres DB with per-test transaction rollback for isolation.
 No separate test database needed — each test runs in a rolled-back transaction.

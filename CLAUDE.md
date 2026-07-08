@@ -1,5 +1,9 @@
 
-# AgentMap AI — Project Rules & Development Guide
+# MSMEMate — Project Rules & Development Guide
+
+> Product renamed from "AgentMap AI" to **MSMEMate** on 2026-07-08.
+> Live at https://www.msmemate.com (frontend) + agentmap-api.azurewebsites.net (API).
+> Azure/infra resource names keep the legacy `agentmap-*` prefix — do NOT recreate them.
 
 ## CONFIDENTIALITY
 
@@ -54,7 +58,8 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 
 ### Brand Identity
 - **Logo:** `/public/logo.png` — Ashoka Chakra tree with tricolour neural branches
-- **Name:** AgentMap AI
+- **Name:** MSMEMate (wordmark styled as MSME + Mate two-tone; renamed from AgentMap AI 2026-07-08)
+- **Domain:** msmemate.com (Vercel production alias)
 - **Tagline:** Bridging Bharat's Businesses
 
 ### Typography

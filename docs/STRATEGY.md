@@ -1,4 +1,4 @@
-# AgentMap AI — Stage-1 Winning Strategy (v2 Architecture)
+# MSMEMate (ex-AgentMap AI) — Stage-1 Winning Strategy (v2 Architecture)
 
 *Drafted 2026-07-07. Internal — do not publish. Weights/formula remain trade secret.*
 

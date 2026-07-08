@@ -118,13 +118,13 @@ export default function MarketingLayout({
             <div className="flex items-center gap-2.5">
               <Image
                 src="/logo.png"
-                alt="AgentMap AI"
+                alt="MSMEMate"
                 width={24}
                 height={24}
                 className="h-6 w-6"
               />
               <span className="text-xs text-surface-400">
-                &copy; 2026 AgentMap AI &middot; Team XphoraAI
+                &copy; 2026 MSMEMate &middot; Team XphoraAI &middot; msmemate.com
               </span>
             </div>
 

@@ -101,13 +101,13 @@ export default function AppSidebar({
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/logo.png"
-              alt="AgentMap AI"
+              alt="MSMEMate"
               width={28}
               height={28}
               className="h-7 w-7"
             />
             <span className="font-display text-sm font-bold tracking-tight text-brand-900">
-              AgentMap<span className="text-brand-500">AI</span>
+              MSME<span className="text-brand-500">Mate</span>
             </span>
           </Link>
           <button

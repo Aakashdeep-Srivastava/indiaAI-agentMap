@@ -22,7 +22,7 @@ export default function GlobalError({
             color: "#0B1437",
           }}
         >
-          <h2 style={{ fontSize: 22, fontWeight: 800 }}>AgentMap AI is unavailable</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 800 }}>MSMEMate is unavailable</h2>
           <p style={{ marginTop: 8, fontSize: 14, color: "#4A5170", maxWidth: 420 }}>
             A critical error occurred. Please reload — if it persists, the team
             has been notified via server logs.

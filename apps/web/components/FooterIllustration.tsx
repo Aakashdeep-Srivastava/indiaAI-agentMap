@@ -37,7 +37,7 @@ export default function FooterIllustration() {
             aria-hidden="true"
           >
             <span className="font-display text-5xl font-black tracking-tighter text-brand-900/[0.05] sm:text-7xl md:text-8xl lg:text-[10rem] xl:text-[12rem] whitespace-nowrap leading-none">
-              AgentMap<span className="text-brand-500/[0.08]">AI</span>
+              MSME<span className="text-brand-500/[0.08]">Mate</span>
             </span>
           </div>
 
@@ -64,7 +64,7 @@ export default function FooterIllustration() {
             <div className="flex flex-col items-center self-center footer-logo-animate px-2 sm:px-6">
               <Image
                 src="/logo.png"
-                alt="AgentMap AI"
+                alt="MSMEMate"
                 width={200}
                 height={200}
                 className="h-24 w-24 sm:h-32 sm:w-32 md:h-44 md:w-44 lg:h-52 lg:w-52 drop-shadow-xl"

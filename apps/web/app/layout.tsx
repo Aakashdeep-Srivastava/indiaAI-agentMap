@@ -24,9 +24,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AgentMap AI — Sovereign ONDC Mapping",
+  title: "MSMEMate — Bridging Bharat's Businesses",
   description:
-    "AI-native mapping layer for MSE-to-SNP onboarding on ONDC, built with Sovereign AI principles under the DPDP Act 2023.",
+    "MSMEMate: AI-native onboarding for India's MSMEs onto ONDC — voice-first registration, classification and seller-platform matching, built with Sovereign AI under the DPDP Act 2023.",
 };
 
 export default function RootLayout({
