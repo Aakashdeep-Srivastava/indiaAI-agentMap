@@ -27,6 +27,18 @@ class MSECreate(BaseModel):
     turnover_band: Optional[str] = None
     mobile_number: Optional[str] = None
     products: Optional[str] = None
+    # Official NSIC MSME TEAM registration form fields
+    entrepreneur_name: Optional[str] = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+    org_type: Optional[str] = None
+    major_activity: Optional[str] = None
+    transaction_type: Optional[str] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    turnover_prev_fy: Optional[str] = None
+    ondc_awareness: bool = True
+    wish_snp: bool = True
     # DPDP Act 2023: explicit consent to process the enterprise's data.
     consent_given: bool = False
 
@@ -44,6 +56,17 @@ class MSEResponse(BaseModel):
     turnover_band: Optional[str]
     mobile_number: Optional[str]
     products: Optional[str]
+    entrepreneur_name: Optional[str] = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+    org_type: Optional[str] = None
+    major_activity: Optional[str] = None
+    transaction_type: Optional[str] = None
+    gst_number: Optional[str] = None
+    pan_number: Optional[str] = None
+    turnover_prev_fy: Optional[str] = None
+    ondc_awareness: Optional[bool] = None
+    wish_snp: Optional[bool] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -70,7 +93,11 @@ def register_mse(
     data = payload.model_dump()
     data.pop("consent_given", None)
     # Convert empty strings to None for enum/nullable fields
-    for key in ("turnover_band", "nic_code"):
+    for key in (
+        "turnover_band", "nic_code", "org_type", "major_activity",
+        "transaction_type", "gst_number", "pan_number", "turnover_prev_fy",
+        "entrepreneur_name", "email", "address",
+    ):
         if key in data and data[key] == "":
             data[key] = None
     mse = MSE(**data, consent_given=True, consent_at=datetime.utcnow())

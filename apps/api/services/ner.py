@@ -88,14 +88,23 @@ Return ONLY a valid JSON object with these fields. Use null for any field not cl
 
 {
   "name": "business/enterprise name (string or null)",
+  "entrepreneur_name": "the owner/entrepreneur's personal name (string or null)",
   "udyam_number": "Udyam registration number in format UDYAM-XX-00-0000000 (string or null)",
   "mobile_number": "10-digit Indian mobile number starting with 6-9, digits only (string or null)",
+  "email": "email address (string or null)",
+  "address": "street/building address WITHOUT city/state/pin (string or null)",
   "description": "brief English description of what the business does (string or null)",
   "state": "Indian state name in English (string or null)",
   "district": "city or district name in English (string or null)",
   "pin_code": "6-digit Indian postal PIN code (string or null)",
   "products": "comma-separated list of products/services in English (string or null)",
-  "turnover_band": "micro, small, or medium based on context (string or null)"
+  "turnover_band": "micro, small, or medium based on context (string or null)",
+  "turnover_prev_fy": "previous financial year turnover amount, as spoken (string or null)",
+  "pan_number": "10-character PAN like AAACX1234H, uppercase (string or null)",
+  "gst_number": "15-character GSTIN, uppercase (string or null)",
+  "org_type": "Proprietary, Partnership, Private Limited Company, LLP, or Others (string or null)",
+  "major_activity": "Manufacturing, Services, or Trading (string or null)",
+  "transaction_type": "B2B, B2C, or Both (string or null)"
 }
 
 Rules:
@@ -110,6 +119,8 @@ Rules:
 - For "pin_code", extract exactly 6 digits. Convert spoken numbers: "two two one zero zero one" → "221001"
 - Infer location when clearly implied: "Banarasi" → district: "Varanasi", state: "Uttar Pradesh". "Kanjeevaram" → district: "Kanchipuram", state: "Tamil Nadu". "Lucknawi" → district: "Lucknow", state: "Uttar Pradesh"
 - Convert Hindi number words to digits: शून्य=0, एक=1, दो=2, तीन=3, चार=4, पांच=5, छह=6, सात=7, आठ=8, नौ=9
+- For "pan_number", normalize spoken letters/digits to the 5-letters + 4-digits + 1-letter PAN format, uppercase
+- For "entrepreneur_name", this is the PERSON's name ("mera naam Ramesh hai" → "Ramesh"); do not confuse with the business name
 - Return ONLY the JSON object, no explanation or markdown"""
 
 
@@ -157,6 +168,21 @@ def _regex_extract(text: str) -> dict:
     m = re.search(r'\b([6-9]\d{9})\b', text)
     if m:
         result["mobile_number"] = m.group(1)
+
+    # Email
+    m = re.search(r'\b([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\b', text)
+    if m:
+        result["email"] = m.group(1).lower()
+
+    # PAN (5 letters + 4 digits + 1 letter)
+    m = re.search(r'\b([A-Z]{5}\d{4}[A-Z])\b', text.upper())
+    if m:
+        result["pan_number"] = m.group(1)
+
+    # GSTIN (2 digits + PAN + entity char + Z + check char)
+    m = re.search(r'\b(\d{2}[A-Z]{5}\d{4}[A-Z][A-Z0-9]Z[A-Z0-9])\b', text.upper())
+    if m:
+        result["gst_number"] = m.group(1)
 
     # PIN code
     m = re.search(r'\b([1-9]\d{5})\b', text)

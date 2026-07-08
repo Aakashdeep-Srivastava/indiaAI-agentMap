@@ -107,6 +107,18 @@ class MSE(Base):
     )
     mobile_number = Column(String(15), nullable=True)
     products = Column(Text, nullable=True)
+    # Official NSIC MSME TEAM registration form fields
+    entrepreneur_name = Column(String(200), nullable=True)
+    email = Column(String(200), nullable=True)
+    address = Column(Text, nullable=True)
+    org_type = Column(String(60), nullable=True)          # Proprietary / Partnership / Pvt Ltd / LLP
+    major_activity = Column(String(20), nullable=True)    # Manufacturing / Services / Trading
+    transaction_type = Column(String(10), nullable=True)  # B2B / B2C / Both
+    gst_number = Column(String(20), nullable=True)
+    pan_number = Column(String(10), nullable=True)
+    turnover_prev_fy = Column(String(60), nullable=True)
+    ondc_awareness = Column(Boolean, default=True)        # interested in ONDC awareness session
+    wish_snp = Column(Boolean, default=True)              # wants an SNP recommendation
     # DPDP Act 2023 — explicit consent to process this enterprise's data
     consent_given = Column(Boolean, default=False, nullable=False)
     consent_at = Column(DateTime, nullable=True)

@@ -22,6 +22,9 @@ type OrbPhase = "idle" | "listening" | "processing" | "speaking";
 interface FormState {
   udyam_number: string;
   name: string;
+  entrepreneur_name: string;
+  email: string;
+  address: string;
   description: string;
   state: string;
   district: string;
@@ -31,6 +34,12 @@ interface FormState {
   language: string;
   nic_code: string;
   turnover_band: string;
+  org_type: string;
+  major_activity: string;
+  transaction_type: string;
+  gst_number: string;
+  pan_number: string;
+  turnover_prev_fy: string;
 }
 
 interface SathiVoicePanelProps {
@@ -42,41 +51,53 @@ interface SathiVoicePanelProps {
   success: number | null;
 }
 
-const TOTAL_FIELDS = 8;
+const TOTAL_FIELDS = 12;
 
 const FIELD_LABELS: Record<string, string> = {
+  entrepreneur_name: "Entrepreneur",
   name: "Business Name",
   udyam_number: "Udyam Number",
   mobile_number: "Mobile",
+  email: "Email",
+  address: "Address",
   description: "Description",
   products: "Products",
   state: "State",
   district: "District",
   pin_code: "PIN Code",
+  pan_number: "PAN",
 };
 
 const FIELD_ORDER = [
+  "entrepreneur_name",
   "name",
   "udyam_number",
   "mobile_number",
+  "email",
   "description",
+  "address",
   "state",
   "district",
   "pin_code",
   "products",
+  "pan_number",
 ];
 
 const FIELD_QUESTIONS: Record<string, string> = {
+  entrepreneur_name: "What's your name — the entrepreneur registering this business?",
   udyam_number:
     "What's your Udyam Registration Number? (e.g., UDYAM-MH-02-0012345)",
   name: "What's your business or enterprise name?",
   mobile_number: "What's your 10-digit mobile number?",
+  email: "What's your email address?",
+  address: "What's your business address — building, street, locality?",
   description:
     "Describe your business in a few sentences — what do you make or sell?",
   products: "What products or services do you offer? (comma-separated)",
   state: "Which state is your business located in?",
   district: "Which district or city?",
   pin_code: "What's your area PIN code? (6 digits)",
+  pan_number: "What's your PAN number? (e.g., AAACX1234H)",
 };
 
 const LANG_OPTIONS = [
@@ -104,14 +125,18 @@ function getQuickReplies(
 
 function fieldToKey(label: string): string {
   const map: Record<string, string> = {
+    "your name": "entrepreneur_name",
     "business name": "name",
     "udyam number": "udyam_number",
     "mobile number": "mobile_number",
+    "email address": "email",
+    "business address": "address",
     "business description": "description",
     state: "state",
     district: "district",
     "pin code": "pin_code",
     "products or services": "products",
+    "pan number": "pan_number",
   };
   return map[label] || label;
 }
@@ -349,6 +374,23 @@ export default function SathiVoicePanel({
         const digits = v.replace(/[^0-9]/g, "");
         if (/^[1-9]\d{5}$/.test(digits)) return { clean: digits };
         return { error: "PIN code should be 6 digits (e.g., 411001)." };
+      }
+      case "email": {
+        const cleaned = v.replace(/\s+(at|@)\s+/gi, "@").replace(/\s+dot\s+/gi, ".").replace(/\s/g, "");
+        if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(cleaned)) {
+          return { clean: cleaned.toLowerCase() };
+        }
+        return { error: "That doesn't look like a valid email address (e.g., name@example.com)." };
+      }
+      case "pan_number": {
+        const cleaned = v.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        if (/^[A-Z]{5}\d{4}[A-Z]$/.test(cleaned)) return { clean: cleaned };
+        return { error: "PAN should be 5 letters, 4 digits, 1 letter (e.g., AAACX1234H)." };
+      }
+      case "gst_number": {
+        const cleaned = v.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        if (/^\d{2}[A-Z]{5}\d{4}[A-Z][A-Z0-9]Z[A-Z0-9]$/.test(cleaned)) return { clean: cleaned };
+        return { error: "That GSTIN doesn't look right — it should be 15 characters." };
       }
     }
     return { clean: v };

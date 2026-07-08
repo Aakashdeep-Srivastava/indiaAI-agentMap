@@ -9,14 +9,23 @@ import { apiFetch } from "@/lib/auth";
 
 export interface ExtractedFields {
   name?: string;
+  entrepreneur_name?: string;
   udyam_number?: string;
   mobile_number?: string;
+  email?: string;
+  address?: string;
   description?: string;
   state?: string;
   district?: string;
   pin_code?: string;
   products?: string;
   turnover_band?: string;
+  turnover_prev_fy?: string;
+  pan_number?: string;
+  gst_number?: string;
+  org_type?: string;
+  major_activity?: string;
+  transaction_type?: string;
   language?: string;
 }
 
@@ -102,6 +111,18 @@ export function extractFieldsFromText(text: string): ExtractedFields {
   const mobileMatch = text.match(/\b([6-9]\d{9})\b/);
   if (mobileMatch) result.mobile_number = mobileMatch[1];
 
+  // Email
+  const emailMatch = text.match(/\b([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\b/);
+  if (emailMatch) result.email = emailMatch[1].toLowerCase();
+
+  // PAN (5 letters + 4 digits + 1 letter)
+  const panMatch = text.toUpperCase().match(/\b([A-Z]{5}\d{4}[A-Z])\b/);
+  if (panMatch) result.pan_number = panMatch[1];
+
+  // GSTIN
+  const gstMatch = text.toUpperCase().match(/\b(\d{2}[A-Z]{5}\d{4}[A-Z][A-Z0-9]Z[A-Z0-9])\b/);
+  if (gstMatch) result.gst_number = gstMatch[1];
+
   // Business name
   const namePatterns = [
     /(?:business|company|shop|enterprise|firm|brand|store)\s+(?:name\s+)?(?:is|called|named)\s+["']?([A-Z][^"',.;\n]{2,40})/i,
@@ -170,24 +191,32 @@ export function extractFieldsFromText(text: string): ExtractedFields {
 
 /* ── Utility functions ────────────────────────────────────────────── */
 
+/** Fields Sathi collects conversationally — mirrors the official NSIC TEAM
+ * registration form (selects like org type / activity default in the form). */
+export const REQUIRED_FIELDS = [
+  "entrepreneur_name", "name", "udyam_number", "mobile_number", "email",
+  "address", "description", "state", "district", "pin_code", "products",
+  "pan_number",
+] as const;
+
 export function countFilledFields(form: Record<string, string>): number {
-  const required = [
-    "name", "udyam_number", "mobile_number", "description", "state",
-    "district", "pin_code", "products",
-  ];
-  return required.filter((k) => form[k]?.trim()).length;
+  return REQUIRED_FIELDS.filter((k) => form[k]?.trim()).length;
 }
 
 export function getMissingFields(form: Record<string, string>): string[] {
   const labels: Record<string, string> = {
+    entrepreneur_name: "your name",
     name: "business name",
     udyam_number: "Udyam number",
     mobile_number: "mobile number",
+    email: "email address",
+    address: "business address",
     description: "business description",
     state: "state",
     district: "district",
     pin_code: "PIN code",
     products: "products or services",
+    pan_number: "PAN number",
   };
   return Object.entries(labels)
     .filter(([k]) => !form[k]?.trim())

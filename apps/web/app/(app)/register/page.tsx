@@ -43,9 +43,15 @@ const LANGUAGES = [
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({
-    udyam_number: "",
-    mobile_number: "",
+    entrepreneur_name: "",
     name: "",
+    org_type: "Proprietary",
+    email: "",
+    mobile_number: "",
+    address: "",
+    udyam_number: "",
+    pan_number: "",
+    gst_number: "",
     description: "",
     state: "",
     district: "",
@@ -53,7 +59,12 @@ export default function RegisterPage() {
     nic_code: "",
     language: "en",
     turnover_band: "",
+    major_activity: "Services",
+    transaction_type: "Both",
+    turnover_prev_fy: "",
     products: "",
+    ondc_awareness: "yes",
+    wish_snp: "yes",
   });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<number | null>(null);
@@ -102,7 +113,12 @@ export default function RegisterPage() {
       const res = await apiFetch(`/mse/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, consent_given: consent }),
+        body: JSON.stringify({
+          ...form,
+          ondc_awareness: form.ondc_awareness === "yes",
+          wish_snp: form.wish_snp === "yes",
+          consent_given: consent,
+        }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -186,13 +202,56 @@ export default function RegisterPage() {
         </p>
       </div>
 
+      {/* ── Entrepreneur & Enterprise (official TEAM form) ── */}
       <div className="grid grid-cols-2 gap-3">
         <Field
-          label="Udyam Number"
+          label="Name of Entrepreneur *"
+          placeholder="Your full name"
+          value={form.entrepreneur_name}
+          onChange={(v) => update("entrepreneur_name", v)}
+          highlighted={highlighted.has("entrepreneur_name")}
+        />
+        <Field
+          label="Name of Enterprise *"
+          placeholder="Business name"
+          value={form.name}
+          onChange={(v) => update("name", v)}
+          highlighted={highlighted.has("name")}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field
+          label="Type of Organization *"
+          value={form.org_type}
+          onChange={(v) => update("org_type", v)}
+          type="select"
+          options={[
+            ["Proprietary", "Proprietary"],
+            ["Partnership", "Partnership"],
+            ["Private Limited Company", "Private Limited Company"],
+            ["LLP", "LLP"],
+            ["Others", "Others"],
+          ]}
+          highlighted={highlighted.has("org_type")}
+        />
+        <Field
+          label="Udyam Number *"
           placeholder="UDYAM-XX-00-0000001"
           value={form.udyam_number}
           onChange={(v) => update("udyam_number", v)}
           highlighted={highlighted.has("udyam_number")}
+        />
+      </div>
+
+      {/* ── Contact ── */}
+      <div className="grid grid-cols-2 gap-3">
+        <Field
+          label="Email *"
+          placeholder="name@example.com"
+          value={form.email}
+          onChange={(v) => update("email", v)}
+          highlighted={highlighted.has("email")}
         />
         <Field
           label="Mobile Number"
@@ -204,30 +263,16 @@ export default function RegisterPage() {
       </div>
 
       <Field
-        label="Business Name"
-        placeholder="Your business or enterprise name"
-        value={form.name}
-        onChange={(v) => update("name", v)}
-        highlighted={highlighted.has("name")}
+        label="Address *"
+        placeholder="Building, street, locality"
+        value={form.address}
+        onChange={(v) => update("address", v)}
+        highlighted={highlighted.has("address")}
       />
-
-      <div>
-        <label className="mb-1.5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-surface-500">
-          Products / Services
-          {highlighted.has("products") && <SathiBadge />}
-        </label>
-        <textarea
-          rows={2}
-          placeholder="e.g. Cotton sarees, Silk fabric, Dupattas"
-          value={form.products}
-          onChange={(e) => update("products", e.target.value)}
-          className={`input-field resize-none !py-2.5 text-sm ${highlighted.has("products") ? "magic-fill" : ""}`}
-        />
-      </div>
 
       <div className="grid grid-cols-3 gap-3">
         <Field
-          label="State"
+          label="State *"
           value={form.state}
           onChange={(v) => update("state", v)}
           type="select"
@@ -235,7 +280,7 @@ export default function RegisterPage() {
           highlighted={highlighted.has("state")}
         />
         <Field
-          label="District"
+          label="District *"
           placeholder="e.g. Varanasi"
           value={form.district}
           onChange={(v) => update("district", v)}
@@ -250,17 +295,10 @@ export default function RegisterPage() {
         />
       </div>
 
+      {/* ── Classification & compliance ── */}
       <div className="grid grid-cols-2 gap-3">
         <Field
-          label="Language"
-          value={form.language}
-          onChange={(v) => update("language", v)}
-          type="select"
-          options={LANGUAGES}
-          highlighted={highlighted.has("language")}
-        />
-        <Field
-          label="Enterprise Size"
+          label="MSE Classification *"
           value={form.turnover_band}
           onChange={(v) => update("turnover_band", v)}
           type="select"
@@ -270,6 +308,104 @@ export default function RegisterPage() {
             ["medium", "Medium"],
           ]}
           highlighted={highlighted.has("turnover_band")}
+        />
+        <Field
+          label="Major Activity of Unit *"
+          value={form.major_activity}
+          onChange={(v) => update("major_activity", v)}
+          type="select"
+          options={[
+            ["Manufacturing", "Manufacturing"],
+            ["Services", "Services"],
+            ["Trading", "Trading"],
+          ]}
+          highlighted={highlighted.has("major_activity")}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field
+          label="PAN Number *"
+          placeholder="AAACX1234H"
+          value={form.pan_number}
+          onChange={(v) => update("pan_number", v.toUpperCase())}
+          highlighted={highlighted.has("pan_number")}
+        />
+        <Field
+          label="GST Number"
+          placeholder="Optional"
+          value={form.gst_number}
+          onChange={(v) => update("gst_number", v.toUpperCase())}
+          highlighted={highlighted.has("gst_number")}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field
+          label="Type of Transaction *"
+          value={form.transaction_type}
+          onChange={(v) => update("transaction_type", v)}
+          type="select"
+          options={[
+            ["B2B", "B2B"],
+            ["B2C", "B2C"],
+            ["Both", "Both"],
+          ]}
+          highlighted={highlighted.has("transaction_type")}
+        />
+        <Field
+          label="Turnover (Previous FY)"
+          placeholder="e.g. 18 lakh"
+          value={form.turnover_prev_fy}
+          onChange={(v) => update("turnover_prev_fy", v)}
+          highlighted={highlighted.has("turnover_prev_fy")}
+        />
+      </div>
+
+      {/* ── Business profile (drives AI classification & matching) ── */}
+      <div>
+        <label className="mb-1.5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-surface-500">
+          Products / Services
+          {highlighted.has("products") && <SathiBadge />}
+        </label>
+        <textarea
+          rows={2}
+          placeholder="e.g. Cotton sarees, Silk fabric, Dupattas"
+          value={form.products}
+          onChange={(e) => update("products", e.target.value)}
+          className={`input-field resize-none !py-2.5 text-sm ${highlighted.has("products") ? "magic-fill" : ""}`}
+        />
+      </div>
+
+      {/* ── ONDC ── */}
+      <div className="grid grid-cols-3 gap-3">
+        <Field
+          label="ONDC Awareness?"
+          value={form.ondc_awareness}
+          onChange={(v) => update("ondc_awareness", v)}
+          type="select"
+          options={[
+            ["yes", "Yes"],
+            ["no", "No"],
+          ]}
+        />
+        <Field
+          label="Select an SNP?"
+          value={form.wish_snp}
+          onChange={(v) => update("wish_snp", v)}
+          type="select"
+          options={[
+            ["yes", "Yes"],
+            ["no", "No"],
+          ]}
+        />
+        <Field
+          label="Language"
+          value={form.language}
+          onChange={(v) => update("language", v)}
+          type="select"
+          options={LANGUAGES}
+          highlighted={highlighted.has("language")}
         />
       </div>
 
@@ -306,7 +442,13 @@ export default function RegisterPage() {
       {/* Submit button */}
       <button
         onClick={handleSubmit}
-        disabled={submitting || !form.name || !form.udyam_number || !consent}
+        disabled={
+          submitting ||
+          !form.entrepreneur_name ||
+          !form.name ||
+          !form.udyam_number ||
+          !consent
+        }
         className="btn-saffron w-full !py-2.5 !text-xs"
       >
         {submitting ? (
