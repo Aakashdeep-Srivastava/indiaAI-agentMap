@@ -146,8 +146,17 @@ export default function AllocatePage() {
                   </p>
                 </div>
                 {m.assigned_snp_name ? (
-                  <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-                    Allocated → {m.assigned_snp_name}
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+                      Allocated → {m.assigned_snp_name}
+                    </span>
+                    <a
+                      href={`/certificate?mseId=${m.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-[11px] font-semibold text-brand-600 transition hover:bg-brand-100"
+                    >
+                      Certificate 📜
+                    </a>
                   </span>
                 ) : (
                   <span className="shrink-0 rounded-full border border-saffron-400/40 bg-saffron-500/5 px-3 py-1 text-[11px] font-semibold text-saffron-600">

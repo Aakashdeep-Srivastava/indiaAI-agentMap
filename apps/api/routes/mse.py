@@ -339,7 +339,13 @@ def get_mse(
     mse = db.query(MSE).get(mse_id)
     if not mse:
         raise HTTPException(status_code=404, detail="MSE not found")
-    return mse
+    resp = MSEResponse.model_validate(mse)
+    if mse.assigned_snp_id:
+        from database import SNP
+        snp = db.query(SNP).get(mse.assigned_snp_id)
+        if snp:
+            resp.assigned_snp_name = snp.name
+    return resp
 
 
 class ClusterBubble(BaseModel):
