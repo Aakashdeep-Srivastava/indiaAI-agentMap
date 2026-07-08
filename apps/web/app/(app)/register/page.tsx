@@ -19,6 +19,7 @@ const SathiVoicePanel = dynamic(
 );
 
 import { apiFetch, getSession } from "@/lib/auth";
+import { useSidebarCollapsed } from "@/lib/sidebar-context";
 
 const STATES = [
   "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Delhi", "Goa",
@@ -42,6 +43,9 @@ const LANGUAGES = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  // Widen the form panel when the sidebar collapses to its icon rail
+  const sidebarCollapsed = useSidebarCollapsed();
+  const panelWidth = sidebarCollapsed ? "w-[460px]" : "w-[360px]";
   const [form, setForm] = useState({
     entrepreneur_name: "",
     name: "",
@@ -157,7 +161,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Right panel — success card */}
-        <div className="hidden w-[360px] shrink-0 overflow-y-auto border-l border-surface-100 bg-white px-5 py-4 lg:block">
+        <div className={`hidden ${panelWidth} shrink-0 overflow-y-auto border-l border-surface-100 bg-white px-5 py-4 transition-all duration-300 lg:block`}>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -492,8 +496,8 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Right: Form panel — visually connected, no left border */}
-        <div className="w-[360px] shrink-0 overflow-y-auto border-l border-surface-100 bg-white px-5 py-4">
+        {/* Right: Form panel — widens when the sidebar collapses */}
+        <div className={`${panelWidth} shrink-0 overflow-y-auto border-l border-surface-100 bg-white px-5 py-4 transition-all duration-300`}>
           {formContent}
         </div>
       </div>

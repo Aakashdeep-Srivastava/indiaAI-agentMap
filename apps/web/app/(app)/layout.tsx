@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import AppSidebar from "@/components/AppSidebar";
 import { canAccess, getSession } from "@/lib/auth";
+import { SidebarCollapsedContext } from "@/lib/sidebar-context";
 
 function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -57,7 +58,9 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
 
         <main className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-7xl space-y-6 px-6 py-8">
-            {children}
+            <SidebarCollapsedContext.Provider value={collapsed}>
+              {children}
+            </SidebarCollapsedContext.Provider>
           </div>
         </main>
       </div>
