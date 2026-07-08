@@ -210,23 +210,60 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 
 ---
 
-## SESSION PROGRESS & RESUME POINT (2026-07-07)
+## SESSION PROGRESS & RESUME POINT (updated 2026-07-08)
 
-A full production-readiness audit was run (backend, frontend, ML/data/infra). Findings
-are tracked as tasks; work is proceeding P0-first. Resume from here.
+### LIVE DEPLOYMENT (verified end-to-end)
+- **Frontend:** https://www.msmemate.com (Vercel, project msmseagentmap56;
+  deploy from REPO ROOT — project rootDirectory=apps/web)
+- **API:** https://agentmap-api.azurewebsites.net (Azure B1 until the Jul-10
+  deadline passes, then downgrade the same plan to F1; Always-On on)
+- **DB:** Supabase Mumbai `qiigylrybzdxkeibsfvh` — 14 domains, 408 categories,
+  281 real registry SNPs, 5,020 real-derived MSEs, RLS deny-all
+- **Demo logins:** mse@msmemate.com / bharat123 · nsic@msmemate.com / nsic123
+- **AI engines (all live, no mocks):** Sarvam Saras STT · Bulbul V3 TTS ·
+  Sarvam-30B NER/classify · Sarvam Document Intelligence OCR; secondary
+  fallback engines (F0 free tiers: agentmap-speech, agentmap-docintel) fire
+  only if Sarvam fails, labelled truthfully fallback-stt / fallback-ocr
+- **Deploy recipe:** web `npx vercel deploy --prod --yes` from repo root;
+  API `git archive -o zip HEAD:apps/api` (NEVER Compress-Archive — backslash
+  zip entries break Linux) then `az webapp deploy`. PS 5.1: no double quotes
+  inside commit-message here-strings.
 
 ### Decisions made
 - **Commits:** NO Claude/Anthropic attribution lines in commit messages (team-authored).
+- **Name:** MSMEMate (msmemate.com bought + aliased). Renamed from AgentMap AI.
 - **Database = Supabase Mumbai (ap-south-1)** for DPDP data residency. Neon is REMOVED
   from the stack entirely (user decision 2026-07-07). Supabase project ref:
-  `qiigylrybzdxkeibsfvh`; MCP in `.mcp.json`. Schema + seed data live (migrations
-  `initial_schema_agentmap`, `enable_pgcrypto`).
+  `qiigylrybzdxkeibsfvh`; MCP in `.mcp.json`.
 - **Auth:** custom JWT (not Supabase Auth / third-party) — zero extra cost, exact control
   over login lockout. Redis kept optional (login lockout is DB-backed, so no Redis cost).
-- **Name candidates (domains available):** khulja.ai / khulja.in (top pick — "open up",
-  voice-first), vriksh.ai, bolbazaar.ai, udyamsetu.ai, kalpavriksh.ai. Not yet purchased.
+- **PS2 flow:** registration is PUBLIC (voice-first entry point, per-IP rate limited);
+  classify + match are the logged-in dashboard steps.
+- **Fallback engines:** Sarvam primary (paid billing) + neutral-named secondary engines
+  for demo reliability only; never fake Sarvam labels on fallback output.
 
-### DONE (2026-07-08 session — code complete, frontend build green)
+### DONE (2026-07-08 session 2 — all deployed + verified live)
+- **TEAM-form alignment** — registration mirrors the official NSIC form: entrepreneur
+  name, email, address, org type, major activity, PAN/GST, B2B/B2C, prev-FY turnover,
+  ONDC-awareness + SNP opt-ins. Sathi voice collects 12 fields with spoken email/PAN
+  validation; consent gate integrated into the voice flow.
+- **Real document extraction (no mock)** — digital PDFs parse text layer (pypdf);
+  scanned PDFs/images via Sarvam Document Intelligence; Udyam label regexes +
+  Sarvam-30B NER + strict sanitizer (format validation, hallucination filter).
+  Verified on a real Udyam certificate live: 16 fields in ~15s.
+- **Document triage** — dropped files are classified: certificates (Udyam/incorp/
+  AOA/MOA/GST/PAN) extract; product-catalogue CSV/Excel → bilingual "next step"
+  message; junk → "not relevant". Scan animation + corner doc chip in the panel.
+- **Multilingual verified live** — NER in Hindi/Hinglish/Tamil/Bengali/Marathi/
+  Gujarati/Konkani (9–11 fields each, sarvam-30b); TTS audio hi/ta/bn/gu; Hindi +
+  Konkani classification correct. (Test Indic scripts via Python UTF-8, not curl.)
+- **Public registration** — /register + voice endpoints anonymous (rate-limited);
+  Register card on login page; sign-in handoff after anonymous registration.
+- **UI** — icon-collapsible sidebar (rail + toggle); register form in collapsible
+  sections; form panel widens when sidebar collapses (lib/sidebar-context.tsx).
+- **MSMEMate rebrand** everywhere; demo-access card removed from login.
+
+### DONE (2026-07-08 session 1 — security/data P0s)
 - **#5 Auth+RBAC** — backend (JWT/bcrypt/lockout) + FRONTEND REWRITTEN: `lib/auth.ts` now
   calls real `POST /auth/login`, stores JWT, `apiFetch()` attaches Bearer + 30s timeout +
   401→re-login on ALL 18 call sites; hardcoded creds removed from bundle & login screen.
@@ -246,22 +283,20 @@ are tracked as tasks; work is proceeding P0-first. Resume from here.
 - **#15 Reliability** — `app/error.tsx`, `global-error.tsx`, `not-found.tsx`; apiFetch
   timeouts; unknown-domain-code fallbacks in classify/match UIs.
 
-### Blocked on user
-1. `apps/api/.env` `DATABASE_URL` still has `[YOUR-DB-PASSWORD]` — paste the exact
-   Session-pooler string (Supabase Dashboard → Connect). Then start API and run the
-   end-to-end login/lockout + register(consent)/classify/match smoke test.
-2. Infra decision: move API off Azure F1 (paid tier or other host).
-3. Old Neon project deletion (kills git-history-leaked creds) — not visible from
-   current Neon MCP orgs, must be done in Neon console.
+### Open items
+1. **After the Jul-10 deadline:** downgrade the plan to F1 (₹0/mo) — disable
+   Always-On first, then `az appservice plan update -n agentmap-plan -g agentmap-rg
+   --sku F1`. Same resources only; never recreate.
+2. Old Neon project deletion (kills git-history-leaked creds) — must be done in the
+   Neon console (not visible from current Neon MCP orgs). Git history purge pending.
+3. Human microphone test of the live voice flow (only thing automation can't drive).
 
 ### Remaining feature tasks (not started)
 11 Elasticsearch search · 12 AI chat panel (RAG, sovereign) ·
 14 ONDC integration + visibility nudges (seller-app SDK handoff; catalog+serviceability
 nudges) · i18n/mobile/offline polish (rest of #15).
 
-### Audit headline P0s (see memory for full detail)
-- Login is cosmetic (localStorage role forgery → instant admin); every API endpoint open.
-- SNPCard leaks trade-secret factor %s; match API returns full factors to unauth client.
-- Matcher is 100% heuristic (no IndicBERT); classifier runtime path is Sarvam LLM (MuRIL never loads); no eval evidence.
-- Azure F1 = 60 CPU-min/day (won't scale); no CI/CD, monitoring, migrations, backups.
-- DPDP claimed in UI but not implemented (no consent/retention/encryption/erasure).
+### Known honest gaps (Stage-2)
+- Matcher is heuristic (no IndicBERT embeddings yet); classifier runtime is Sarvam-30B
+  (MuRIL fine-tune not in the serving path); eval evidence still to be produced.
+- Monitoring/backups/migration tooling not yet set up.
