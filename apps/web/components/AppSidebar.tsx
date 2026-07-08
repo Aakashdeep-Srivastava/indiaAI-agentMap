@@ -28,10 +28,15 @@ const JOURNEY = [
   { label: "Catalogue", codename: "ONDC-ready", href: "/catalogue", icon: PackageOpen },
 ] as const;
 
-/* ── Tool links ──────────────────────────────────────────────── */
-const TOOLS = [
-  { label: "Review Queue", href: "/review", icon: ClipboardList },
-  { label: "Audit Trail", href: "/audit", icon: Shield },
+/* ── NSIC officer navigation (oversight-first — a different job entirely) ── */
+const OVERSIGHT = [
+  { label: "Review Queue", desc: "Approve registrations", href: "/review", icon: ClipboardList },
+  { label: "Audit Trail", desc: "Every AI decision", href: "/audit", icon: Shield },
+] as const;
+
+const ADMIN_AI_TOOLS = [
+  { label: "Classify", desc: "VargBot spot-check", href: "/classify", icon: Layers },
+  { label: "Match", desc: "JodakAI spot-check", href: "/match", icon: GitMerge },
 ] as const;
 
 /* ── Step state helper ───────────────────────────────────────── */
@@ -66,8 +71,7 @@ export default function AppSidebar({
     setSession(getSession());
   }, [pathname]);
 
-  const visibleTools =
-    session?.role === "admin" ? TOOLS : ([] as unknown as typeof TOOLS);
+  const isAdmin = session?.role === "admin";
 
   function handleLogout() {
     logout();
@@ -145,7 +149,7 @@ export default function AppSidebar({
         {/* ── Content (scrollbar hidden) ──────────────────────────── */}
         <div className="flex flex-1 flex-col overflow-y-auto px-4 py-5 sidebar-no-scrollbar">
           {/* MSE Context Card */}
-          {mseId && (
+          {!isAdmin && mseId && (
             <div className={`mb-5 rounded-xl border border-brand-100 bg-brand-50/50 px-4 py-3 ${collapsed ? "lg:hidden" : ""}`}>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
                 Active MSE
@@ -156,7 +160,8 @@ export default function AppSidebar({
             </div>
           )}
 
-          {/* ── JOURNEY ─────────────────────────────────────────── */}
+          {/* ── JOURNEY (entrepreneur onboarding path — MSE role only) ── */}
+          {!isAdmin && (
           <div className="mb-6">
             <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400 ${collapsed ? "lg:hidden" : ""}`}>
               Journey
@@ -226,35 +231,76 @@ export default function AppSidebar({
             </nav>
           </div>
 
-          {/* ── TOOLS (NSIC admin only) ─────────────────────────── */}
-          {visibleTools.length > 0 && (
-          <div className="mb-6">
-            <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400 ${collapsed ? "lg:hidden" : ""}`}>
-              Oversight
-            </span>
-            <nav className="space-y-1">
-              {visibleTools.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    title={item.label}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${collapsed ? "lg:justify-center lg:px-0" : ""} ${
-                      active
-                        ? "bg-brand-50 text-brand-900"
-                        : "text-surface-500 hover:bg-surface-50 hover:text-surface-700"
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 shrink-0 ${active ? "text-brand-500" : ""}`} />
-                    <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+          )}
+
+          {/* ── NSIC OFFICER NAV (oversight-first — different job, different nav) ── */}
+          {isAdmin && (
+            <>
+              <div className="mb-6">
+                <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-widest text-brand-500 ${collapsed ? "lg:hidden" : ""}`}>
+                  Oversight
+                </span>
+                <nav className="space-y-1">
+                  {OVERSIGHT.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onClose}
+                        title={item.label}
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${collapsed ? "lg:justify-center lg:px-0" : ""} ${
+                          active
+                            ? "bg-brand-50 text-brand-900"
+                            : "text-surface-500 hover:bg-surface-50 hover:text-surface-700"
+                        }`}
+                      >
+                        <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${active ? "bg-brand-500 text-white" : "bg-surface-100 text-surface-400"}`}>
+                          <Icon className="h-3.5 w-3.5" />
+                        </div>
+                        <div className={`flex-1 ${collapsed ? "lg:hidden" : ""}`}>
+                          <span className="block leading-tight">{item.label}</span>
+                          <span className={`text-[10px] ${active ? "text-brand-500" : "text-surface-400"}`}>
+                            {item.desc}
+                          </span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+              <div className="mb-6">
+                <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400 ${collapsed ? "lg:hidden" : ""}`}>
+                  AI Tools
+                </span>
+                <nav className="space-y-1">
+                  {ADMIN_AI_TOOLS.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onClose}
+                        title={item.label}
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${collapsed ? "lg:justify-center lg:px-0" : ""} ${
+                          active
+                            ? "bg-brand-50 text-brand-900"
+                            : "text-surface-500 hover:bg-surface-50 hover:text-surface-700"
+                        }`}
+                      >
+                        <Icon className={`h-4 w-4 shrink-0 ${active ? "text-brand-500" : ""}`} />
+                        <div className={`flex-1 ${collapsed ? "lg:hidden" : ""}`}>
+                          <span className="block leading-tight">{item.label}</span>
+                          <span className="text-[10px] text-surface-400">{item.desc}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+            </>
           )}
 
           {/* Spacer */}
