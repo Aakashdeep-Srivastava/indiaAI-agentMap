@@ -11,11 +11,19 @@ interface MSE {
   description: string;
   state: string | null;
   district: string | null;
+  status?: string | null;
 }
+
+const STATUS_STYLE: Record<string, string> = {
+  pending_review: "bg-saffron-500/10 text-saffron-600 border-saffron-400/40",
+  approved: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  rejected: "bg-red-50 text-red-600 border-red-200",
+};
 
 export default function ReviewPage() {
   const [mses, setMses] = useState<MSE[]>([]);
   const [loading, setLoading] = useState(true);
+  const [acting, setActing] = useState<number | null>(null);
 
   useEffect(() => {
     apiFetch(`/mse/?limit=20`)
@@ -24,6 +32,25 @@ export default function ReviewPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  async function review(id: number, action: "approve" | "reject") {
+    setActing(id);
+    try {
+      const res = await apiFetch(`/mse/${id}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setMses((prev) =>
+          prev.map((m) => (m.id === id ? { ...m, status: updated.status } : m)),
+        );
+      }
+    } finally {
+      setActing(null);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -97,6 +124,9 @@ export default function ReviewPage() {
                 <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-surface-400">
                   State
                 </th>
+                <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-surface-400">
+                  Status
+                </th>
                 <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider text-surface-400">
                   Action
                 </th>
@@ -125,18 +155,47 @@ export default function ReviewPage() {
                   <td className="px-5 py-4 text-sm text-surface-500">
                     {mse.state ?? "—"}
                   </td>
-                  <td className="px-5 py-4 text-right">
-                    <a
-                      href={`/match?mseId=${mse.id}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-brand-600 hover:shadow-glow"
+                  <td className="px-5 py-4">
+                    <span
+                      className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold capitalize ${
+                        STATUS_STYLE[mse.status ?? "approved"] ?? STATUS_STYLE.approved
+                      }`}
                     >
-                      <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                        <path d="M2 17l10 5 10-5" />
-                        <path d="M2 12l10 5 10-5" />
-                      </svg>
-                      Match
-                    </a>
+                      {(mse.status ?? "approved").replace("_", " ")}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <div className="inline-flex items-center gap-1.5">
+                      {mse.status === "pending_review" && (
+                        <>
+                          <button
+                            onClick={() => review(mse.id, "approve")}
+                            disabled={acting === mse.id}
+                            className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => review(mse.id, "reject")}
+                            disabled={acting === mse.id}
+                            className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
+                      <a
+                        href={`/match?mseId=${mse.id}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-brand-600 hover:shadow-glow"
+                      >
+                        <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                          <path d="M2 17l10 5 10-5" />
+                          <path d="M2 12l10 5 10-5" />
+                        </svg>
+                        Match
+                      </a>
+                    </div>
                   </td>
                 </tr>
               ))}

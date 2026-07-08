@@ -72,6 +72,7 @@ export default function RegisterPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<number | null>(null);
+  const [creds, setCreds] = useState<{ login_id: string; passcode: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   // Ref mirror so the voice panel's submit callback always sees fresh consent
@@ -130,9 +131,10 @@ export default function RegisterPage() {
       }
       const data = await res.json();
       setSuccess(data.id);
-      // Signed-in users continue straight to classification; anonymous
-      // registrants are prompted to sign in first (classify/match are gated).
-      if (getSession()) {
+      if (data.login_id && data.temp_passcode) {
+        // Account auto-created — show the one-time credentials, no redirect.
+        setCreds({ login_id: data.login_id, passcode: data.temp_passcode });
+      } else if (getSession()) {
         setTimeout(() => {
           router.push(`/classify?mseId=${data.id}`);
         }, 4000);
@@ -180,16 +182,34 @@ export default function RegisterPage() {
                   <span className="text-sm text-surface-500">Your MSE ID</span>
                   <span className="font-mono text-2xl font-bold text-brand-900">{success}</span>
                 </div>
+                {creds && (
+                  <div className="rounded-xl border border-saffron-400/40 bg-saffron-500/5 p-4 text-left">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-saffron-600">
+                      Your login — save this now (shown only once)
+                    </p>
+                    <p className="mt-1.5 font-mono text-sm text-brand-900">
+                      ID: <b>{creds.login_id}</b>
+                    </p>
+                    <p className="font-mono text-sm text-brand-900">
+                      Passcode: <b>{creds.passcode}</b>
+                    </p>
+                    <p className="mt-1.5 text-[10px] leading-snug text-surface-500">
+                      आपका लॉगिन बन गया है — इसे संभाल कर रखें।
+                    </p>
+                  </div>
+                )}
                 <p className="text-sm text-surface-500">
-                  {getSession()
-                    ? "Redirecting to classification..."
-                    : "Sign in to see your AI classification and seller-platform matches."}
+                  {creds
+                    ? "Your application is with NSIC for confirmation. Sign in to see your AI classification and matches."
+                    : getSession()
+                      ? "Redirecting to classification..."
+                      : "Sign in to see your AI classification and seller-platform matches."}
                 </p>
                 <Link
-                  href={getSession() ? `/classify?mseId=${success}` : "/login"}
+                  href={getSession() && !creds ? `/classify?mseId=${success}` : "/login"}
                   className="btn-primary inline-flex"
                 >
-                  {getSession() ? "Continue to Classification" : "Sign in to Continue"}
+                  {getSession() && !creds ? "Continue to Classification" : "Sign in to Continue"}
                   <svg className="ml-1.5 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12" />
                     <polyline points="12 5 19 12 12 19" />

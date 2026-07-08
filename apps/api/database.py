@@ -122,6 +122,11 @@ class MSE(Base):
     # DPDP Act 2023 — explicit consent to process this enterprise's data
     consent_given = Column(Boolean, default=False, nullable=False)
     consent_at = Column(DateTime, nullable=True)
+    # NSIC officer confirmation gate (AI is advisory; approval is human)
+    status = Column(String(20), default="pending_review", nullable=False)
+    review_note = Column(Text, nullable=True)
+    reviewed_by = Column(String(100), nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     classifications = relationship("ClassificationResult", back_populates="mse")

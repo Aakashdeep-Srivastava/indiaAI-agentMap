@@ -57,6 +57,7 @@ class MSEResponse(BaseModel):
     id: int
     udyam_number: str
     name: str
+    status: Optional[str] = None
     description: str
     district: Optional[str]
     state: Optional[str]
@@ -78,6 +79,9 @@ class MSEResponse(BaseModel):
     ondc_awareness: Optional[bool] = None
     wish_snp: Optional[bool] = None
     created_at: datetime
+    # Populated ONLY on account auto-creation at registration (one-time display)
+    login_id: Optional[str] = None
+    temp_passcode: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -110,14 +114,36 @@ def register_mse(
     ):
         if key in data and data[key] == "":
             data[key] = None
-    mse = MSE(**data, consent_given=True, consent_at=datetime.utcnow())
+    mse = MSE(**data, consent_given=True, consent_at=datetime.utcnow(),
+              status="pending_review")
     db.add(mse)
     db.flush()
 
     # Link the enterprise to the signed-in MSE account so classify/match
     # auto-load "your business" — no numeric IDs anywhere in the UX.
+    login_id = temp_passcode = None
     if user and user.role == "mse" and not user.mse_id:
         user.mse_id = mse.id
+    elif not user and payload.email:
+        # Public registration: auto-create the entrepreneur's account so they
+        # can sign in afterwards (username = email, one-time passcode shown once).
+        import secrets
+
+        from services.auth import hash_password
+
+        username = payload.email.strip().lower()
+        if not db.query(User).filter(User.username == username).first():
+            temp_passcode = f"{secrets.randbelow(10**6):06d}"
+            db.add(User(
+                username=username,
+                hashed_password=hash_password(temp_passcode),
+                role="mse",
+                display_name=payload.entrepreneur_name or payload.name,
+                mse_id=mse.id,
+                is_active=True,
+                failed_attempts=0,
+            ))
+            login_id = username
 
     db.add(AuditLog(
         action="mse_registered",
@@ -128,7 +154,10 @@ def register_mse(
     ))
     db.commit()
     db.refresh(mse)
-    return mse
+    resp = MSEResponse.model_validate(mse)
+    resp.login_id = login_id
+    resp.temp_passcode = temp_passcode
+    return resp
 
 
 @router.get("/", response_model=list[MSEResponse])
@@ -144,6 +173,42 @@ def list_mses(
     if state:
         query = query.filter(MSE.state == state)
     return query.offset(skip).limit(limit).all()
+
+
+class ReviewRequest(BaseModel):
+    action: str  # "approve" | "reject"
+    note: Optional[str] = None
+
+
+@router.post("/{mse_id}/review", response_model=MSEResponse)
+def review_mse(
+    mse_id: int,
+    payload: ReviewRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_admin),
+):
+    """NSIC officer confirmation — approve or reject a registration.
+    The AI pipeline is advisory; the official mapping needs this human gate."""
+    if payload.action not in ("approve", "reject"):
+        raise HTTPException(status_code=422, detail="action must be approve or reject")
+    mse = db.query(MSE).get(mse_id)
+    if not mse:
+        raise HTTPException(status_code=404, detail="MSE not found")
+
+    mse.status = "approved" if payload.action == "approve" else "rejected"
+    mse.review_note = payload.note
+    mse.reviewed_by = user.username
+    mse.reviewed_at = datetime.utcnow()
+    db.add(AuditLog(
+        action=f"mse_{mse.status}",
+        entity_type="mse",
+        entity_id=mse.id,
+        details=f"NSIC review: {mse.status}" + (f" — {payload.note}" if payload.note else ""),
+        performed_by=user.username,
+    ))
+    db.commit()
+    db.refresh(mse)
+    return mse
 
 
 class MSESearchItem(BaseModel):
@@ -370,6 +435,8 @@ def erase_mse(
 
     db.query(ClassificationResult).filter(ClassificationResult.mse_id == mse_id).delete()
     db.query(MatchResult).filter(MatchResult.mse_id == mse_id).delete()
+    # Unlink any account pointing at this enterprise (keeps the login itself)
+    db.query(User).filter(User.mse_id == mse_id).update({User.mse_id: None})
     db.delete(mse)
     db.add(AuditLog(
         action="mse_erased",
