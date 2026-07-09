@@ -13,7 +13,7 @@ from services.explainer import generate_explainer
 
 router = APIRouter()
 
-MODEL_VERSION = "heuristic-baseline-v1"
+MODEL_VERSION = "weighted-multifactor-v2"
 
 
 class MatchRequest(BaseModel):

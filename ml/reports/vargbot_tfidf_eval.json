@@ -1,0 +1,169 @@
+{
+  "meta": {
+    "trained": "2026-07-08",
+    "model": "TF-IDF (1-2 grams, 200K feats) + LogisticRegression (balanced)",
+    "corpus": "product_category_pairs.csv \u2014 19.6K labelled product\u2192ONDC-domain pairs",
+    "split": "stratified 80/10/10, seed 20260708",
+    "hyperparam_grid": {
+      "C": {
+        "0.5": 0.9468,
+        "1.0": 0.9497,
+        "2.0": 0.9519
+      },
+      "selected_C": 2.0
+    },
+    "cv_5fold_macro_f1": {
+      "mean": 0.9459,
+      "std": 0.0098
+    },
+    "level": "domain",
+    "n_test": 1966
+  },
+  "test_accuracy": 0.9863,
+  "test_macro_f1": 0.9612,
+  "test_micro_f1": 0.9863,
+  "per_domain": {
+    "RET10": {
+      "precision": 0.917,
+      "recall": 0.863,
+      "f1": 0.889,
+      "support": 51
+    },
+    "RET12": {
+      "precision": 0.997,
+      "recall": 0.995,
+      "f1": 0.996,
+      "support": 1180
+    },
+    "RET13": {
+      "precision": 0.974,
+      "recall": 1.0,
+      "f1": 0.987,
+      "support": 76
+    },
+    "RET14": {
+      "precision": 1.0,
+      "recall": 0.995,
+      "f1": 0.997,
+      "support": 182
+    },
+    "RET16": {
+      "precision": 0.98,
+      "recall": 0.961,
+      "f1": 0.97,
+      "support": 304
+    },
+    "RET17": {
+      "precision": 0.78,
+      "recall": 0.97,
+      "f1": 0.865,
+      "support": 33
+    },
+    "RET1A": {
+      "precision": 0.971,
+      "recall": 1.0,
+      "f1": 0.985,
+      "support": 101
+    },
+    "RET1B": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 39
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "RET10",
+      "RET12",
+      "RET13",
+      "RET14",
+      "RET16",
+      "RET17",
+      "RET1A",
+      "RET1B"
+    ],
+    "matrix": [
+      [
+        44,
+        1,
+        1,
+        0,
+        4,
+        0,
+        1,
+        0
+      ],
+      [
+        2,
+        1174,
+        1,
+        0,
+        2,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        76,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        181,
+        0,
+        0,
+        1,
+        0
+      ],
+      [
+        2,
+        2,
+        0,
+        0,
+        292,
+        8,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        32,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        101,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        39
+      ]
+    ]
+  }
+}

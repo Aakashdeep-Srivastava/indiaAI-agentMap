@@ -1,0 +1,5136 @@
+{
+  "meta": {
+    "evaluated": "2026-07-10",
+    "snps": 281,
+    "queries": 189,
+    "sampling": "stratified by ONDC domain from mse_profiles_5k.csv, seed 20260710",
+    "relevance": "HEURISTIC graded 0-3: domain coverage (exact=2, multi=1) + geo serviceability (state/district=1, pan-India=0.5). Pending expert labels accruing from the NSIC review queue.",
+    "rankers": {
+      "rating-only": "naive floor \u2014 SNPs by rating desc",
+      "heuristic-v1": "previous production scorer (frozen copy)",
+      "multifactor-v2": "live production scorer (apps/api/services/matcher.py)"
+    }
+  },
+  "results": {
+    "rating-only": {
+      "ndcg@3": 0.4252,
+      "mrr": 0.099,
+      "recall@5": 0.0899
+    },
+    "heuristic-v1": {
+      "ndcg@3": 0.659,
+      "mrr": 0.5702,
+      "recall@5": 0.5256
+    },
+    "multifactor-v2": {
+      "ndcg@3": 0.8785,
+      "mrr": 0.6809,
+      "recall@5": 0.7175
+    }
+  },
+  "per_query_top5": [
+    {
+      "mse_id": "MSE-02423",
+      "domain": "RET11",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03573",
+      "domain": "RET18",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0187",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0244",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04000",
+      "domain": "RET11",
+      "state": "Karnataka",
+      "top5": [
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0098",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02144",
+      "domain": "RET10",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02516",
+      "domain": "RET19",
+      "state": "Andhra Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01217",
+      "domain": "RET10",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04943",
+      "domain": "RET1C",
+      "state": "Jharkhand",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03620",
+      "domain": "RET1B",
+      "state": "Haryana",
+      "top5": [
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03128",
+      "domain": "RET17",
+      "state": "Odisha",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03523",
+      "domain": "RET18",
+      "state": "Karnataka",
+      "top5": [
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00997",
+      "domain": "RET16",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03457",
+      "domain": "RET1A",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0029",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04889",
+      "domain": "RET1B",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0028",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04387",
+      "domain": "RET13",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0130",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01005",
+      "domain": "RET19",
+      "state": "Delhi",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01087",
+      "domain": "RET15",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0029",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00286",
+      "domain": "RET14",
+      "state": "Karnataka",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00615",
+      "domain": "RET14",
+      "state": "Assam",
+      "top5": [
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0096",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00045",
+      "domain": "RET11",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02967",
+      "domain": "RET14",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03588",
+      "domain": "RET14",
+      "state": "Chhattisgarh",
+      "top5": [
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0269",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02457",
+      "domain": "RET12",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02247",
+      "domain": "RET1C",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00125",
+      "domain": "RET1C",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01759",
+      "domain": "RET15",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03844",
+      "domain": "RET16",
+      "state": "Chhattisgarh",
+      "top5": [
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02906",
+      "domain": "RET1C",
+      "state": "Kerala",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00034",
+      "domain": "RET14",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04269",
+      "domain": "RET14",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00323",
+      "domain": "RET1A",
+      "state": "Haryana",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04582",
+      "domain": "RET1C",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04904",
+      "domain": "RET1A",
+      "state": "Madhya Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00130",
+      "domain": "RET10",
+      "state": "Jharkhand",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0136",
+          "rel": 2.0
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04113",
+      "domain": "RET1A",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01917",
+      "domain": "RET11",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0268",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00808",
+      "domain": "RET13",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04949",
+      "domain": "RET14",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0234",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01449",
+      "domain": "RET18",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00257",
+      "domain": "RET10",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0130",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02761",
+      "domain": "RET13",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03516",
+      "domain": "RET16",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03594",
+      "domain": "RET19",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04397",
+      "domain": "RET13",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0132",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04354",
+      "domain": "RET16",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0132",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00203",
+      "domain": "RET17",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04250",
+      "domain": "RET11",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0130",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0120",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04090",
+      "domain": "RET12",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04345",
+      "domain": "RET17",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04148",
+      "domain": "RET14",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0269",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03544",
+      "domain": "RET18",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03527",
+      "domain": "RET16",
+      "state": "Odisha",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03340",
+      "domain": "RET1C",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04538",
+      "domain": "RET12",
+      "state": "Madhya Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03926",
+      "domain": "RET1C",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04247",
+      "domain": "RET19",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03287",
+      "domain": "RET1B",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0115",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03080",
+      "domain": "RET16",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04385",
+      "domain": "RET16",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04404",
+      "domain": "RET18",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01616",
+      "domain": "RET1B",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03952",
+      "domain": "RET10",
+      "state": "Jammu And Kashmir",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0136",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01000",
+      "domain": "RET16",
+      "state": "Karnataka",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03900",
+      "domain": "RET12",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04466",
+      "domain": "RET16",
+      "state": "Karnataka",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02533",
+      "domain": "RET1A",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0130",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02480",
+      "domain": "RET1C",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00216",
+      "domain": "RET1C",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03132",
+      "domain": "RET15",
+      "state": "Delhi",
+      "top5": [
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03415",
+      "domain": "RET10",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0137",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0136",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00732",
+      "domain": "RET19",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01525",
+      "domain": "RET1B",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02754",
+      "domain": "RET19",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01983",
+      "domain": "RET15",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0029",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00773",
+      "domain": "RET14",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02536",
+      "domain": "RET19",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03760",
+      "domain": "RET12",
+      "state": "Karnataka",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02495",
+      "domain": "RET1B",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0029",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02492",
+      "domain": "RET10",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0136",
+          "rel": 2.0
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02975",
+      "domain": "RET10",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0136",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02589",
+      "domain": "RET12",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04711",
+      "domain": "RET19",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02996",
+      "domain": "RET13",
+      "state": "Delhi",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0222",
+          "rel": 3.0
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04931",
+      "domain": "RET15",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02512",
+      "domain": "RET16",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0132",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00829",
+      "domain": "RET16",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00702",
+      "domain": "RET18",
+      "state": "Karnataka",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01185",
+      "domain": "RET14",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02340",
+      "domain": "RET15",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0130",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04272",
+      "domain": "RET12",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01723",
+      "domain": "RET1C",
+      "state": "Kerala",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03628",
+      "domain": "RET19",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02773",
+      "domain": "RET18",
+      "state": "Odisha",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01458",
+      "domain": "RET12",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01243",
+      "domain": "RET15",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00017",
+      "domain": "RET12",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02935",
+      "domain": "RET1B",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0130",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02150",
+      "domain": "RET16",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00929",
+      "domain": "RET13",
+      "state": "Nagaland",
+      "top5": [
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00430",
+      "domain": "RET13",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03248",
+      "domain": "RET14",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0096",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04966",
+      "domain": "RET11",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0098",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01652",
+      "domain": "RET17",
+      "state": "Odisha",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01697",
+      "domain": "RET13",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00028",
+      "domain": "RET15",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01064",
+      "domain": "RET18",
+      "state": "Andhra Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01198",
+      "domain": "RET14",
+      "state": "Karnataka",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00999",
+      "domain": "RET11",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01796",
+      "domain": "RET1B",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01281",
+      "domain": "RET18",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00677",
+      "domain": "RET16",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0132",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00168",
+      "domain": "RET15",
+      "state": "Madhya Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0029",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02862",
+      "domain": "RET18",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00785",
+      "domain": "RET1C",
+      "state": "Odisha",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03763",
+      "domain": "RET12",
+      "state": "Delhi",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0146",
+          "rel": 3.0
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04080",
+      "domain": "RET1A",
+      "state": "Manipur",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04171",
+      "domain": "RET10",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0161",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0234",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00431",
+      "domain": "RET17",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00770",
+      "domain": "RET11",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01966",
+      "domain": "RET1A",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04092",
+      "domain": "RET1A",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00184",
+      "domain": "RET14",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0269",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04154",
+      "domain": "RET1A",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03928",
+      "domain": "RET11",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0257",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0148",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0222",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03179",
+      "domain": "RET10",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0136",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03532",
+      "domain": "RET1B",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04854",
+      "domain": "RET18",
+      "state": "Jharkhand",
+      "top5": [
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02326",
+      "domain": "RET1B",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01340",
+      "domain": "RET1B",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00359",
+      "domain": "RET12",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0161",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0132",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04166",
+      "domain": "RET13",
+      "state": "Odisha",
+      "top5": [
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01357",
+      "domain": "RET10",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03929",
+      "domain": "RET1C",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0115",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04349",
+      "domain": "RET17",
+      "state": "Madhya Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02594",
+      "domain": "RET1A",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00039",
+      "domain": "RET11",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0130",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0120",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00583",
+      "domain": "RET1B",
+      "state": "Assam",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0029",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01290",
+      "domain": "RET18",
+      "state": "Jharkhand",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02989",
+      "domain": "RET1A",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04802",
+      "domain": "RET1B",
+      "state": "Jharkhand",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0115",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02759",
+      "domain": "RET19",
+      "state": "Haryana",
+      "top5": [
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03251",
+      "domain": "RET17",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01177",
+      "domain": "RET15",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04276",
+      "domain": "RET11",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0098",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04066",
+      "domain": "RET19",
+      "state": "Telangana",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01050",
+      "domain": "RET16",
+      "state": "Madhya Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0132",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03849",
+      "domain": "RET15",
+      "state": "Jammu And Kashmir",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00834",
+      "domain": "RET1A",
+      "state": "Andhra Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04281",
+      "domain": "RET1B",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04158",
+      "domain": "RET11",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04678",
+      "domain": "RET1C",
+      "state": "Tamil Nadu",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04780",
+      "domain": "RET17",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01020",
+      "domain": "RET13",
+      "state": "Delhi",
+      "top5": [
+        {
+          "snp": "SNP-0187",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0244",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02758",
+      "domain": "RET13",
+      "state": "Assam",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01249",
+      "domain": "RET13",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03331",
+      "domain": "RET12",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03974",
+      "domain": "RET11",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0162",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00745",
+      "domain": "RET19",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03012",
+      "domain": "RET15",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01244",
+      "domain": "RET13",
+      "state": "Jharkhand",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0132",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02562",
+      "domain": "RET19",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01545",
+      "domain": "RET15",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04960",
+      "domain": "RET1C",
+      "state": "Delhi",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00372",
+      "domain": "RET15",
+      "state": "Delhi",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0115",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00454",
+      "domain": "RET17",
+      "state": "Rajasthan",
+      "top5": [
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03882",
+      "domain": "RET10",
+      "state": "Madhya Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0136",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04882",
+      "domain": "RET1B",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01046",
+      "domain": "RET10",
+      "state": "Kerala",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03392",
+      "domain": "RET11",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0268",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00120",
+      "domain": "RET14",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0269",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0096",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01847",
+      "domain": "RET11",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0223",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0186",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0098",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00956",
+      "domain": "RET19",
+      "state": "Kerala",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01518",
+      "domain": "RET12",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04184",
+      "domain": "RET15",
+      "state": "Andhra Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02960",
+      "domain": "RET16",
+      "state": "Punjab",
+      "top5": [
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04536",
+      "domain": "RET1C",
+      "state": "Kerala",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0130",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03056",
+      "domain": "RET12",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0173",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0150",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02857",
+      "domain": "RET10",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03252",
+      "domain": "RET13",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0187",
+          "rel": 2.0
+        },
+        {
+          "snp": "SNP-0238",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01562",
+      "domain": "RET18",
+      "state": "Bihar",
+      "top5": [
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00353",
+      "domain": "RET10",
+      "state": "Delhi",
+      "top5": [
+        {
+          "snp": "SNP-0270",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0136",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0208",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0144",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0146",
+          "rel": 3.0
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02435",
+      "domain": "RET13",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0222",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0272",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0170",
+          "rel": 3.0
+        },
+        {
+          "snp": "SNP-0184",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-03533",
+      "domain": "RET1A",
+      "state": "Gujarat",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0029",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02858",
+      "domain": "RET14",
+      "state": "Manipur",
+      "top5": [
+        {
+          "snp": "SNP-0111",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0099",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0269",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-00113",
+      "domain": "RET17",
+      "state": "Uttar Pradesh",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0209",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04357",
+      "domain": "RET19",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0122",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-02073",
+      "domain": "RET12",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0210",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0203",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0236",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0132",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0255",
+          "rel": 2.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-04252",
+      "domain": "RET1A",
+      "state": "West Bengal",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01304",
+      "domain": "RET1A",
+      "state": "Maharashtra",
+      "top5": [
+        {
+          "snp": "SNP-0143",
+          "rel": 2.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0029",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0035",
+          "rel": 1.5
+        }
+      ]
+    },
+    {
+      "mse_id": "MSE-01402",
+      "domain": "RET17",
+      "state": "Jharkhand",
+      "top5": [
+        {
+          "snp": "SNP-0069",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0031",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0001",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0188",
+          "rel": 1.5
+        },
+        {
+          "snp": "SNP-0206",
+          "rel": 1.5
+        }
+      ]
+    }
+  ]
+}

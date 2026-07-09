@@ -1,9 +1,14 @@
 """VargBot — ONDC domain classification service.
 
-Sovereign classification chain: Sarvam-30B → MuRIL (if loaded) → keyword fallback.
-Supports dual-mode operation:
-  - If VARGBOT_MODEL_DIR points to a valid LoRA adapter, loads MuRIL + LoRA
-  - Otherwise, uses the Sarvam LLM with keyword fallback
+Sovereign classification chain:
+  1. Trained TF-IDF + LogisticRegression domain model (vargbot-tfidf-v1,
+     98.6% held-out accuracy on 19.6K labelled pairs), confidence-gated —
+     when confident, Sarvam-30B only resolves the leaf category + attributes
+     within the predicted domain.
+  2. Sarvam-30B zero-shot over the full 14-domain taxonomy (Indic-language
+     text and domains outside the training corpus).
+  3. MuRIL + LoRA if VARGBOT_MODEL_DIR points to a valid adapter.
+  4. TF-IDF below the confidence gate, then keyword fallback, as last resorts.
 """
 
 import asyncio
@@ -29,6 +34,9 @@ SARVAM_BASE_URL = "https://api.sarvam.ai/v1"
 SARVAM_CHAT_MODEL = os.getenv("SARVAM_CHAT_MODEL", "sarvam-30b")
 
 _engines = []
+if (Path(__file__).resolve().parent.parent / "models" / "vargbot_tfidf_v1.joblib").exists() \
+        or os.getenv("VARGBOT_TFIDF_PATH"):
+    _engines.append("vargbot-tfidf-v1")
 if SARVAM_API_KEY:
     _engines.append(SARVAM_CHAT_MODEL)
 _engines.append("keyword")
@@ -269,10 +277,35 @@ _muril_model = None
 _muril_tokenizer = None
 _use_muril = False
 
+# ── TF-IDF domain classifier state (populated at startup) ────────────
+
+_tfidf_model = None
+# Below this top-1 probability the trained model defers to the LLM chain
+# (Indic-script input and out-of-corpus domains land here by design).
+TFIDF_MIN_CONF = float(os.getenv("VARGBOT_TFIDF_MIN_CONF", "0.60"))
+
 
 def init_classifier():
     """Initialize the classifier — load MuRIL if adapter is available."""
-    global _muril_model, _muril_tokenizer, _use_muril
+    global _muril_model, _muril_tokenizer, _use_muril, _tfidf_model
+
+    tfidf_path = Path(os.getenv(
+        "VARGBOT_TFIDF_PATH",
+        str(Path(__file__).resolve().parent.parent / "models" / "vargbot_tfidf_v1.joblib"),
+    ))
+    if tfidf_path.exists():
+        try:
+            import joblib
+            _tfidf_model = joblib.load(tfidf_path)
+            logger.info(
+                f"VargBot TF-IDF domain model loaded ({tfidf_path.name}, "
+                f"{len(_tfidf_model.classes_)} domains, gate={TFIDF_MIN_CONF})"
+            )
+        except Exception as e:
+            logger.warning(f"Failed to load TF-IDF model: {e}")
+            _tfidf_model = None
+    else:
+        logger.info(f"No TF-IDF artifact at {tfidf_path} — LLM chain only")
 
     model_dir = os.getenv("VARGBOT_MODEL_DIR", "")
     adapter_path = Path(model_dir) / "adapter" if model_dir else None
@@ -415,10 +448,25 @@ _BREVITY_SUFFIX = (
 
 async def _classify_with_sarvam(
     description: str,
+    domain_hint: Optional[tuple[str, str]] = None,
 ) -> Optional[tuple[list[ClassificationPrediction], dict]]:
-    """Classify using the Sarvam chat completion API (sovereign)."""
+    """Classify using the Sarvam chat completion API (sovereign).
+
+    With domain_hint=(code, name), the trained model has already fixed the
+    domain — the LLM only resolves the leaf category and attributes in it.
+    """
     if not SARVAM_API_KEY:
         return None
+
+    user_msg = f"Classify this business:\n\n{description}"
+    if domain_hint:
+        code, name = domain_hint
+        user_msg += (
+            f"\n\nNote: MSMEMate's trained domain classifier has already determined "
+            f"the ONDC domain with high confidence: {code} ({name}). Set your top "
+            f"prediction's domain to {code}, pick the best category_name within "
+            f"{code}, and focus on accurate sectoral attributes."
+        )
 
     try:
         async with httpx.AsyncClient(timeout=40.0) as client:
@@ -434,7 +482,7 @@ async def _classify_with_sarvam(
                     "max_tokens": 4096,
                     "messages": [
                         {"role": "system", "content": _build_classify_prompt() + _BREVITY_SUFFIX},
-                        {"role": "user", "content": f"Classify this business:\n\n{description}"},
+                        {"role": "user", "content": user_msg},
                     ],
                 },
             )
@@ -488,6 +536,32 @@ def _classify_with_muril(description: str) -> list[ClassificationPrediction]:
     ]
 
 
+# ── TF-IDF inference ─────────────────────────────────────────────────
+
+def _classify_with_tfidf(description: str) -> Optional[list[ClassificationPrediction]]:
+    """Top-3 domain predictions from the trained TF-IDF + LogisticRegression
+    model (vargbot-tfidf-v1). Probabilities come straight from the model."""
+    if _tfidf_model is None:
+        return None
+    try:
+        probs = _tfidf_model.predict_proba([description])[0]
+        classes = list(_tfidf_model.classes_)
+        order = sorted(range(len(classes)), key=lambda i: probs[i], reverse=True)[:3]
+        return [
+            ClassificationPrediction(
+                domain=classes[i],
+                confidence=round(float(probs[i]), 4),
+                category=None,
+                category_name=None,
+                explanation=None,
+            )
+            for i in order
+        ]
+    except Exception as e:
+        logger.warning(f"TF-IDF inference failed: {e}")
+        return None
+
+
 # ── Keyword fallback ─────────────────────────────────────────────────
 
 def _classify_with_keywords(description: str) -> list[ClassificationPrediction]:
@@ -527,19 +601,44 @@ async def classify_mse_description_async(
 ) -> tuple[list[ClassificationPrediction], str, dict]:
     """Return (top-3 predictions, engine_name, sectoral attributes).
 
-    Chain: Sarvam-30B → MuRIL (if loaded) → keywords.
+    Chain: TF-IDF (confidence-gated, LLM resolves leaf category) →
+    Sarvam-30B zero-shot → MuRIL (if loaded) → TF-IDF low-conf → keywords.
     """
-    # 1. Try Sarvam (sovereign Indian LLM)
+    _load_taxonomy()
+    tfidf_preds = _classify_with_tfidf(description)
+
+    # 1. Confident trained-model prediction — the domain is decided;
+    #    Sarvam only resolves the leaf category + attributes within it.
+    if tfidf_preds and tfidf_preds[0]["confidence"] >= TFIDF_MIN_CONF:
+        top = tfidf_preds[0]
+        hint = (top["domain"], _domain_names_full.get(top["domain"], top["domain"]))
+        parsed = await _classify_with_sarvam(description, domain_hint=hint)
+        if parsed:
+            llm_preds, attrs = parsed
+            llm_top = next((p for p in llm_preds if p["domain"] == top["domain"]), None)
+            if llm_top:
+                top["category"] = llm_top.get("category")
+                top["category_name"] = llm_top.get("category_name")
+                top["explanation"] = llm_top.get("explanation")
+                return tfidf_preds, "vargbot-tfidf-v1+sarvam-30b", attrs
+        return tfidf_preds, "vargbot-tfidf-v1", {}
+
+    # 2. Sarvam zero-shot over the full taxonomy (Indic text, out-of-corpus domains)
     parsed = await _classify_with_sarvam(description)
     if parsed:
         preds, attrs = parsed
         return preds, "sarvam-llm", attrs
 
-    # 2. Try MuRIL if loaded
+    # 3. MuRIL if loaded
     if _use_muril:
         return _classify_with_muril(description), "muril-lora", {}
 
-    # 3. Keyword fallback
+    # 4. Trained model even below the gate — still better than keywords
+    if tfidf_preds:
+        logger.info("Sarvam unavailable, using TF-IDF below confidence gate")
+        return tfidf_preds, "vargbot-tfidf-v1", {}
+
+    # 5. Keyword fallback
     logger.info("Sarvam unavailable, using keyword fallback")
     return _classify_with_keywords(description), "keyword-fallback", {}
 
@@ -547,13 +646,13 @@ async def classify_mse_description_async(
 def classify_mse_description(description: str, language: str = "en") -> list[Prediction]:
     """Backward-compatible sync wrapper. Returns basic Prediction list.
 
-    Uses MuRIL if loaded, otherwise falls back to keyword mock.
+    Uses MuRIL/TF-IDF if loaded, otherwise falls back to keyword mock.
     Note: Does NOT call LLM engines (use classify_mse_description_async for that).
     """
     if _use_muril:
         preds = _classify_with_muril(description)
     else:
-        preds = _classify_with_keywords(description)
+        preds = _classify_with_tfidf(description) or _classify_with_keywords(description)
 
     # Convert to basic Prediction type for backward compat
     return [Prediction(domain=p["domain"], confidence=p["confidence"]) for p in preds]

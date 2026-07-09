@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "evaluated": "2026-07-08",
+    "system": "VargBot live production classifier (Sarvam-30B chain, zero-shot vs official taxonomy)",
+    "endpoint": "/classify/text",
+    "ground_truth": "product_category_pairs.csv (Flipkart-derived ONDC domain labels)",
+    "sampling": "stratified, up to 40/domain, seed 20260708",
+    "n_scored": 320,
+    "engines_used": {
+      "sarvam-llm": 313,
+      "keyword-fallback": 7
+    },
+    "level": "domain (14-way where represented)"
+  },
+  "accuracy": 0.397,
+  "macro_f1": 0.354,
+  "per_domain": {
+    "RET10": {
+      "precision": 0.177,
+      "recall": 0.625,
+      "f1": 0.276,
+      "support": 40
+    },
+    "RET12": {
+      "precision": 0.545,
+      "recall": 0.9,
+      "f1": 0.679,
+      "support": 40
+    },
+    "RET13": {
+      "precision": 1.0,
+      "recall": 0.2,
+      "f1": 0.333,
+      "support": 40
+    },
+    "RET14": {
+      "precision": 0.627,
+      "recall": 0.8,
+      "f1": 0.703,
+      "support": 40
+    },
+    "RET16": {
+      "precision": 0.3,
+      "recall": 0.225,
+      "f1": 0.257,
+      "support": 40
+    },
+    "RET17": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 40
+    },
+    "RET1A": {
+      "precision": 0.944,
+      "recall": 0.425,
+      "f1": 0.586,
+      "support": 40
+    },
+    "RET1B": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 40
+    }
+  },
+  "confusion": {
+    "RET10": {
+      "RET12": 9,
+      "RET10": 25,
+      "RET16": 6
+    },
+    "RET12": {
+      "RET12": 36,
+      "RET10": 2,
+      "RET11": 1,
+      "RET14": 1
+    },
+    "RET13": {
+      "RET10": 25,
+      "RET13": 8,
+      "RET12": 3,
+      "RET11": 2,
+      "RET14": 2
+    },
+    "RET14": {
+      "RET14": 32,
+      "RET10": 5,
+      "RET12": 3
+    },
+    "RET16": {
+      "RET10": 24,
+      "RET12": 5,
+      "RET16": 9,
+      "RET14": 2
+    },
+    "RET17": {
+      "RET14": 2,
+      "RET10": 29,
+      "RET12": 9
+    },
+    "RET1A": {
+      "RET1A": 17,
+      "RET14": 11,
+      "RET10": 10,
+      "RET12": 1,
+      "RET15": 1
+    },
+    "RET1B": {
+      "RET10": 21,
+      "RET16": 15,
+      "RET14": 1,
+      "RET15": 2,
+      "RET1A": 1
+    }
+  }
+}
