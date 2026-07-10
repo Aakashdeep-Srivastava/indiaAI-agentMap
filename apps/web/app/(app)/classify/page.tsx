@@ -167,7 +167,7 @@ interface HistoryItem {
   created_at: string;
 }
 
-type TabMode = "mse" | "text";
+type TabMode = "mse" | "text" | "import";
 
 /* ─── Inline Components ───────────────────────────────────────────── */
 
@@ -236,10 +236,65 @@ function ConfidenceRing({
   );
 }
 
+/** Minimal expand/collapse row — the page's progressive-disclosure primitive. */
+function Disclosure({
+  title,
+  hint,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-xl border border-surface-100 bg-white">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full cursor-pointer items-center gap-2.5 px-4 py-3 text-left transition-colors hover:bg-surface-50/60"
+      >
+        <motion.span
+          animate={{ rotate: open ? 90 : 0 }}
+          transition={{ duration: 0.18 }}
+          className="flex h-4 w-4 shrink-0 items-center justify-center"
+        >
+          <svg className="h-3 w-3 text-surface-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </motion.span>
+        <span className="text-xs font-semibold text-brand-900">{title}</span>
+        {hint && !open && (
+          <span className="min-w-0 flex-1 truncate text-right text-[11px] text-surface-400">
+            {hint}
+          </span>
+        )}
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-surface-100 px-4 py-3.5">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function ConfidenceDistribution({
   predictions,
+  nameOf,
 }: {
   predictions: PredictionItem[];
+  nameOf?: (code: string) => string;
 }) {
   const colors = ["#E8680C", "#1B4FCC", "#CBD5E1"];
   return (
@@ -268,7 +323,8 @@ function ConfidenceDistribution({
               style={{ backgroundColor: colors[i] }}
             />
             <span className="text-[10px] font-medium text-surface-500">
-              {DOMAIN_NAMES[p.domain] ?? p.domain} {(p.confidence * 100).toFixed(1)}%
+              {(nameOf ?? ((c: string) => DOMAIN_NAMES[c] ?? c))(p.domain)}{" "}
+              {(p.confidence * 100).toFixed(1)}%
             </span>
           </div>
         ))}
@@ -377,12 +433,18 @@ export default function ClassifyPage() {
   const handleClassify = () =>
     tab === "mse" ? classifyByMSE() : classifyByText();
 
+  /** Resolve a domain code to its human name — live taxonomy first, PoC constants second. */
+  const domainName = (code: string) =>
+    domains.find((d) => d.code === code)?.name ?? DOMAIN_NAMES[code] ?? code;
+
   const engineInfo = result?.engine
     ? ENGINE_META[result.engine] ?? LEGACY_ENGINE
     : null;
   const topIcon = result
     ? DOMAIN_ICONS[result.selected_domain] ?? DOMAIN_ICONS.RET10
     : "";
+  const actionItems = result?.compliance?.filter((c) => c.status === "action") ?? [];
+  const doneItems = result?.compliance?.filter((c) => c.status === "done") ?? [];
 
   return (
     <div className="space-y-8">
@@ -435,13 +497,18 @@ export default function ClassifyPage() {
             [
               {
                 key: "text" as TabMode,
-                label: "By Description",
+                label: "Describe",
                 icon: "M4 6h16M4 12h16M4 18h7",
               },
               {
                 key: "mse" as TabMode,
                 label: "My Business",
                 icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z",
+              },
+              {
+                key: "import" as TabMode,
+                label: "Import Products",
+                icon: "M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12",
               },
             ] as const
           ).map((t) => (
@@ -535,63 +602,136 @@ export default function ClassifyPage() {
                   {loading ? "Classifying..." : "Classify MSE"}
                 </button>
 
-                {/* Product catalogue upload — classify the whole catalogue */}
-                <div className="rounded-xl border border-dashed border-surface-300 bg-surface-50/50 p-3.5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold text-brand-900">
-                        Have a product catalogue?
-                      </p>
-                      <p className="text-[10px] leading-snug text-surface-500">
-                        Upload your filled template (.xlsx/.csv) — every product
-                        gets validated & categorised for ONDC.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => catFileRef.current?.click()}
-                      disabled={catUploading || !mseId.trim()}
-                      className="btn-secondary shrink-0 !px-3.5 !py-2 !text-[11px] disabled:opacity-50"
-                    >
-                      {catUploading ? "Processing…" : "Upload"}
-                    </button>
-                  </div>
-                  {catResult && (
-                    <div className="mt-2.5 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
-                      <p className="text-[11px] font-medium text-emerald-800">
-                        {catResult.valid}/{catResult.total} products ONDC-ready
-                        — profile enriched for matching.
-                      </p>
-                      <a href="/catalogue" className="shrink-0 text-[11px] font-semibold text-brand-500 hover:underline">
-                        Full details →
-                      </a>
-                    </div>
-                  )}
-                  <input
-                    ref={catFileRef}
-                    type="file"
-                    accept=".xlsx,.xls,.csv"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const f = e.target.files?.[0];
-                      e.target.value = "";
-                      if (!f || !mseId.trim()) return;
-                      setCatUploading(true);
-                      setCatResult(null);
-                      try {
-                        const fd = new FormData();
-                        fd.append("file", f, f.name);
-                        fd.append("mse_id", mseId.trim());
-                        const res = await apiFetch(`/catalogue/upload`, { method: "POST", body: fd }, 120000);
-                        if (res.ok) {
-                          const d = await res.json();
-                          setCatResult({ total: d.total_rows, valid: d.valid_rows });
-                        }
-                      } finally {
-                        setCatUploading(false);
-                      }
-                    }}
-                  />
+                {/* Nudge toward the Import tab for bulk product data */}
+                <button
+                  onClick={() => setTab("import")}
+                  className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-dashed border-surface-300 bg-surface-50/50 px-3.5 py-2.5 text-left transition-colors hover:border-brand-500/40 hover:bg-brand-50/30"
+                >
+                  <span className="text-[11px] font-medium text-surface-500">
+                    Have a product list or catalogue file? Import it — every
+                    product gets categorised.
+                  </span>
+                  <svg className="h-3.5 w-3.5 shrink-0 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </motion.div>
+            ) : tab === "import" ? (
+              <motion.div
+                key="import"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-surface-400">
+                    Which business is this for?
+                  </label>
+                  <MSEPicker onSelect={(m) => setMseId(String(m.id))} />
                 </div>
+
+                {/* Dropzone */}
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Upload product catalogue file"
+                  onClick={() => mseId.trim() && catFileRef.current?.click()}
+                  onKeyDown={(e) => e.key === "Enter" && mseId.trim() && catFileRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    const f = e.dataTransfer.files?.[0];
+                    if (f && catFileRef.current) {
+                      const dt = new DataTransfer();
+                      dt.items.add(f);
+                      catFileRef.current.files = dt.files;
+                      catFileRef.current.dispatchEvent(new Event("change", { bubbles: true }));
+                    }
+                  }}
+                  className={`flex flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed px-6 py-9 text-center transition-colors ${
+                    mseId.trim()
+                      ? "cursor-pointer border-brand-500/30 bg-brand-50/20 hover:border-brand-500/60 hover:bg-brand-50/40"
+                      : "cursor-not-allowed border-surface-200 bg-surface-50/50 opacity-60"
+                  }`}
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-500/10">
+                    {catUploading ? (
+                      <svg className="h-5 w-5 animate-spin text-brand-500" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      <svg className="h-5 w-5 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-brand-900">
+                      {catUploading
+                        ? "Reading your products…"
+                        : "Drop your product file here, or click to browse"}
+                    </p>
+                    <p className="mt-1 text-[11px] text-surface-500">
+                      Excel or CSV — the list you already keep works. Every
+                      product is validated &amp; mapped to ONDC categories.
+                    </p>
+                  </div>
+                  {!mseId.trim() && (
+                    <p className="text-[11px] font-medium text-saffron-600">
+                      Pick your business above first
+                    </p>
+                  )}
+                </div>
+
+                {catResult && (
+                  <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                    <p className="text-xs font-medium text-emerald-800">
+                      {catResult.valid}/{catResult.total} products ONDC-ready —
+                      profile enriched for matching.
+                    </p>
+                    <a href="/catalogue" className="shrink-0 text-xs font-semibold text-brand-500 hover:underline">
+                      Full details →
+                    </a>
+                  </div>
+                )}
+
+                <input
+                  ref={catFileRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const f = e.target.files?.[0];
+                    e.target.value = "";
+                    if (!f || !mseId.trim()) return;
+                    setCatUploading(true);
+                    setCatResult(null);
+                    try {
+                      const fd = new FormData();
+                      fd.append("file", f, f.name);
+                      fd.append("mse_id", mseId.trim());
+                      const res = await apiFetch(`/catalogue/upload`, { method: "POST", body: fd }, 120000);
+                      if (res.ok) {
+                        const d = await res.json();
+                        setCatResult({ total: d.total_rows, valid: d.valid_rows });
+                      }
+                    } finally {
+                      setCatUploading(false);
+                    }
+                  }}
+                />
+
+                <p className="text-center text-[11px] leading-relaxed text-surface-400">
+                  Udyam certificate, GST or PAN documents? Sathi reads those
+                  during{" "}
+                  <a href="/register" className="font-semibold text-brand-500 hover:underline">
+                    registration
+                  </a>{" "}
+                  — voice, photo or PDF.
+                </p>
               </motion.div>
             ) : (
               <motion.div
@@ -633,7 +773,7 @@ export default function ClassifyPage() {
                       className="input-field min-h-[100px] resize-y"
                       rows={4}
                     />
-                    <div className="flex flex-col justify-end pb-1">
+                    <div className="flex flex-col items-center justify-end gap-1 pb-1">
                       <VoiceInput
                         language={language}
                         fieldLabel="Business Description"
@@ -643,6 +783,9 @@ export default function ClassifyPage() {
                           )
                         }
                       />
+                      <span className="text-[10px] font-medium text-surface-400">
+                        बोलिए
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -746,32 +889,32 @@ export default function ClassifyPage() {
             </svg>
           </div>
           <h3 className="font-display text-xl font-bold text-brand-900">
-            Ready to Classify
+            Tell VargBot what you make or sell
           </h3>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-surface-500">
-            Enter a business description or MSE ID above. VargBot will classify
-            it into the appropriate ONDC retail domain and subcategory using
-            AI-powered analysis.
+            Type it, speak it, or import your product list — VargBot places
+            your business in the right ONDC category so the right seller
+            platforms can find you.
           </p>
-          <div className="mx-auto mt-6 flex flex-wrap items-center justify-center gap-2">
-            {Object.entries(DOMAIN_NAMES).map(([code, name]) => (
-              <span
-                key={code}
-                className="inline-flex items-center gap-1.5 rounded-full border border-surface-200 bg-white px-3 py-1 text-[11px] font-medium text-surface-500"
+          <div className="mx-auto mt-6 flex max-w-lg flex-wrap items-center justify-center gap-2">
+            <span className="w-full text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+              Try an example
+            </span>
+            {[
+              "We produce pure silk sarees with traditional Banarasi weaving",
+              "हम मुरादाबाद में पीतल के दीये और मूर्तियाँ बनाते हैं",
+              "Organic honey and herbal wellness products from Uttarakhand",
+            ].map((ex) => (
+              <button
+                key={ex}
+                onClick={() => {
+                  setTab("text");
+                  setDescription(ex);
+                }}
+                className="cursor-pointer rounded-full border border-surface-200 bg-white px-3.5 py-1.5 text-[11px] font-medium text-surface-500 transition-colors hover:border-brand-500/40 hover:bg-brand-50/40 hover:text-brand-900"
               >
-                <svg
-                  className="h-3 w-3 text-surface-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d={DOMAIN_ICONS[code]} />
-                </svg>
-                {name}
-              </span>
+                {ex}
+              </button>
             ))}
           </div>
         </motion.div>
@@ -944,8 +1087,7 @@ export default function ClassifyPage() {
                           {result.selected_domain}
                         </span>
                         <h2 className="font-display text-xl font-extrabold text-brand-900">
-                          {DOMAIN_NAMES[result.selected_domain] ??
-                            result.selected_domain}
+                          {domainName(result.selected_domain)}
                         </h2>
                       </div>
                     </div>
@@ -980,7 +1122,10 @@ export default function ClassifyPage() {
 
                     {/* Confidence distribution */}
                     <div className="mt-4">
-                      <ConfidenceDistribution predictions={result.top3} />
+                      <ConfidenceDistribution
+                        predictions={result.top3}
+                        nameOf={domainName}
+                      />
                     </div>
                   </div>
                 </div>
@@ -1012,7 +1157,7 @@ export default function ClassifyPage() {
                   <div key={pred.domain} className="space-y-2">
                     <DomainPredictionCard
                       domain={pred.domain}
-                      domainName={DOMAIN_NAMES[pred.domain] ?? pred.domain}
+                      domainName={domainName(pred.domain)}
                       confidence={pred.confidence}
                       rank={i + 1}
                       isSelected={i === 0}
@@ -1064,7 +1209,7 @@ export default function ClassifyPage() {
                       </svg>
                     </div>
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-surface-500">
-                      AI Reasoning
+                      Why this classification
                     </span>
                     {engineInfo && (
                       <span
@@ -1102,57 +1247,23 @@ export default function ClassifyPage() {
                   )}
                 </div>
               </div>
-              <div className="p-5">
+              <div className="space-y-3 p-5">
+                {/* The one-line verdict, always visible */}
                 <p className="text-sm leading-relaxed text-surface-600">
                   {result.explanation ??
                     DOMAIN_EXPLAINERS[result.selected_domain]?.[
                       explainerLang
                     ] ??
-                    `Classified under ${
-                      DOMAIN_NAMES[result.selected_domain] ??
-                      result.selected_domain
-                    }.`}
+                    `Classified under ${domainName(result.selected_domain)}.`}
                 </p>
 
-                {/* Category detail row */}
-                {result.selected_category_name && (
-                  <div className="mt-4 flex items-center gap-3 rounded-xl border border-surface-100 bg-surface-50/50 px-4 py-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-saffron-500/10">
-                      <svg
-                        className="h-4 w-4 text-saffron-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
-                        Subcategory
-                      </span>
-                      <p className="text-sm font-semibold text-brand-900">
-                        {result.selected_category_name}
-                        {result.selected_category && (
-                          <span className="ml-2 font-mono text-[11px] font-normal text-surface-400">
-                            {result.selected_category}
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Sectoral attributes (PS2: attribute extraction) */}
+                {/* Everything else opens on demand */}
                 {result.attributes && Object.keys(result.attributes).length > 0 && (
-                  <div className="mt-4 border-t border-surface-100 pt-4">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
-                      Sectoral Attributes
-                    </span>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
+                  <Disclosure
+                    title="What VargBot understood about your products"
+                    hint={Object.values(result.attributes).slice(0, 3).join(" · ")}
+                  >
+                    <div className="flex flex-wrap gap-1.5">
                       {Object.entries(result.attributes).map(([k, v]) => (
                         <span
                           key={k}
@@ -1165,76 +1276,145 @@ export default function ClassifyPage() {
                         </span>
                       ))}
                     </div>
-                  </div>
+                  </Disclosure>
                 )}
 
-                {/* ONDC readiness checklist (PS2: compliance validation) */}
-                {result.compliance && result.compliance.length > 0 && (
-                  <div className="mt-4 border-t border-surface-100 pt-4">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
-                      ONDC Readiness Checklist
-                    </span>
-                    <div className="mt-2 space-y-1.5">
-                      {result.compliance.map((c) => (
-                        <div key={c.name} className="flex items-start gap-2.5">
-                          {c.status === "done" ? (
-                            <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          ) : (
-                            <svg className="mt-0.5 h-3.5 w-3.5 shrink-0 text-saffron-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                              <circle cx="12" cy="12" r="10" />
-                              <line x1="12" y1="8" x2="12" y2="12" />
-                              <line x1="12" y1="16" x2="12.01" y2="16" />
-                            </svg>
-                          )}
-                          <p className="text-xs leading-snug text-surface-500">
-                            <span className={`font-semibold ${c.status === "done" ? "text-emerald-700" : "text-brand-900"}`}>
-                              {c.name}
-                            </span>{" "}
-                            — {c.note}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Per-prediction explanations */}
                 {result.top3.some((p) => p.explanation) && (
-                  <div className="mt-4 space-y-2 border-t border-surface-100 pt-4">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
-                      Per-Prediction Reasoning
-                    </span>
-                    {result.top3.map(
-                      (pred, i) =>
-                        pred.explanation && (
-                          <div
-                            key={pred.domain}
-                            className="flex items-start gap-2"
-                          >
-                            <span
-                              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white ${
-                                i === 0
-                                  ? "bg-saffron-500"
-                                  : i === 1
-                                    ? "bg-brand-500"
-                                    : "bg-surface-400"
-                              }`}
-                            >
-                              {i + 1}
-                            </span>
-                            <p className="text-xs leading-relaxed text-surface-500">
-                              <span className="font-semibold text-surface-600">
-                                {DOMAIN_NAMES[pred.domain] ?? pred.domain}:
-                              </span>{" "}
-                              {pred.explanation}
-                            </p>
-                          </div>
-                        )
-                    )}
-                  </div>
+                  <Disclosure
+                    title="Why not the other categories?"
+                    hint={`${result.top3.filter((p) => p.explanation).length} alternatives considered`}
+                  >
+                    <div className="space-y-2.5">
+                      {result.top3.map(
+                        (pred, i) =>
+                          pred.explanation && (
+                            <div key={pred.domain} className="flex items-start gap-2">
+                              <span
+                                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white ${
+                                  i === 0
+                                    ? "bg-saffron-500"
+                                    : i === 1
+                                      ? "bg-brand-500"
+                                      : "bg-surface-400"
+                                }`}
+                              >
+                                {i + 1}
+                              </span>
+                              <p className="text-xs leading-relaxed text-surface-500">
+                                <span className="font-semibold text-surface-600">
+                                  {domainName(pred.domain)}:
+                                </span>{" "}
+                                {pred.explanation}
+                              </p>
+                            </div>
+                          )
+                      )}
+                    </div>
+                  </Disclosure>
                 )}
+              </div>
+            </motion.div>
+
+            {/* ── Your ONDC Journey — what happened, what's next ────── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.32 }}
+              className="glass-card overflow-hidden"
+            >
+              <div className="border-b border-surface-100 bg-surface-50/40 px-5 py-3">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-surface-500">
+                  Your ONDC Journey
+                </span>
+              </div>
+              <div className="p-5">
+                <ol className="relative space-y-0 border-l-2 border-surface-100 pl-6 [&>li]:relative [&>li]:pb-6 last:[&>li]:pb-0">
+                  {/* Step: classified (done) */}
+                  <li>
+                    <span className="absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 ring-4 ring-white">
+                      <svg className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
+                    <p className="text-sm font-semibold text-brand-900">
+                      Your business is classified for ONDC
+                    </p>
+                    <p className="mt-0.5 text-xs text-surface-500">
+                      {domainName(result.selected_domain)}
+                      {result.selected_category_name &&
+                        ` · ${result.selected_category_name}`}{" "}
+                      — seller platforms now know exactly where your products
+                      belong.
+                    </p>
+                  </li>
+
+                  {/* Steps: readiness items already in place */}
+                  {doneItems.length > 0 && (
+                    <li>
+                      <span className="absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 ring-4 ring-white">
+                        <svg className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </span>
+                      <p className="text-sm font-semibold text-brand-900">
+                        Already in place
+                      </p>
+                      <p className="mt-0.5 text-xs text-surface-500">
+                        {doneItems.map((c) => c.name).join(" · ")}
+                      </p>
+                    </li>
+                  )}
+
+                  {/* Steps: what to arrange next */}
+                  {actionItems.map((c) => (
+                    <li key={c.name}>
+                      <span className="absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full border-2 border-saffron-500 bg-white ring-4 ring-white">
+                        <span className="h-1.5 w-1.5 rounded-full bg-saffron-500" />
+                      </span>
+                      <p className="text-sm font-semibold text-brand-900">{c.name}</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-surface-500">
+                        {c.note}
+                      </p>
+                    </li>
+                  ))}
+
+                  {/* Step: matching (next) */}
+                  <li>
+                    <span className="absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full bg-brand-500 ring-4 ring-white">
+                      <svg className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </span>
+                    <p className="text-sm font-semibold text-brand-900">
+                      Next: find your seller platform
+                    </p>
+                    <p className="mt-0.5 text-xs text-surface-500">
+                      JodakAI ranks {""}
+                      ONDC seller platforms that fit your category, district and
+                      language — with reasons you can read.
+                    </p>
+                    {mseId ? (
+                      <a
+                        href={`/match?mseId=${mseId}`}
+                        className="btn-saffron mt-3 inline-flex !px-4 !py-2 !text-xs"
+                      >
+                        Find my matches
+                        <svg className="ml-1.5 h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                          <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <button
+                        onClick={() => setTab("mse")}
+                        className="btn-secondary mt-3 inline-flex !px-4 !py-2 !text-xs"
+                      >
+                        Classify my registered business to unlock matching
+                      </button>
+                    )}
+                  </li>
+                </ol>
               </div>
             </motion.div>
 
@@ -1292,34 +1472,6 @@ export default function ClassifyPage() {
               </motion.div>
             )}
 
-            {/* ── Continue to Matching CTA ──────────────────────────── */}
-            {tab === "mse" && mseId && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.45 }}
-                className="flex justify-center pt-2"
-              >
-                <a
-                  href={`/match?mseId=${mseId}`}
-                  className="btn-saffron inline-flex"
-                >
-                  Continue to Matching
-                  <svg
-                    className="ml-1.5 h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </a>
-              </motion.div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>
