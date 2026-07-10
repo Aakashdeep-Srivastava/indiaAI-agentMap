@@ -242,6 +242,30 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 - **Fallback engines:** Sarvam primary (paid billing) + neutral-named secondary engines
   for demo reliability only; never fake Sarvam labels on fallback output.
 
+### DONE (2026-07-10 — classification model + matching algorithm completed)
+- **VargBot trained model in serving** — TF-IDF + LogisticRegression domain
+  classifier (ml/train_vargbot_tfidf.py) on the 19.6K labelled pairs:
+  stratified 80/10/10, 5-fold CV 0.946±0.010, held-out 98.6% acc / 0.961
+  macro-F1 (ml/reports/vargbot_tfidf_eval.json). Artifact ships in the API
+  (apps/api/models/, 4.1 MB); confidence-gated primary engine
+  (VARGBOT_TFIDF_MIN_CONF, default 0.60) — Sarvam-30B resolves leaf category
+  + attributes within the predicted domain, and handles Indic text /
+  out-of-corpus domains zero-shot. Engines: vargbot-tfidf-v1+sarvam-30b /
+  vargbot-tfidf-v1 / sarvam-llm / keyword-fallback (honest stamps).
+  Zero-shot before-evidence: 39.7% domain acc (vargbot_domain_eval.json).
+  Corpus covers 8/14 domains (Flipkart) — gate handles the rest.
+- **JodakAI weighted-multifactor-v2** — real-registry aware: RET-MULTI
+  multi-category SNPs (0.85), undisclosed domain lists 101/281 (0.3),
+  "Pan India" spelling; rating Bayesian-shrunk toward network prior 4.0
+  (cold-start explore); capacity + onboarding-speed blend from
+  apps/api/data/snp_capacity.json (synthetic-disclosed). Ranking eval
+  (ml/evaluation/eval_jodakai_ranking.py, heuristic relevance pending
+  NSIC-queue expert labels): NDCG@3 0.659→0.879, MRR 0.570→0.681,
+  Recall@5 0.526→0.718 vs frozen v1 (jodakai_ranking_eval.json).
+- snp_transaction_history.csv sellers (MEPMA/WowGeni) do NOT join to the 281
+  registry SNPs by name — used as network-prior evidence only.
+- requirements.txt: + scikit-learn==1.9.0, joblib==1.5.3.
+
 ### DONE (2026-07-08 session 2 — all deployed + verified live)
 - **TEAM-form alignment** — registration mirrors the official NSIC form: entrepreneur
   name, email, address, org type, major activity, PAN/GST, B2B/B2C, prev-FY turnover,
