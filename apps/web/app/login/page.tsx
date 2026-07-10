@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Store, ShieldCheck, LogIn, KeyRound, User } from "lucide-react";
-import { getSession, login, type Role } from "@/lib/auth";
+import { apiFetch, getSession, login, type Role } from "@/lib/auth";
 
 /** Demo usernames shown as a hint — passcodes are issued separately (never shipped in the bundle). */
 const DEMO_IDS: Record<Role, string> = { mse: "mse@msmemate.com", admin: "nsic@msmemate.com" };
@@ -45,7 +45,7 @@ export default function LoginPage() {
   /* Already signed in? Straight to the app. */
   useEffect(() => {
     const s = getSession();
-    if (s) router.replace(s.role === "admin" ? "/review" : "/register");
+    if (s) router.replace(s.role === "admin" ? "/review" : "/classify");
   }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -58,7 +58,15 @@ export default function LoginPage() {
     setBusy(true);
     try {
       const session = await login(userId, passcode);
-      router.replace(session.role === "admin" ? "/review" : "/register");
+      if (session.role === "admin") {
+        router.replace("/review");
+      } else {
+        // Registered business? Continue the journey at Classify; else Register.
+        const me = await apiFetch(`/auth/me`)
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null);
+        router.replace(me?.mse_id ? "/classify" : "/register");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign-in failed. Please try again.");
       setBusy(false);

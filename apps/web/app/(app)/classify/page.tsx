@@ -84,6 +84,16 @@ const ENGINE_META: Record<
     desc: "Sovereign language understanding",
     classes: "bg-amber-50 text-amber-700 border-amber-200",
   },
+  "vargbot-tfidf-v1+sarvam-30b": {
+    label: "VargBot Trained Model + AI",
+    desc: "Trained taxonomy classifier; AI resolves the category detail",
+    classes: "bg-violet-50 text-violet-700 border-violet-200",
+  },
+  "vargbot-tfidf-v1": {
+    label: "VargBot Trained Model",
+    desc: "Trained taxonomy classifier",
+    classes: "bg-violet-50 text-violet-700 border-violet-200",
+  },
   "muril-lora": {
     label: "VargBot Classifier",
     desc: "Fine-tuned taxonomy model",
@@ -275,6 +285,9 @@ export default function ClassifyPage() {
 
   const [tab, setTab] = useState<TabMode>("text");
   const [mseId, setMseId] = useState("");
+  const catFileRef = useRef<HTMLInputElement>(null);
+  const [catUploading, setCatUploading] = useState(false);
+  const [catResult, setCatResult] = useState<{ total: number; valid: number } | null>(null);
   const [description, setDescription] = useState("");
   const [language, setLanguage] = useState("en");
 
@@ -521,6 +534,64 @@ export default function ClassifyPage() {
                   )}
                   {loading ? "Classifying..." : "Classify MSE"}
                 </button>
+
+                {/* Product catalogue upload — classify the whole catalogue */}
+                <div className="rounded-xl border border-dashed border-surface-300 bg-surface-50/50 p-3.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-brand-900">
+                        Have a product catalogue?
+                      </p>
+                      <p className="text-[10px] leading-snug text-surface-500">
+                        Upload your filled template (.xlsx/.csv) — every product
+                        gets validated & categorised for ONDC.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => catFileRef.current?.click()}
+                      disabled={catUploading || !mseId.trim()}
+                      className="btn-secondary shrink-0 !px-3.5 !py-2 !text-[11px] disabled:opacity-50"
+                    >
+                      {catUploading ? "Processing…" : "Upload"}
+                    </button>
+                  </div>
+                  {catResult && (
+                    <div className="mt-2.5 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
+                      <p className="text-[11px] font-medium text-emerald-800">
+                        {catResult.valid}/{catResult.total} products ONDC-ready
+                        — profile enriched for matching.
+                      </p>
+                      <a href="/catalogue" className="shrink-0 text-[11px] font-semibold text-brand-500 hover:underline">
+                        Full details →
+                      </a>
+                    </div>
+                  )}
+                  <input
+                    ref={catFileRef}
+                    type="file"
+                    accept=".xlsx,.xls,.csv"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!f || !mseId.trim()) return;
+                      setCatUploading(true);
+                      setCatResult(null);
+                      try {
+                        const fd = new FormData();
+                        fd.append("file", f, f.name);
+                        fd.append("mse_id", mseId.trim());
+                        const res = await apiFetch(`/catalogue/upload`, { method: "POST", body: fd }, 120000);
+                        if (res.ok) {
+                          const d = await res.json();
+                          setCatResult({ total: d.total_rows, valid: d.valid_rows });
+                        }
+                      } finally {
+                        setCatUploading(false);
+                      }
+                    }}
+                  />
+                </div>
               </motion.div>
             ) : (
               <motion.div

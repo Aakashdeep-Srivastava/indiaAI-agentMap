@@ -495,6 +495,12 @@ export default function SathiVoicePanel({
     setMicStatus({ kind: "waiting" });
 
     silenceCheckRef.current = setInterval(() => {
+      // Hard cap first — even if the analyser failed to initialise, a
+      // forgotten mic must still stop and transcribe.
+      if (Date.now() - recordStartRef.current > MAX_RECORD_MS) {
+        stopRecording();
+        return;
+      }
       if (!analyserRef.current) return;
 
       // Time-domain RMS — reliable across noise-suppressed mics.
@@ -660,12 +666,24 @@ export default function SathiVoicePanel({
       const missingFields = getMissingFields(form as unknown as Record<string, string>);
       fd.append("field_hint", missingFields.length > 0 ? missingFields.join(",") : "general");
 
-      const res = await apiFetch(`/stt/transcribe`, {
+      let res = await apiFetch(`/stt/transcribe`, {
         method: "POST",
         body: fd,
-      }, 240000);
+      }, 240000).catch(() => null);
+      if (!res || !res.ok) {
+        // One automatic retry — covers a brief server restart or blip
+        // without losing the user's recording.
+        await new Promise((r) => setTimeout(r, 2500));
+        res = await apiFetch(`/stt/transcribe`, { method: "POST", body: fd }, 240000);
+      }
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        let detail = "";
+        try {
+          detail = (await res.json())?.detail ?? "";
+        } catch { /* non-JSON error body */ }
+        throw new Error(detail || `server responded ${res.status}`);
+      }
       const data = await res.json();
       const text = (data.text || "").trim();
 
@@ -685,11 +703,13 @@ export default function SathiVoicePanel({
         setOrbPhase("idle");
         setCurrentQuestion("I couldn't catch that. Could you try again?");
       }
-    } catch {
+    } catch (e) {
       setProcessing(false);
       setOrbPhase("idle");
       setCurrentQuestion(
-        "Voice service unavailable. Please try again.",
+        e instanceof Error && e.message
+          ? `Voice issue: ${e.message} — tap the orb to try again.`
+          : "Voice service unavailable. Please try again.",
       );
     }
   }
@@ -1183,6 +1203,38 @@ export default function SathiVoicePanel({
                   </motion.p>
                 )}
               </AnimatePresence>
+
+              {/* Still-needed fields — just speak them, Sathi fills the rest */}
+              {!recording && !processing && !confirming && !complete &&
+                filledCount > 0 && filledCount < TOTAL_FIELDS && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="max-w-sm text-center"
+                >
+                  <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                    Still needed — tap the orb and just say these · बस बोल दीजिए
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    {getMissingFields(form as unknown as Record<string, string>).map(
+                      (label) => (
+                        <button
+                          key={label}
+                          onClick={() => {
+                            currentFieldRef.current = fieldToKey(label);
+                            const q = FIELD_QUESTIONS[fieldToKey(label)] || `What's your ${label}?`;
+                            setCurrentQuestion(q);
+                            speak(q);
+                          }}
+                          className="rounded-full border border-saffron-400/40 bg-saffron-500/5 px-2.5 py-1 text-[11px] font-medium capitalize text-saffron-600 transition-colors hover:bg-saffron-500/10"
+                        >
+                          {label}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </motion.div>
+              )}
 
               {/* Live transcript — shown while listening or just finished */}
               <LiveTranscript
