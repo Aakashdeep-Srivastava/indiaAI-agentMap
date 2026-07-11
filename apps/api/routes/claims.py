@@ -229,7 +229,7 @@ def decide_claim(
         raise HTTPException(409, f"claim already {claim.status}")
 
     claim.status = "approved" if body.decision == "approve" else "flagged"
-    claim.decided_by = user.email
+    claim.decided_by = user.username
     claim.decided_at = datetime.utcnow()
     claim.decision_note = body.note
 
@@ -242,7 +242,7 @@ def decide_claim(
             "decision": body.decision,
             "note": body.note or "",
         }),
-        performed_by=user.email,
+        performed_by=user.username,
         created_at=datetime.utcnow(),
     ))
     db.commit()
