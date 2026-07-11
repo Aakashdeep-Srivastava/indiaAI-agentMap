@@ -79,8 +79,13 @@ export default function AppSidebar({
     router.replace("/login");
   }
 
+  /* Logged-in owners are already registered — Register is only for visitors */
+  const journeySteps = session
+    ? JOURNEY.filter((s) => s.href !== "/register")
+    : JOURNEY;
+
   /* Which journey step is active? */
-  const activeJourneyIndex = JOURNEY.findIndex((s) =>
+  const activeJourneyIndex = journeySteps.findIndex((s) =>
     pathname.startsWith(s.href),
   );
 
@@ -168,7 +173,7 @@ export default function AppSidebar({
               Journey
             </span>
             <nav className="space-y-1">
-              {JOURNEY.map((step, i) => {
+              {journeySteps.map((step, i) => {
                 const state = getStepState(i, activeJourneyIndex);
                 const Icon = step.icon;
                 return (
