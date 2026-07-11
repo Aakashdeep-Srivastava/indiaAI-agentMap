@@ -114,6 +114,12 @@ const LEGACY_ENGINE: { label: string; desc: string; classes: string } = {
 
 const PIPELINE_STAGES = ["Language Analysis", "Taxonomy Mapping", "Confidence Check"];
 
+const EXAMPLES = [
+  "We produce pure silk sarees with traditional Banarasi weaving",
+  "हम मुरादाबाद में पीतल के दीये और मूर्तियाँ बनाते हैं",
+  "Organic honey and herbal wellness products from Uttarakhand",
+];
+
 /* ─── Types ───────────────────────────────────────────────────────── */
 
 interface PredictionItem {
@@ -356,8 +362,19 @@ export default function ClassifyPage() {
   const [error, setError] = useState<string | null>(null);
   const [explainerLang, setExplainerLang] = useState<"en" | "hi">("en");
 
+  /* Deep-links: sidebar quick actions land on a specific input mode via ?tab= */
   useEffect(() => {
+    const tabParam = searchParams.get("tab");
     const paramId = searchParams.get("mseId");
+    if (tabParam === "import") {
+      setTab("import");
+      if (paramId) setMseId(paramId);
+      return;
+    }
+    if (tabParam === "describe") {
+      setTab("text");
+      return;
+    }
     if (paramId && !autoTriggered.current) {
       autoTriggered.current = true;
       setMseId(paramId);
@@ -447,17 +464,17 @@ export default function ClassifyPage() {
   const doneItems = result?.compliance?.filter((c) => c.status === "done") ?? [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* ═══ Page Header ══════════════════════════════════════════════ */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-start justify-between gap-4"
+        className="flex items-center justify-between gap-4"
       >
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-900 shadow-lg shadow-brand-900/20">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-900 shadow-lg shadow-brand-900/20">
             <svg
-              className="h-6 w-6 text-white"
+              className="h-5 w-5 text-white"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -471,11 +488,11 @@ export default function ClassifyPage() {
             </svg>
           </div>
           <div>
-            <h1 className="font-display text-2xl font-extrabold tracking-tight text-brand-900">
+            <h1 className="font-display text-xl font-extrabold tracking-tight text-brand-900">
               VargBot
             </h1>
-            <p className="text-sm text-surface-500">
-              ONDC Taxonomy Classification Engine
+            <p className="text-xs text-surface-500 sm:text-[13px]">
+              Puts your business in the right ONDC category
             </p>
           </div>
         </div>
@@ -491,8 +508,8 @@ export default function ClassifyPage() {
         transition={{ delay: 0.05 }}
         className="glass-card overflow-hidden"
       >
-        {/* Tab switcher */}
-        <div className="flex border-b border-surface-100">
+        {/* Tab switcher — segmented control */}
+        <div className="flex gap-1 rounded-xl bg-surface-100/80 p-1 m-3 mb-0">
           {(
             [
               {
@@ -515,14 +532,15 @@ export default function ClassifyPage() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex flex-1 items-center justify-center gap-2 px-5 py-3.5 text-sm font-medium transition-all ${
+              aria-pressed={tab === t.key}
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold transition-all sm:gap-2 sm:text-sm ${
                 tab === t.key
-                  ? "border-b-2 border-brand-500 bg-brand-50/30 text-brand-900"
-                  : "text-surface-400 hover:bg-surface-50 hover:text-surface-600"
+                  ? "bg-white text-brand-900 shadow-sm"
+                  : "text-surface-500 hover:text-surface-700"
               }`}
             >
               <svg
-                className="h-4 w-4"
+                className={`h-4 w-4 shrink-0 ${tab === t.key ? "text-brand-500" : ""}`}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -532,12 +550,12 @@ export default function ClassifyPage() {
               >
                 <path d={t.icon} />
               </svg>
-              {t.label}
+              <span className="truncate">{t.label}</span>
             </button>
           ))}
         </div>
 
-        <div className="p-5 sm:p-6">
+        <div className="p-4 sm:p-5">
           <AnimatePresence mode="wait">
             {tab === "mse" ? (
               <motion.div
@@ -650,7 +668,7 @@ export default function ClassifyPage() {
                       catFileRef.current.dispatchEvent(new Event("change", { bubbles: true }));
                     }
                   }}
-                  className={`flex flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed px-6 py-9 text-center transition-colors ${
+                  className={`flex flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed px-6 py-7 text-center transition-colors ${
                     mseId.trim()
                       ? "cursor-pointer border-brand-500/30 bg-brand-50/20 hover:border-brand-500/60 hover:bg-brand-50/40"
                       : "cursor-not-allowed border-surface-200 bg-surface-50/50 opacity-60"
@@ -740,55 +758,67 @@ export default function ClassifyPage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.2 }}
-                className="space-y-4"
+                className="space-y-3"
               >
-                <div>
-                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-surface-400">
-                    Language
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-surface-400">
+                    What does your business sell?
                   </label>
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="input-field"
+                    aria-label="Language"
+                    className="cursor-pointer rounded-lg border border-surface-200 bg-white px-2.5 py-1.5 text-xs font-medium text-surface-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/10"
                   >
                     <option value="en">English</option>
-                    <option value="hi">Hindi</option>
-                    <option value="hi-en">Hindi-English (Code-mixed)</option>
-                    <option value="ta">Tamil</option>
-                    <option value="te">Telugu</option>
-                    <option value="bn">Bengali</option>
-                    <option value="mr">Marathi</option>
-                    <option value="gu">Gujarati</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="hi-en">Hinglish</option>
+                    <option value="ta">தமிழ்</option>
+                    <option value="te">తెలుగు</option>
+                    <option value="bn">বাংলা</option>
+                    <option value="mr">मराठी</option>
+                    <option value="gu">ગુજરાતી</option>
                   </select>
                 </div>
-                <div>
-                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-surface-400">
-                    Business Description
-                  </label>
-                  <div className="flex gap-2">
-                    <textarea
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Describe the MSE's business... (e.g. 'We sell rice, dal, spices, and grocery items to local customers')"
-                      className="input-field min-h-[100px] resize-y"
-                      rows={4}
+                <div className="relative">
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="e.g. 'We sell rice, dal, spices, and grocery items to local customers'"
+                    className="input-field min-h-[96px] resize-y pr-16"
+                    rows={3}
+                  />
+                  <div className="absolute bottom-2.5 right-2.5 flex flex-col items-center">
+                    <VoiceInput
+                      language={language}
+                      fieldLabel="Business Description"
+                      onTranscribe={(text) =>
+                        setDescription((prev) =>
+                          prev ? prev + " " + text : text
+                        )
+                      }
                     />
-                    <div className="flex flex-col items-center justify-end gap-1 pb-1">
-                      <VoiceInput
-                        language={language}
-                        fieldLabel="Business Description"
-                        onTranscribe={(text) =>
-                          setDescription((prev) =>
-                            prev ? prev + " " + text : text
-                          )
-                        }
-                      />
-                      <span className="text-[10px] font-medium text-surface-400">
-                        बोलिए
-                      </span>
-                    </div>
+                    <span className="mt-0.5 text-[10px] font-medium text-surface-400">
+                      बोलिए
+                    </span>
                   </div>
                 </div>
+                {!description.trim() && (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                      Try:
+                    </span>
+                    {EXAMPLES.map((ex) => (
+                      <button
+                        key={ex}
+                        onClick={() => setDescription(ex)}
+                        className="max-w-full cursor-pointer truncate rounded-full border border-surface-200 bg-white px-3 py-1 text-[11px] font-medium text-surface-500 transition-colors hover:border-brand-500/40 hover:bg-brand-50/40 hover:text-brand-900"
+                      >
+                        {ex}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <button
                   onClick={handleClassify}
                   disabled={loading || !description.trim()}
@@ -865,56 +895,84 @@ export default function ClassifyPage() {
         )}
       </AnimatePresence>
 
-      {/* ═══ Empty State ══════════════════════════════════════════════ */}
+      {/* ═══ How it works (empty state) ═══════════════════════════════ */}
       {!result && !loading && !error && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="glass-card py-16 text-center"
+          className="glass-card p-5 sm:p-6"
         >
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-500/10 to-saffron-500/10">
-            <svg
-              className="h-9 w-9 text-brand-500"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
-            </svg>
-          </div>
-          <h3 className="font-display text-xl font-bold text-brand-900">
-            Tell VargBot what you make or sell
-          </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-surface-500">
-            Type it, speak it, or import your product list — VargBot places
-            your business in the right ONDC category so the right seller
-            platforms can find you.
-          </p>
-          <div className="mx-auto mt-6 flex max-w-lg flex-wrap items-center justify-center gap-2">
-            <span className="w-full text-[10px] font-semibold uppercase tracking-wider text-surface-400">
-              Try an example
-            </span>
+          <div className="grid gap-5 sm:grid-cols-3 sm:gap-4">
             {[
-              "We produce pure silk sarees with traditional Banarasi weaving",
-              "हम मुरादाबाद में पीतल के दीये और मूर्तियाँ बनाते हैं",
-              "Organic honey and herbal wellness products from Uttarakhand",
-            ].map((ex) => (
-              <button
-                key={ex}
-                onClick={() => {
-                  setTab("text");
-                  setDescription(ex);
-                }}
-                className="cursor-pointer rounded-full border border-surface-200 bg-white px-3.5 py-1.5 text-[11px] font-medium text-surface-500 transition-colors hover:border-brand-500/40 hover:bg-brand-50/40 hover:text-brand-900"
+              {
+                step: "1",
+                title: "Tell us what you sell",
+                desc: "Type it, speak it in your language, or import your product list.",
+                icon: "M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4",
+                accent: "bg-saffron-500/10 text-saffron-500",
+              },
+              {
+                step: "2",
+                title: "Get your ONDC category",
+                desc: "VargBot places your business where buyers and platforms look for it.",
+                icon: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
+                accent: "bg-brand-500/10 text-brand-500",
+              },
+              {
+                step: "3",
+                title: "Meet your seller platform",
+                desc: "JodakAI ranks ONDC platforms that fit your products and district.",
+                icon: "M17 3a2.85 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z",
+                accent: "bg-emerald-500/10 text-emerald-600",
+              },
+            ].map((s, i) => (
+              <motion.div
+                key={s.step}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + i * 0.1 }}
+                className="relative flex items-start gap-3"
               >
-                {ex}
-              </button>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${s.accent}`}>
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d={s.icon} />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1.5 text-sm font-bold text-brand-900">
+                    <span className="font-mono text-[10px] text-surface-400">
+                      {s.step}
+                    </span>
+                    {s.title}
+                  </p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-surface-500">
+                    {s.desc}
+                  </p>
+                </div>
+                {/* Connector arrow between steps (desktop) */}
+                {i < 2 && (
+                  <svg
+                    className="absolute -right-3 top-3 hidden h-3.5 w-3.5 text-surface-300 sm:block"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                )}
+              </motion.div>
             ))}
           </div>
         </motion.div>
@@ -925,7 +983,7 @@ export default function ClassifyPage() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-card py-14"
+          className="glass-card py-10"
         >
           <div className="flex flex-col items-center gap-6">
             <div className="relative">
@@ -1000,7 +1058,7 @@ export default function ClassifyPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="space-y-6"
+            className="space-y-5"
           >
             {/* MSE info bar */}
             {mseInfo && (
@@ -1061,7 +1119,7 @@ export default function ClassifyPage() {
               {/* Saffron accent top border */}
               <div className="h-1 bg-gradient-to-r from-brand-500 via-saffron-500 to-saffron-400" />
 
-              <div className="p-6">
+              <div className="p-5">
                 <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
                   {/* Confidence Ring */}
                   <ConfidenceRing score={result.confidence} />
