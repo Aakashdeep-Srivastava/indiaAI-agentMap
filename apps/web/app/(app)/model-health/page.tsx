@@ -114,6 +114,10 @@ const DOMAIN_BADGE: Record<DomainRow["status"], { cls: string; dot: string; labe
 const pct = (v: number | null | undefined) =>
   v == null ? "—" : `${(v * 100).toFixed(v * 100 >= 10 ? 0 : 1)}%`;
 
+/** Reproduction notebook — NSIC-facing only, not linked from public pages */
+const COLAB_PLAYGROUND =
+  "https://colab.research.google.com/github/Aakashdeep-Srivastava/indiaAI-agentMap/blob/main/notebooks/vargbot_playground.ipynb";
+
 const weekLabel = (iso: string) =>
   new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 
@@ -473,10 +477,23 @@ export default function ModelHealthPage() {
                   </tbody>
                 </table>
               </div>
-              <p className="mt-2 text-[11px] text-surface-400">
-                Real-only acc excludes template-generated evaluation rows (the conservative
-                number). Archived versions stay deployable for instant rollback.
-              </p>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[11px] text-surface-400">
+                  Real-only acc excludes template-generated evaluation rows (the conservative
+                  number). Archived versions stay deployable for instant rollback.
+                </p>
+                <a
+                  href={COLAB_PLAYGROUND}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-surface-200 px-3 py-1.5 text-[11px] font-semibold text-surface-600 transition-colors hover:border-brand-200 hover:text-brand-600"
+                >
+                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Reproduce in Colab — full training + every metric
+                </a>
+              </div>
             </div>
           )}
 
