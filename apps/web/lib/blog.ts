@@ -32,9 +32,14 @@ export interface BlogPost {
   keywords: string[];
   hindiTagline: string;
   tldr: string;
+  /** "Open in Colab" URL — rendered as a badge in the post header */
+  colab?: string;
   sections: BlogSection[];
   faq: BlogFaq[];
 }
+
+export const COLAB_PLAYGROUND =
+  "https://colab.research.google.com/github/Aakashdeep-Srivastava/indiaAI-agentMap/blob/main/notebooks/vargbot_playground.ipynb";
 
 export const BLOG_POSTS: BlogPost[] = [
   {
@@ -389,6 +394,7 @@ BLOG_POSTS.push({
 
 BLOG_POSTS.push({
   slug: "how-vargbot-classifies-your-business",
+  colab: COLAB_PLAYGROUND,
   title: "Inside VargBot: How MSMEMate's AI Puts Your Business in the Right ONDC Category",
   metaTitle: "Inside VargBot — MSMEMate's ONDC Classification AI",
   description:
@@ -546,6 +552,7 @@ BLOG_POSTS.push({
 
 BLOG_POSTS.push({
   slug: "mlops-honest-ai-lifecycle",
+  colab: COLAB_PLAYGROUND,
   title: "The MLOps Playbook Behind MSMEMate: How We Ship Honest AI",
   metaTitle: "MLOps for Sovereign AI — MSMEMate's Honest ML Lifecycle",
   description:

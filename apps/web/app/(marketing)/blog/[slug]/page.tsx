@@ -130,6 +130,19 @@ export default async function BlogPostPage({
           })}{" "}
           · {post.readMinutes} min read
         </p>
+        {post.colab && (
+          <a
+            href={post.colab}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-saffron-400/50 bg-saffron-500/5 px-4 py-2 text-xs font-semibold text-saffron-600 transition-colors hover:bg-saffron-500/10"
+          >
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Open in Google Colab — train this model yourself, on our real data
+          </a>
+        )}
       </header>
 
       {/* TL;DR — the direct answer, first thing on the page */}
