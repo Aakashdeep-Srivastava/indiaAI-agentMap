@@ -242,6 +242,25 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 - **Fallback engines:** Sarvam primary (paid billing) + neutral-named secondary engines
   for demo reliability only; never fake Sarvam labels on fallback output.
 
+### DONE (2026-07-11/12 — VargBot v2 + Model Health monitor, deployed + verified)
+- **VargBot v2 in serving** — 14/14 ONDC domains (v1: 8). Corpus v2 33.5K
+  (scripts/build_training_corpus_v2.py): Flipkart 17K + MEPMA real seller
+  products 7.6K + real-derived MSE Hinglish profiles 4.7K + synthetic
+  gap-fillers 4.1K (RET15/17/18/19/1C/1D only). TF-IDF word+char union →
+  balanced LogReg: CV macro-F1 0.984±0.001, held-out 98.9%/0.987;
+  real-products-only 98.5%/0.957 (honest number — template twins disclosed).
+  Gate 0.55 (calibration table in ml/reports/vargbot_tfidf_v2_eval.json);
+  engine stamp vargbot-tfidf-v2 derived from artifact filename. Live-verified
+  on all 6 new domains incl. Hinglish (RET1C cement 0.9988, RET1D, RET19,
+  RET11, RET15, RET18).
+- **Model Health monitor** — GET /model-health/ (admin-only) + /model-health
+  Oversight page: weekly confidence trend (avg+p25), engine-mix drift,
+  officer override signals, per-domain drift vs frozen baseline
+  (apps/api/data/vargbot_baseline_eval.json = v2 eval), red/amber alerts
+  (MONITOR_FALLBACK_ALERT/OVERRIDE_ALERT env-tunable).
+- Landing hero: 3-image rotation + mobile portrait crops; mobile polish
+  (navbar hamburger menu, Sathi orb/header fixes).
+
 ### DONE (2026-07-10 — classification model + matching algorithm completed)
 - **VargBot trained model in serving** — TF-IDF + LogisticRegression domain
   classifier (ml/train_vargbot_tfidf.py) on the 19.6K labelled pairs:
