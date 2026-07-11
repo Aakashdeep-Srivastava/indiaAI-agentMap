@@ -65,7 +65,7 @@ export function logout() {
 }
 
 /** Routes only NSIC administrators may open (UI hint — server enforces too). */
-export const ADMIN_ONLY = ["/review", "/audit", "/allocate", "/claims"];
+export const ADMIN_ONLY = ["/review", "/audit", "/allocate", "/claims", "/model-health"];
 
 export function canAccess(session: Session | null, pathname: string): boolean {
   if (!session) return false;

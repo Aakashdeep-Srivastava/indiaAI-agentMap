@@ -19,6 +19,7 @@ from routes.audit import router as audit_router
 from routes.ner import router as ner_router
 from routes.catalogue import router as catalogue_router
 from routes.claims import router as claims_router
+from routes.model_health import router as model_health_router
 from services.auth import get_current_user, require_admin
 from services.classifier import init_classifier
 from services.ratelimit import rate_limit_middleware
@@ -82,3 +83,4 @@ app.include_router(catalogue_router, prefix="/catalogue", tags=["Catalogue"], de
 # ── Admin only (NSIC oversight) ─────────────────────────────────────────
 app.include_router(audit_router, prefix="/audit", tags=["Audit"], dependencies=admin_only)
 app.include_router(claims_router, prefix="/claims", tags=["Claims"], dependencies=admin_only)
+app.include_router(model_health_router, prefix="/model-health", tags=["Model Health"], dependencies=admin_only)
