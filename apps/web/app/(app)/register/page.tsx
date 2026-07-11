@@ -544,7 +544,9 @@ export default function RegisterPage() {
            hamburger's line — the layout reserves pt-16 for the fixed button).
            The panel wrapper has no fixed height: it hugs its content, so no
            dead space between the field chips and the form card below. ─── */}
-      <div className="lg:hidden space-y-4 -mt-12">
+      {/* !-mt-12: the layout's space-y-6 sibling selector outspecifies a plain
+           -mt-12, so the pull-up needs the important modifier to render */}
+      <div className="lg:hidden space-y-4 !-mt-12">
         <div>
           <SathiVoicePanel
             form={form}
