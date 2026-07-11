@@ -230,11 +230,11 @@ export default function MarketingLayout({
             {/* Logo + copyright */}
             <div className="flex items-center gap-2.5">
               <Image
-                src="/logo.png"
-                alt="MSMEMate"
+                src="/logo-mark.png"
+                alt="MSMEMate — two entrepreneurs joining hands"
                 width={24}
                 height={24}
-                className="h-6 w-6"
+                className="h-6 w-6 rounded-md"
               />
               <span className="text-xs text-surface-400">
                 &copy; 2026 MSMEMate &middot; Made by Xphora AI Technology Pvt

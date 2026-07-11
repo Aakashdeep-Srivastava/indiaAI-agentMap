@@ -51,14 +51,12 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
           <Image
-            src="/logo.png"
-            alt="MSMEMate"
+            src="/logo-mark.png"
+            alt="MSMEMate — two entrepreneurs joining hands"
             width={32}
             height={32}
-            className={`h-8 w-8 ${
-              light
-                ? ""
-                : "invert brightness-200 drop-shadow-[0_0_10px_rgba(255,169,66,0.5)]"
+            className={`h-8 w-8 rounded-lg ${
+              light ? "" : "drop-shadow-[0_0_10px_rgba(255,169,66,0.45)]"
             }`}
           />
           <span
