@@ -284,6 +284,106 @@ export const BLOG_POSTS: BlogPost[] = [
   },
 ];
 
+BLOG_POSTS.push({
+  slug: "msme-team-initiative-explained",
+  title: "The MSME TEAM Initiative, Explained: ₹277 Crore to Put 5 Lakh MSEs on ONDC",
+  metaTitle: "MSME TEAM Initiative Explained — ONDC for 5 Lakh MSEs",
+  description:
+    "What the MSME TEAM scheme is, who qualifies, what seller apps are paid to onboard you, and how to register free — the government push behind ONDC for small businesses.",
+  datePublished: "2026-07-11",
+  dateModified: "2026-07-11",
+  readMinutes: 8,
+  keywords: [
+    "MSME TEAM initiative",
+    "TEAM scheme ONDC",
+    "team.msmemart.com",
+    "MSE onboarding scheme",
+    "RAMP scheme MSME",
+    "SNP incentives",
+  ],
+  hindiTagline: "MSME TEAM योजना — आसान भाषा में पूरी जानकारी।",
+  tldr:
+    "The MSME TEAM (Trade Enablement and Marketing) Initiative is a ₹277.35 crore Government of India scheme (2024–27, under the World Bank-supported RAMP programme) to bring 5 lakh Micro and Small Enterprises onto ONDC — half of them women-owned. It was launched on 27 June 2024, is implemented by NSIC with ONDC as technical partner, and registration is free for MSEs at team.msmemart.com. Seller apps (SNPs), not MSEs, receive the milestone incentives for onboarding you — so a genuine SNP should never charge you a registration fee.",
+  sections: [
+    {
+      heading: "What the TEAM Initiative is",
+      paragraphs: [
+        "TEAM stands for Trade Enablement and Marketing. It is a sub-scheme of RAMP (Raising and Accelerating MSME Performance), the Ministry of MSME's World Bank-supported programme, with an outlay of ₹277.35 crore across FY 2024-25 to FY 2026-27. It was launched on 27 June 2024 — International MSME Day — by the Union Minister for MSME.",
+        "The goal is direct: digitally empower 5 lakh Micro and Small Enterprises by getting them selling on ONDC, with 2.5 lakh of those being women-owned enterprises, and a special focus on Tier-2/3 cities and SC/ST clusters. The National Small Industries Corporation (NSIC) implements the scheme, and ONDC is the technical partner.",
+      ],
+    },
+    {
+      heading: "Who is eligible",
+      paragraphs: ["The scheme's eligibility gates are specific — check these before anything else:"],
+      list: [
+        "Micro or Small enterprises only — Medium enterprises are not covered.",
+        "Major activity must be Manufacturing or Services — pure Trading businesses do not qualify.",
+        "A valid Udyam registration is required (free at udyamregistration.gov.in).",
+        "The business must not already be selling on ONDC, and must not have taken a similar Central or State ONDC benefit.",
+        "One seller app (SNP) per MSE — you may switch your SNP only once.",
+      ],
+    },
+    {
+      heading: "Who gets paid — and why that protects you",
+      paragraphs: [
+        "The scheme's incentives go to the Seller Network Participants — the ONDC seller apps that onboard you — not to the MSE. Per the scheme guidelines, an SNP can earn per onboarded MSE: ₹450 for digital marketing tied to your onboarding, catalogue-creation support of ₹50 per SKU (up to 50 SKUs for B2C) or ₹125 per SKU (up to 20 SKUs for B2B) capped at ₹2,500, account-management support up to ₹5,000 linked to your actual transactions, plus logistics subsidies of ₹50 per B2C order (₹200 B2B) for your first 10 orders, and packaging support through the Indian Institute of Packaging.",
+        "Read that structure carefully and one thing becomes clear: the government is paying seller apps to onboard you properly. So if anyone charges you money 'to register you on ONDC under a government scheme', that is a red flag — MSE registration on the TEAM portal (team.msmemart.com) is free.",
+      ],
+    },
+    {
+      heading: "How claims are verified — and where AI comes in",
+      paragraphs: [
+        "Before an SNP is paid, NSIC verifies each claim: that your Udyam registration is valid, that your enterprise is Micro/Small in Manufacturing or Services, that your catalogue is actually live on the ONDC network with the claimed number of SKUs, and that no other seller app has already claimed you. Today much of this checking is manual — the IndiaAI Innovation Challenge 2026 explicitly names 'labour-intensive claim verification by NSIC' as a problem to solve.",
+        "That is the layer MSMEMate is built for on the officer side: automated claim checks against scheme rules, risk-scoring so officers review by exception, and dashboards tracking progress toward the 5-lakh target with women-owned and state-wise drill-downs — with every AI decision explainable and every final call made by a human officer.",
+      ],
+    },
+    {
+      heading: "How to get started as an MSE",
+      paragraphs: ["Four steps take you from nothing to selling on the network:"],
+      steps: [
+        {
+          title: "Get your free Udyam registration",
+          detail: "At udyamregistration.gov.in with your Aadhaar — it is paperless and free. This is the scheme's anchor document.",
+        },
+        {
+          title: "Register for onboarding",
+          detail: "The official portal is team.msmemart.com. On MSMEMate, registration mirrors the official TEAM form — but voice-first, in your language, with your Udyam certificate read automatically.",
+        },
+        {
+          title: "Get classified and matched",
+          detail: "Your products are placed into ONDC's category taxonomy, and you are matched with seller apps that fit your category, district and language — the same mapping the scheme intends, done with explainable AI.",
+        },
+        {
+          title: "Go live and start selling",
+          detail: "Your chosen SNP builds your ONDC catalogue (the scheme pays them for it), your products go live on the network, and buyers on every connected app can order from you.",
+        },
+      ],
+    },
+  ],
+  faq: [
+    {
+      q: "Does the TEAM scheme give money directly to MSEs?",
+      a: "No. The milestone incentives — onboarding, catalogue, account management, logistics — are paid to the Seller Network Participants who onboard you. Your benefit is free, supported onboarding onto ONDC, plus subsidised logistics and packaging support in your early orders.",
+    },
+    {
+      q: "Is registration under the TEAM Initiative free for my business?",
+      a: "Yes. MSE registration on the official portal (team.msmemart.com) is free, and MSMEMate's onboarding is free too. Treat anyone demanding a fee to 'register you under the government scheme' as a warning sign.",
+    },
+    {
+      q: "My business is a trading firm. Can I join?",
+      a: "Not under TEAM — the scheme covers Micro and Small enterprises whose major activity is Manufacturing or Services. Trading businesses can still sell on ONDC directly through a seller app, just without the TEAM incentive support.",
+    },
+    {
+      q: "Can I work with two seller apps at once under the scheme?",
+      a: "No. Only one SNP can claim incentives for your enterprise, and you may switch your SNP only once. Choosing the right seller app first matters — which is exactly what MSMEMate's matching is designed to get right.",
+    },
+    {
+      q: "What happens if a seller app files a false claim about my business?",
+      a: "Claims are verified by NSIC against Udyam validity, your catalogue's live status on ONDC and the scheme's caps; false information invites legal action under the scheme's terms. AI-assisted verification — the officer side of MSMEMate — makes such checks faster and harder to game.",
+    },
+  ],
+});
+
 export function getPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((p) => p.slug === slug);
 }

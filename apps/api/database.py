@@ -219,6 +219,32 @@ class AuditLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+# ── SNP incentive claims (MSME TEAM scheme) ──────────────────────────
+
+class SNPClaim(Base):
+    __tablename__ = "snp_claims"
+
+    id = Column(Integer, primary_key=True)
+    claim_ref = Column(String(40), unique=True, nullable=False)
+    claim_type = Column(String(20), nullable=False)   # onboarding | catalogue
+    channel = Column(String(5), default="B2C")        # B2C | B2B
+    mse_id = Column(Integer, ForeignKey("mses.id"), nullable=False)
+    snp_id = Column(Integer, ForeignKey("snps.id"), nullable=False)
+    sku_count = Column(Integer, default=0)
+    claimed_amount = Column(Integer, nullable=False)
+    # Provenance — demo rows are stamped, a future TEAM-portal feed uses its own tag
+    source = Column(String(40), default="simulated-claims-demo", nullable=False)
+    status = Column(String(20), default="pending", nullable=False)  # pending | approved | flagged
+    decided_by = Column(String(100), nullable=True)
+    decided_at = Column(DateTime, nullable=True)
+    decision_note = Column(Text, nullable=True)
+    submitted_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    mse = relationship("MSE")
+    snp = relationship("SNP")
+
+
 # ── Dependency injection ──────────────────────────────────────────────
 
 def get_db():

@@ -32,6 +32,7 @@ const JOURNEY = [
 const OVERSIGHT = [
   { label: "Review Queue", desc: "Approve registrations", href: "/review", icon: ClipboardList },
   { label: "SNP Allocation", desc: "Official mapping", href: "/allocate", icon: GitMerge },
+  { label: "Claims Copilot", desc: "TEAM incentive claims", href: "/claims", icon: ShieldCheck },
   { label: "Audit Trail", desc: "Every AI decision", href: "/audit", icon: Shield },
 ] as const;
 
