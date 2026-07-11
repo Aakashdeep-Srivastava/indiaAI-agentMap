@@ -540,8 +540,9 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* ─── Mobile: stacked ─── */}
-      <div className="lg:hidden space-y-4">
+      {/* ─── Mobile: stacked (pulled up so the Sathi header shares the
+           hamburger's line — the layout reserves pt-16 for the fixed button) ─── */}
+      <div className="lg:hidden space-y-4 -mt-12">
         <div className="h-[72vh] min-h-[520px]">
           <SathiVoicePanel
             form={form}

@@ -946,7 +946,8 @@ export default function SathiVoicePanel({
         </motion.div>
       )}
       {/* ─── Header ─── */}
-      <div className="flex items-center justify-between px-3 py-2">
+      {/* pl-14 clears the app layout's fixed mobile hamburger (top-4 left-4) */}
+      <div className="flex items-center justify-between py-2 pr-3 pl-14 lg:pl-3">
         <div className="flex items-center gap-2">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-saffron-400 to-saffron-500">
             <svg

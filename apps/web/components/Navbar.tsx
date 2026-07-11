@@ -4,10 +4,21 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
+
+const NAV_ITEMS = [
+  { label: "Platform", href: "/match" },
+  { label: "Classify", href: "/classify" },
+  { label: "Register", href: "/register" },
+  { label: "Blog", href: "/blog" },
+  { label: "Solutions", href: "/#solutions" },
+  { label: "About", href: "/#about" },
+];
 
 export default function Navbar() {
   const [visible, setVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [lastY, setLastY] = useState(0);
   const pathname = usePathname();
   /* The landing page opens on a dark hero; inner marketing pages sit on a
@@ -79,14 +90,7 @@ export default function Navbar() {
 
         {/* Center nav */}
         <nav className="hidden items-center gap-1 md:flex">
-          {[
-            { label: "Platform", href: "/match" },
-            { label: "Classify", href: "/classify" },
-            { label: "Register", href: "/register" },
-            { label: "Blog", href: "/blog" },
-            { label: "Solutions", href: "/#solutions" },
-            { label: "About", href: "/#about" },
-          ].map((item) => (
+          {NAV_ITEMS.map((item) => (
             <Link
               key={item.label}
               href={item.href}
@@ -103,6 +107,19 @@ export default function Navbar() {
 
         {/* Right actions */}
         <div className="flex items-center gap-2">
+          {/* Mobile menu toggle — the center nav is hidden below md */}
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors md:hidden ${
+              light
+                ? "text-surface-600 hover:bg-surface-100"
+                : "text-white/80 hover:bg-white/10"
+            }`}
+          >
+            {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
           <Link
             href="/login"
             className={`whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold transition-colors sm:px-4 ${
@@ -121,6 +138,32 @@ export default function Navbar() {
           </Link>
         </div>
       </div>
+
+      {/* Mobile dropdown — solid panel so it stays readable over the hero */}
+      {menuOpen && (
+        <nav
+          className={`mx-auto mt-2 max-w-7xl rounded-2xl border p-2 shadow-lg backdrop-blur-2xl md:hidden ${
+            light
+              ? "border-surface-200 bg-white/95"
+              : "border-white/10 bg-brand-900/95"
+          }`}
+        >
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              onClick={() => setMenuOpen(false)}
+              className={`block rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                light
+                  ? "text-surface-600 hover:bg-surface-100 hover:text-brand-900"
+                  : "text-white/80 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }
