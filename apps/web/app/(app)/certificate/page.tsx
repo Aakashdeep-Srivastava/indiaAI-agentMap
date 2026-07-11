@@ -87,7 +87,13 @@ function CertificateInner() {
 
           <div className="px-10 py-8 text-center">
             <div className="flex items-center justify-center gap-3">
-              <Image src="/logo.png" alt="MSMEMate" width={46} height={46} />
+              <Image
+                src="/logo-mark.png"
+                alt="MSMEMate"
+                width={46}
+                height={46}
+                className="rounded-lg"
+              />
               <div className="text-left leading-tight">
                 <p className="font-display text-lg font-bold text-brand-900">
                   MSME<span className="text-brand-500">Mate</span>

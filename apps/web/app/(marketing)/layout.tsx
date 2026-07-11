@@ -19,7 +19,7 @@ const SITE_JSON_LD = [
       availableLanguage: ["en", "hi"],
     },
     url: "https://www.msmemate.com",
-    logo: "https://www.msmemate.com/logo.png",
+    logo: "https://www.msmemate.com/icon-512.png",
     slogan: "Bridging Bharat's Businesses",
     description:
       "AI-native onboarding platform that takes India's MSMEs from Udyam registration to selling on ONDC — voice-first, multilingual, DPDP-compliant.",

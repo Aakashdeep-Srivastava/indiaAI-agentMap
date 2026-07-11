@@ -62,7 +62,7 @@ export default async function BlogPostPage({
         name: "MSMEMate",
         logo: {
           "@type": "ImageObject",
-          url: "https://www.msmemate.com/logo.png",
+          url: "https://www.msmemate.com/icon-512.png",
         },
       },
       mainEntityOfPage: `https://www.msmemate.com/blog/${post.slug}`,

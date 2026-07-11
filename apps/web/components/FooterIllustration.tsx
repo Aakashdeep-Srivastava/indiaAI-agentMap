@@ -63,11 +63,11 @@ export default function FooterIllustration() {
             {/* CENTER — Animated Logo (big) */}
             <div className="flex flex-col items-center self-center footer-logo-animate px-2 sm:px-6">
               <Image
-                src="/logo.png"
-                alt="MSMEMate"
+                src="/logo-mark.png"
+                alt="MSMEMate — two entrepreneurs joining hands"
                 width={200}
                 height={200}
-                className="h-24 w-24 sm:h-32 sm:w-32 md:h-44 md:w-44 lg:h-52 lg:w-52 drop-shadow-xl"
+                className="h-24 w-24 rounded-2xl sm:h-32 sm:w-32 md:h-44 md:w-44 lg:h-52 lg:w-52 drop-shadow-xl"
                 priority
               />
             </div>

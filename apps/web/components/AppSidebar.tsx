@@ -118,11 +118,11 @@ export default function AppSidebar({
         <div className={`flex h-14 shrink-0 items-center border-b border-surface-100 ${collapsed ? "justify-center px-2 lg:flex-col lg:h-auto lg:gap-1 lg:py-2" : "justify-between px-5"}`}>
           <Link href="/" className="flex items-center gap-2.5">
             <Image
-              src="/logo.png"
-              alt="MSMEMate"
+              src="/logo-mark.png"
+              alt="MSMEMate — two entrepreneurs joining hands"
               width={28}
               height={28}
-              className="h-7 w-7"
+              className="h-7 w-7 rounded-md"
             />
             {!collapsed && (
               <span className="font-display text-sm font-bold tracking-tight text-brand-900">

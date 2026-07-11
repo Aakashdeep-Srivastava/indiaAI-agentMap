@@ -86,8 +86,8 @@ export default function LoginPage() {
       <div className="relative flex flex-col justify-between bg-brand-900 px-10 py-12 lg:w-[44%]">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/logo.png"
-            alt="MSMEMate"
+            src="/logo-mark.png"
+            alt="MSMEMate — two entrepreneurs joining hands"
             width={40}
             height={40}
             className="rounded-lg"

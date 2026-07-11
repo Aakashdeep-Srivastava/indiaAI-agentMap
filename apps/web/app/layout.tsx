@@ -54,21 +54,24 @@ export const metadata: Metadata = {
     title: "MSMEMate — Bridging Bharat's Businesses",
     description:
       "Voice-first AI onboarding that takes India's MSMEs from Udyam registration to selling on ONDC — in their own language.",
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: "MSMEMate logo" }],
+    images: [
+      { url: "/icon-512.png", width: 512, height: 512, alt: "MSMEMate logo" },
+    ],
   },
   twitter: {
     card: "summary",
     title: "MSMEMate — Bridging Bharat's Businesses",
     description:
       "Voice-first AI onboarding that takes India's MSMEs from Udyam registration to selling on ONDC — in their own language.",
-    images: ["/logo.png"],
+    images: ["/icon-512.png"],
   },
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
-  icons: { icon: "/logo.png", apple: "/icon-192.png" },
+  /* Favicon + apple-touch-icon come from app/icon.png and app/apple-icon.png
+   * (Next.js file conventions) — regenerate via scripts/generate-icons.mjs */
   category: "business",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
