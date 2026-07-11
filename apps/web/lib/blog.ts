@@ -384,6 +384,87 @@ BLOG_POSTS.push({
   ],
 });
 
+BLOG_POSTS.push({
+  slug: "how-vargbot-classifies-your-business",
+  title: "Inside VargBot: How MSMEMate's AI Puts Your Business in the Right ONDC Category",
+  metaTitle: "Inside VargBot — MSMEMate's ONDC Classification AI",
+  description:
+    "How MSMEMate classifies businesses into ONDC categories: a trained model with confidence gating, sovereign language AI for Indian languages, and a human in the loop.",
+  datePublished: "2026-07-11",
+  dateModified: "2026-07-11",
+  readMinutes: 7,
+  keywords: [
+    "ONDC classification AI",
+    "MSME classification model",
+    "sovereign AI India",
+    "explainable AI government",
+    "VargBot",
+    "ONDC taxonomy",
+  ],
+  hindiTagline: "VargBot कैसे काम करता है — पूरी पारदर्शिता के साथ।",
+  tldr:
+    "VargBot is not one big black box — it is a layered system. A compact classifier trained on 19,600 labelled product–category pairs answers first (98.6% accuracy on held-out test data, validated with 5-fold cross-validation), but only when its confidence clears a threshold. Below that threshold — or for Indic-script text and unusual products — a sovereign Indian language model takes over. Every result carries a confidence band (green/yellow/red), a plain-language reason, and an honest stamp naming which engine actually produced it. Low-confidence cases go to a human officer, never silently through.",
+  sections: [
+    {
+      heading: "The problem: 400+ categories, every Indian language",
+      paragraphs: [
+        "ONDC organises commerce into domains — Grocery, Fashion, Home & Kitchen and more — with hundreds of leaf categories beneath them. A brass-diya workshop in Moradabad, a saree weaver in Varanasi and a pump manufacturer in Coimbatore all need to land in exactly the right place, because that placement decides which buyers and seller apps ever see them.",
+        "The input is messy by design: business owners describe what they sell in their own words — Hindi, Tamil, Hinglish, a product list in Excel, or a voice note. The classifier's job is to turn that into a precise taxonomy position without asking the owner to learn taxonomy jargon.",
+      ],
+    },
+    {
+      heading: "Layer 1: a trained model that knows when it doesn't know",
+      paragraphs: [
+        "The first layer is a compact text-classification model trained on 19,600 labelled product-description-to-category pairs. On held-out test data it reaches 98.6% domain accuracy (0.961 macro-F1), with stratified 5-fold cross-validation confirming stability (0.946 ± 0.010).",
+        "The important design choice is not the accuracy — it is the gate. The model only answers when its confidence clears a threshold. A model that answers everything is dangerous in a government workflow; a model that knows when to hand over is trustworthy. Small trained models are also fast, cheap, fully auditable, and run entirely on our own infrastructure.",
+      ],
+    },
+    {
+      heading: "Layer 2: sovereign language AI for the hard cases",
+      paragraphs: [
+        "When the trained model isn't confident — or when the description arrives in Indic scripts, code-mixed speech, or covers products outside the training corpus — a sovereign Indian large language model resolves the classification, including the leaf category and product attributes. The same layer reads meaning from descriptions like 'हम मुरादाबाद में पीतल के दीये बनाते हैं' without translation loss.",
+        "If both AI layers fail — a network outage, an unusual edge case — a deterministic keyword rule engine gives a baseline answer. Nothing in the pipeline pretends: every result is stamped with the engine that actually produced it, and a fallback is labelled as a fallback.",
+      ],
+    },
+    {
+      heading: "Confidence bands and the human in the loop",
+      paragraphs: [
+        "Every classification is shown with a band: green (high confidence), yellow (review advised), red (needs human judgement). The bands are not decoration — red and low-yellow cases route to the NSIC review queue, where an officer sees the AI's top-3 alternatives, its written reasoning, and makes the official call.",
+        "This mirrors how India's best government AI systems work — risk-based routing with humans deciding the consequential cases — and it is why every AI decision on MSMEMate lands in an immutable audit trail an officer can inspect.",
+      ],
+    },
+    {
+      heading: "Why we didn't just use one giant model",
+      paragraphs: ["Five reasons, each of them deliberate:"],
+      list: [
+        "Sovereignty — all inference runs on Indian infrastructure and Indian AI services; business data never reaches foreign AI APIs.",
+        "Cost and speed — the trained model answers most cases in milliseconds, reserving the language model for where it earns its keep.",
+        "Auditability — a compact model's behaviour can be evaluated, versioned and explained to a reviewer; every engine decision is logged.",
+        "Honesty — separate engines with separate stamps mean we can never accidentally dress up a keyword fallback as AI.",
+        "Upgradability — the gate design means a stronger fine-tuned Indic model can replace layer 1 without changing anything the user sees.",
+      ],
+    },
+  ],
+  faq: [
+    {
+      q: "What happens if VargBot classifies my business wrongly?",
+      a: "You see the top-3 predictions with reasons and can trigger reclassification with a better description or product file. Low-confidence results automatically go to a human officer at NSIC — a wrong AI guess never silently becomes your official category.",
+    },
+    {
+      q: "Does my business data train someone else's AI?",
+      a: "No. Your data is processed only to classify and match your business, under India's DPDP Act 2023, on Indian infrastructure. It is not sold and not used to train third-party models.",
+    },
+    {
+      q: "Which languages does the classifier understand?",
+      a: "Descriptions work in Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, English and code-mixed Hinglish — typed or spoken. The sovereign language layer handles Indic scripts natively rather than translating first.",
+    },
+    {
+      q: "How accurate is it really?",
+      a: "The trained first layer scores 98.6% domain accuracy on held-out test data with 5-fold cross-validation at 0.946 ± 0.010 — and, more importantly, it declines to answer when unsure, handing those cases to the language model or a human reviewer.",
+    },
+  ],
+});
+
 export function getPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((p) => p.slug === slug);
 }
