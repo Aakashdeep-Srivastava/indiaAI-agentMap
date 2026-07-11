@@ -140,13 +140,17 @@ function TrendChart({ points }: { points: TrendPoint[] }) {
         {/* series lines */}
         <path d={path((p) => p.avg_confidence)} fill="none" stroke="#1B4FCC" strokeWidth="2" strokeLinejoin="round" />
         <path d={path((p) => p.p25_confidence)} fill="none" stroke="#E8680C" strokeWidth="2" strokeDasharray="5 4" strokeLinejoin="round" />
-        {/* direct labels at line end */}
-        <text x={x(last) + 8} y={y(points[last].avg_confidence) + 3.5} fontSize="10" fontWeight="600" fill="#4A5170">
-          Avg
-        </text>
-        <text x={x(last) + 8} y={y(points[last].p25_confidence) + 3.5} fontSize="10" fontWeight="600" fill="#4A5170">
-          P25
-        </text>
+        {/* direct labels at line end (only when there is a line to label) */}
+        {points.length > 1 && (
+          <>
+            <text x={x(last) + 8} y={y(points[last].avg_confidence) + 3.5} fontSize="10" fontWeight="600" fill="#4A5170">
+              Avg
+            </text>
+            <text x={x(last) + 8} y={y(points[last].p25_confidence) + 3.5} fontSize="10" fontWeight="600" fill="#4A5170">
+              P25
+            </text>
+          </>
+        )}
         {/* markers + hover targets */}
         {points.map((p, i) => (
           <g key={p.week_start}>
@@ -216,12 +220,12 @@ function EngineMix({ families, engines }: { families: EngineFamily[]; engines: {
           />
         ))}
       </div>
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="space-y-2.5">
         {families.map((f) => (
-          <div key={f.family} className="flex items-center gap-2 text-xs">
+          <div key={f.family} className="flex items-center gap-2.5 text-xs">
             <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: FAMILY_COLORS[f.family] }} />
-            <span className={f.count > 0 ? "text-surface-600" : "text-surface-400"}>{f.label}</span>
-            <span className="ml-auto font-mono font-semibold text-brand-900">
+            <span className={`truncate ${f.count > 0 ? "text-surface-600" : "text-surface-400"}`}>{f.label}</span>
+            <span className="ml-auto shrink-0 whitespace-nowrap font-mono font-semibold text-brand-900">
               {f.count} <span className="font-normal text-surface-400">({pct(f.share)})</span>
             </span>
           </div>
@@ -393,7 +397,7 @@ export default function ModelHealthPage() {
 
           {/* Trend + engine mix */}
           <div className="grid gap-4 lg:grid-cols-5">
-            <div className="glass-card lg:col-span-3">
+            <div className="glass-card p-5 lg:col-span-3">
               <h3 className="mb-1 font-display text-sm font-bold text-brand-900">
                 Confidence trend
               </h3>
@@ -403,7 +407,7 @@ export default function ModelHealthPage() {
               </p>
               <TrendChart points={report.confidence_trend} />
             </div>
-            <div className="glass-card lg:col-span-2">
+            <div className="glass-card p-5 lg:col-span-2">
               <h3 className="mb-1 font-display text-sm font-bold text-brand-900">Engine mix</h3>
               <p className="mb-3 text-xs text-surface-400">
                 Which engine answered, from the honest per-result stamps. A rising
@@ -415,7 +419,7 @@ export default function ModelHealthPage() {
 
           {/* Officer override signals */}
           <div className="grid gap-4 lg:grid-cols-2">
-            <div className="glass-card">
+            <div className="glass-card p-5">
               <h3 className="mb-1 font-display text-sm font-bold text-brand-900">
                 Registration reviews
               </h3>
@@ -437,7 +441,7 @@ export default function ModelHealthPage() {
                 breach={report.oversight.rejection_rate > 0.25}
               />
             </div>
-            <div className="glass-card">
+            <div className="glass-card p-5">
               <h3 className="mb-1 font-display text-sm font-bold text-brand-900">
                 Allocation overrides
               </h3>
