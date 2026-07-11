@@ -163,7 +163,7 @@ export default function AuditPage() {
           </p>
         </div>
       ) : (
-        <div className="glass-card overflow-hidden !rounded-2xl !p-0">
+        <div className="glass-card overflow-x-auto !rounded-2xl !p-0">
           <table className="w-full">
             <thead>
               <tr className="border-b border-surface-100 bg-surface-50/50">

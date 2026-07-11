@@ -22,6 +22,8 @@ DPDP Act 2023 with data residency in India.
 - [Home](https://www.msmemate.com/): what MSMEMate does and who it serves
 - [Register](https://www.msmemate.com/register): free, public, voice-first MSE registration
 - [Blog](https://www.msmemate.com/blog): plain-language ONDC and MSME guides
+- [DPDP Compliance](https://www.msmemate.com/dpdp): how the platform implements the DPDP Act 2023
+- [Sovereign AI](https://www.msmemate.com/sovereign-ai): Indian AI stack, explainability, human oversight
 - [Privacy Policy](https://www.msmemate.com/privacy): DPDP Act 2023 compliance, India data residency
 - [Terms & Conditions](https://www.msmemate.com/terms): terms of use
 

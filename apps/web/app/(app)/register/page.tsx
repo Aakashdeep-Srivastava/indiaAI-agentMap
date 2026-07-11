@@ -284,7 +284,7 @@ export default function RegisterPage() {
           onChange={(v) => update("address", v)}
           highlighted={highlighted.has("address")}
         />
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Field
             label="State *"
             value={form.state}

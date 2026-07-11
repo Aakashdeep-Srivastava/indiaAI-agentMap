@@ -86,6 +86,7 @@ export function ClassificationHistory({ mseId, history }: Props) {
       </div>
 
       {/* Table */}
+      <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
           <tr className="border-b border-surface-100 bg-surface-50/30">
@@ -142,6 +143,7 @@ export function ClassificationHistory({ mseId, history }: Props) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

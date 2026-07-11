@@ -14,7 +14,9 @@ export default function Navbar() {
   const light =
     pathname.startsWith("/blog") ||
     pathname.startsWith("/privacy") ||
-    pathname.startsWith("/terms");
+    pathname.startsWith("/terms") ||
+    pathname.startsWith("/dpdp") ||
+    pathname.startsWith("/sovereign-ai");
 
   useEffect(() => {
     const onScroll = () => {

@@ -150,13 +150,24 @@ export default function MarketingLayout({
               </h4>
               <ul className="mt-4 space-y-2.5">
                 {[
-                  "Team XphoraAI",
-                  "IndiaAI Challenge 2026",
-                  "DPDP Compliance",
-                  "Sovereign AI",
+                  { label: "Team XphoraAI", href: null },
+                  { label: "IndiaAI Challenge 2026", href: null },
+                  { label: "DPDP Compliance", href: "/dpdp" },
+                  { label: "Sovereign AI", href: "/sovereign-ai" },
                 ].map((item) => (
-                  <li key={item}>
-                    <span className="text-sm text-surface-500">{item}</span>
+                  <li key={item.label}>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="text-sm text-surface-500 transition-colors hover:text-brand-500"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-surface-500">
+                        {item.label}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -256,9 +267,19 @@ export default function MarketingLayout({
                 IndiaAI 2026
               </span>
               <span className="h-1 w-1 rounded-full bg-surface-300" />
-              <span>DPDP Compliant</span>
+              <Link
+                href="/dpdp"
+                className="font-medium transition-colors hover:text-brand-500"
+              >
+                DPDP Compliant
+              </Link>
               <span className="h-1 w-1 rounded-full bg-surface-300" />
-              <span>Sovereign AI</span>
+              <Link
+                href="/sovereign-ai"
+                className="font-medium transition-colors hover:text-brand-500"
+              >
+                Sovereign AI
+              </Link>
             </div>
           </div>
         </div>

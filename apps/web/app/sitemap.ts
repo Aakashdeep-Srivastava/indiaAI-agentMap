@@ -24,6 +24,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${BASE}/dpdp`,
+      lastModified: new Date("2026-07-11"),
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
+      url: `${BASE}/sovereign-ai`,
+      lastModified: new Date("2026-07-11"),
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
       url: `${BASE}/privacy`,
       lastModified: new Date("2026-07-11"),
       changeFrequency: "yearly",
