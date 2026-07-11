@@ -541,9 +541,11 @@ export default function RegisterPage() {
       </div>
 
       {/* ─── Mobile: stacked (pulled up so the Sathi header shares the
-           hamburger's line — the layout reserves pt-16 for the fixed button) ─── */}
+           hamburger's line — the layout reserves pt-16 for the fixed button).
+           The panel wrapper has no fixed height: it hugs its content, so no
+           dead space between the field chips and the form card below. ─── */}
       <div className="lg:hidden space-y-4 -mt-12">
-        <div className="h-[72vh] min-h-[520px]">
+        <div>
           <SathiVoicePanel
             form={form}
             onUpdate={update}
