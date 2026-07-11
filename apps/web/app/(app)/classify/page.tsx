@@ -31,7 +31,7 @@ const VoiceInput = dynamic(() => import("@/components/VoiceInput"), {
 });
 const MSEPicker = dynamic(() => import("@/components/MSEPicker"), { ssr: false });
 
-import { apiFetch } from "@/lib/auth";
+import { apiFetch, getSession } from "@/lib/auth";
 
 /* ─── Constants ───────────────────────────────────────────────────── */
 
@@ -119,6 +119,25 @@ const EXAMPLES = [
   "हम मुरादाबाद में पीतल के दीये और मूर्तियाँ बनाते हैं",
   "Organic honey and herbal wellness products from Uttarakhand",
 ];
+
+/* The three ways into VargBot — MSE owners get these on the panel navbar */
+const INPUT_MODES = [
+  {
+    key: "text",
+    label: "Describe Business",
+    icon: "M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4",
+  },
+  {
+    key: "mse",
+    label: "My Business",
+    icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z",
+  },
+  {
+    key: "import",
+    label: "Import Products",
+    icon: "M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12",
+  },
+] as const;
 
 /* ─── Types ───────────────────────────────────────────────────────── */
 
@@ -361,6 +380,11 @@ export default function ClassifyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [explainerLang, setExplainerLang] = useState<"en" | "hi">("en");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    setIsAdmin(getSession()?.role === "admin");
+  }, []);
 
   /* Deep-links: sidebar quick actions land on a specific input mode via ?tab= */
   useEffect(() => {
@@ -465,40 +489,77 @@ export default function ClassifyPage() {
 
   return (
     <div className="space-y-5">
-      {/* ═══ Page Header ══════════════════════════════════════════════ */}
+      {/* ═══ Panel Navbar — VargBot identity + input modes ═══════════ */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between gap-4"
+        className="glass-card px-4 py-3"
       >
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-900 shadow-lg shadow-brand-900/20">
-            <svg
-              className="h-5 w-5 text-white"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-900 shadow-lg shadow-brand-900/20">
+              <svg
+                className="h-5 w-5 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="font-display text-lg font-extrabold leading-tight tracking-tight text-brand-900">
+                VargBot
+              </h1>
+              <p className="text-[11px] text-surface-500 sm:text-xs">
+                Puts your business in the right ONDC category
+              </p>
+            </div>
+          </div>
+
+          {/* Input-mode nav — MSE owners only, never on the NSIC admin view */}
+          {!isAdmin ? (
+            <nav
+              aria-label="VargBot input modes"
+              className="flex w-full items-center gap-1 overflow-x-auto rounded-xl bg-surface-100/80 p-1 sm:w-auto"
             >
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="font-display text-xl font-extrabold tracking-tight text-brand-900">
-              VargBot
-            </h1>
-            <p className="text-xs text-surface-500 sm:text-[13px]">
-              Puts your business in the right ONDC category
-            </p>
-          </div>
+              {INPUT_MODES.map((m) => (
+                <button
+                  key={m.key}
+                  onClick={() => setTab(m.key)}
+                  aria-pressed={tab === m.key}
+                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold transition-all sm:flex-none sm:px-3.5 ${
+                    tab === m.key
+                      ? "bg-white text-brand-900 shadow-sm"
+                      : "text-surface-500 hover:text-surface-700"
+                  }`}
+                >
+                  <svg
+                    className={`h-3.5 w-3.5 shrink-0 ${tab === m.key ? "text-saffron-500" : ""}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d={m.icon} />
+                  </svg>
+                  {m.label}
+                </button>
+              ))}
+            </nav>
+          ) : (
+            <span className="rounded-lg border border-surface-200 bg-white px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+              Module 2
+            </span>
+          )}
         </div>
-        <span className="hidden rounded-lg border border-surface-200 bg-white px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-surface-400 sm:inline-block">
-          Module 2
-        </span>
       </motion.div>
 
       {/* ═══ Input Card ═══════════════════════════════════════════════ */}
@@ -508,52 +569,36 @@ export default function ClassifyPage() {
         transition={{ delay: 0.05 }}
         className="glass-card overflow-hidden"
       >
-        {/* Tab switcher — segmented control */}
-        <div className="flex gap-1 rounded-xl bg-surface-100/80 p-1 m-3 mb-0">
-          {(
-            [
-              {
-                key: "text" as TabMode,
-                label: "Describe",
-                icon: "M4 6h16M4 12h16M4 18h7",
-              },
-              {
-                key: "mse" as TabMode,
-                label: "My Business",
-                icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z",
-              },
-              {
-                key: "import" as TabMode,
-                label: "Import Products",
-                icon: "M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12",
-              },
-            ] as const
-          ).map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              aria-pressed={tab === t.key}
-              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold transition-all sm:gap-2 sm:text-sm ${
-                tab === t.key
-                  ? "bg-white text-brand-900 shadow-sm"
-                  : "text-surface-500 hover:text-surface-700"
-              }`}
-            >
-              <svg
-                className={`h-4 w-4 shrink-0 ${tab === t.key ? "text-brand-500" : ""}`}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+        {/* Tab switcher — admin only (MSE owners switch via the panel navbar) */}
+        {isAdmin && (
+          <div className="m-3 mb-0 flex gap-1 rounded-xl bg-surface-100/80 p-1">
+            {INPUT_MODES.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                aria-pressed={tab === t.key}
+                className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold transition-all sm:gap-2 sm:text-sm ${
+                  tab === t.key
+                    ? "bg-white text-brand-900 shadow-sm"
+                    : "text-surface-500 hover:text-surface-700"
+                }`}
               >
-                <path d={t.icon} />
-              </svg>
-              <span className="truncate">{t.label}</span>
-            </button>
-          ))}
-        </div>
+                <svg
+                  className={`h-4 w-4 shrink-0 ${tab === t.key ? "text-brand-500" : ""}`}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d={t.icon} />
+                </svg>
+                <span className="truncate">{t.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="p-4 sm:p-5">
           <AnimatePresence mode="wait">

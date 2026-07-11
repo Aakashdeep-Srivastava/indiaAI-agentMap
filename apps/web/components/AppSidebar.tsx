@@ -17,8 +17,6 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PackageOpen,
-  AudioLines,
-  FileUp,
 } from "lucide-react";
 import { getSession, logout, type Session } from "@/lib/auth";
 
@@ -28,24 +26,6 @@ const JOURNEY = [
   { label: "Classify", codename: "VargBot", href: "/classify", icon: Layers },
   { label: "Match", codename: "JodakAI", href: "/match", icon: GitMerge },
   { label: "Catalogue", codename: "ONDC-ready", href: "/catalogue", icon: PackageOpen },
-] as const;
-
-/* ── Quick actions (MSE owners only — never shown on the NSIC admin nav) ── */
-const QUICK_ACTIONS = [
-  {
-    label: "Describe Business",
-    desc: "Type or speak it",
-    href: "/classify",
-    tab: "describe",
-    icon: AudioLines,
-  },
-  {
-    label: "Import Products",
-    desc: "Excel / CSV list",
-    href: "/classify",
-    tab: "import",
-    icon: FileUp,
-  },
 ] as const;
 
 /* ── NSIC officer navigation (oversight-first — a different job entirely) ── */
@@ -183,7 +163,6 @@ export default function AppSidebar({
 
           {/* ── JOURNEY (entrepreneur onboarding path — MSE role only) ── */}
           {!isAdmin && (
-          <>
           <div className="mb-6">
             <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400 ${collapsed ? "lg:hidden" : ""}`}>
               Journey
@@ -253,53 +232,6 @@ export default function AppSidebar({
             </nav>
           </div>
 
-          {/* ── QUICK ACTIONS (deep-links into VargBot input modes) ── */}
-          <div className="mb-6">
-            <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-widest text-surface-400 ${collapsed ? "lg:hidden" : ""}`}>
-              Quick Actions
-            </span>
-            <nav className="space-y-1">
-              {QUICK_ACTIONS.map((item) => {
-                const Icon = item.icon;
-                const active =
-                  pathname.startsWith(item.href) &&
-                  searchParams.get("tab") === item.tab;
-                const href = mseId
-                  ? `${item.href}?tab=${item.tab}&mseId=${mseId}`
-                  : `${item.href}?tab=${item.tab}`;
-                return (
-                  <Link
-                    key={item.tab}
-                    href={href}
-                    onClick={onClose}
-                    title={item.label}
-                    className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${collapsed ? "lg:justify-center lg:px-0" : ""} ${
-                      active
-                        ? "bg-saffron-500/10 text-brand-900"
-                        : "text-surface-500 hover:bg-surface-50 hover:text-surface-700"
-                    }`}
-                  >
-                    <div
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                        active
-                          ? "bg-saffron-500 text-white"
-                          : "bg-surface-100 text-surface-400 group-hover:text-saffron-500"
-                      }`}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                    </div>
-                    <div className={`flex-1 ${collapsed ? "lg:hidden" : ""}`}>
-                      <span className="block leading-tight">{item.label}</span>
-                      <span className={`text-[10px] ${active ? "text-saffron-500" : "text-surface-400"}`}>
-                        {item.desc}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-          </>
           )}
 
           {/* ── NSIC OFFICER NAV (oversight-first — different job, different nav) ── */}
