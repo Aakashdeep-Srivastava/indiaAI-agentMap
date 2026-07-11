@@ -12,6 +12,8 @@ export interface BlogSection {
   list?: string[];
   /** Ordered steps render as a numbered list (HowTo-style content) */
   steps?: { title: string; detail: string }[];
+  /** Inline SVG diagram — id must exist in components/BlogDiagram.tsx */
+  diagram?: { id: string; caption: string };
 }
 
 export interface BlogFaq {
@@ -64,6 +66,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         heading: "How is ONDC different from a marketplace?",
+      diagram: { id: "ondc-vs-marketplace", caption: "A marketplace locks your shop to one platform; on ONDC one listing reaches every buyer app on the network." },
         paragraphs: [
           "On a marketplace, the platform owns the customer, sets the commission, and controls your visibility. If you leave, you start from zero. On ONDC, your catalogue lives with a seller app of your choice (called a Seller Network Participant, or SNP), and every buyer app on the network can surface your products.",
         ],
@@ -414,6 +417,7 @@ BLOG_POSTS.push({
     },
     {
       heading: "Layer 1: a trained model that knows when it doesn't know",
+      diagram: { id: "vargbot-chain", caption: "VargBot's layered chain: the trained model answers when confident, the language model handles the hard cases, and every result carries an honest engine stamp." },
       paragraphs: [
         "The first layer is a compact text-classification model trained on 19,600 labelled product-description-to-category pairs. On held-out test data it reaches 98.6% domain accuracy (0.961 macro-F1), with stratified 5-fold cross-validation confirming stability (0.946 ± 0.010).",
         "The important design choice is not the accuracy — it is the gate. The model only answers when its confidence clears a threshold. A model that answers everything is dangerous in a government workflow; a model that knows when to hand over is trustworthy. Small trained models are also fast, cheap, fully auditable, and run entirely on our own infrastructure.",
@@ -495,6 +499,7 @@ BLOG_POSTS.push({
     },
     {
       heading: "What the Copilot automates",
+      diagram: { id: "claims-flow", caption: "A claim flows through automated rule checks and risk scoring — but only a named officer can decide, and every decision is audit-logged." },
       paragraphs: ["Every claim runs the official checklist automatically:"],
       list: [
         "Udyam number format and validity of the underlying registration.",
@@ -563,6 +568,7 @@ BLOG_POSTS.push({
   sections: [
     {
       heading: "Why lifecycle matters more than launch accuracy",
+      diagram: { id: "mlops-loop", caption: "The MLOps loop: data with lineage trains a model, honest evaluation gates deployment, monitoring watches for drift, and officer feedback becomes the next round of training data." },
       paragraphs: [
         "A model's accuracy on the day it ships is a snapshot. The world underneath it moves: new kinds of businesses register, vocabulary shifts, upstream services change behaviour. For AI that touches government workflows — deciding which ONDC category a business belongs to, or which seller apps suit it — the real question is not 'how accurate was it at launch?' but 'how will you know when it stops being accurate, and what happens then?'",
         "That question is what MLOps answers. Here is the lifecycle we run, end to end: data with lineage → training with a locked evaluation protocol → versioned, stamped artifacts → gated deployment → drift monitoring → human feedback → retraining. Each stage below is live in production today.",

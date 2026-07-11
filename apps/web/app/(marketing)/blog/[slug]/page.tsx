@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BLOG_POSTS, getPost } from "@/lib/blog";
+import BlogDiagram from "@/components/BlogDiagram";
 
 export function generateStaticParams() {
   return BLOG_POSTS.map((p) => ({ slug: p.slug }));
@@ -156,6 +157,9 @@ export default async function BlogPostPage({
                 {p}
               </p>
             ))}
+            {section.diagram && (
+              <BlogDiagram id={section.diagram.id} caption={section.diagram.caption} />
+            )}
             {section.list && (
               <ul className="mt-4 space-y-2.5">
                 {section.list.map((item) => (
