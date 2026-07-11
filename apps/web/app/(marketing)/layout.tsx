@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import FooterIllustration from "@/components/FooterIllustration";
 
 /* Sitewide structured data — feeds Google rich results and AI answer engines */
 const SITE_JSON_LD = [
@@ -47,6 +46,40 @@ const SITE_JSON_LD = [
   },
 ];
 
+/* ── Footer link columns (warm heritage panel) ─────────────────── */
+const FOOTER_COLUMNS: {
+  title: string;
+  items: { label: string; href: string | null; external?: boolean }[];
+}[] = [
+  {
+    title: "Company",
+    items: [
+      { label: "About us", href: "/#about" },
+      { label: "Our Mission", href: "/sovereign-ai" },
+      { label: "Team XphoraAI", href: "/#about" },
+      { label: "Careers", href: "mailto:aakashdeep@xphoraai.com", external: true },
+    ],
+  },
+  {
+    title: "Resources",
+    items: [
+      { label: "Blog", href: "/blog" },
+      { label: "Help Center", href: "https://wa.me/916394958060", external: true },
+      { label: "Documentation", href: null },
+      { label: "API Reference", href: null },
+    ],
+  },
+  {
+    title: "Legal",
+    items: [
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms & Conditions", href: "/terms" },
+      { label: "DPDP Compliance", href: "/dpdp" },
+      { label: "Sovereign AI", href: "/sovereign-ai" },
+    ],
+  },
+];
+
 export default function MarketingLayout({
   children,
 }: {
@@ -67,223 +100,169 @@ export default function MarketingLayout({
       {/* ── Main content ───────────────────────────────────────── */}
       <main>{children}</main>
 
-      {/* ── Mega Footer ────────────────────────────────────────── */}
-      <footer className="border-t border-surface-200 bg-white">
-        {/* Link columns */}
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Product */}
-            <div>
-              <h4 className="font-display text-xs font-bold uppercase tracking-wider text-brand-900">
-                Product
-              </h4>
-              <ul className="mt-4 space-y-2.5">
-                {[
-                  { label: "MSE Registration", href: "/register" },
-                  { label: "Classification", href: "/classify" },
-                  { label: "Match Dashboard", href: "/match" },
-                  { label: "Review Queue", href: "/review" },
-                  { label: "Audit Trail", href: "/audit" },
-                ].map((item) => (
-                  <li key={item.label}>
-                    <Link
-                      href={item.href}
-                      className="text-sm text-surface-500 transition-colors hover:text-brand-500"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Solutions */}
-            <div>
-              <h4 className="font-display text-xs font-bold uppercase tracking-wider text-brand-900">
-                Solutions
-              </h4>
-              <ul className="mt-4 space-y-2.5">
-                {[
-                  "For MSE Owners",
-                  "For Seller Network Participants",
-                  "For NSIC Officers",
-                  "ONDC Integration",
-                ].map((item) => (
-                  <li key={item}>
-                    <span className="text-sm text-surface-500">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <h4 className="font-display text-xs font-bold uppercase tracking-wider text-brand-900">
-                Resources
-              </h4>
-              <ul className="mt-4 space-y-2.5">
-                <li>
-                  <Link
-                    href="/blog"
-                    className="text-sm text-surface-500 transition-colors hover:text-brand-500"
-                  >
-                    Blog — ONDC &amp; MSME Guides
-                  </Link>
-                </li>
-                {[
-                  "Documentation",
-                  "API Reference",
-                  "ONDC Taxonomy",
-                  "Help Center",
-                ].map((item) => (
-                  <li key={item}>
-                    <span className="text-sm text-surface-500">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* About */}
-            <div>
-              <h4 className="font-display text-xs font-bold uppercase tracking-wider text-brand-900">
-                About
-              </h4>
-              <ul className="mt-4 space-y-2.5">
-                {[
-                  { label: "Team XphoraAI", href: null },
-                  { label: "IndiaAI Challenge 2026", href: null },
-                  { label: "DPDP Compliance", href: "/dpdp" },
-                  { label: "Sovereign AI", href: "/sovereign-ai" },
-                ].map((item) => (
-                  <li key={item.label}>
-                    {item.href ? (
-                      <Link
-                        href={item.href}
-                        className="text-sm text-surface-500 transition-colors hover:text-brand-500"
-                      >
-                        {item.label}
-                      </Link>
-                    ) : (
-                      <span className="text-sm text-surface-500">
-                        {item.label}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Contact */}
-              <h4 className="mt-8 font-display text-xs font-bold uppercase tracking-wider text-brand-900">
-                Contact
-              </h4>
-              <ul className="mt-4 space-y-2.5">
-                <li>
-                  <a
-                    href="https://wa.me/916394958060"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-surface-500 transition-colors hover:text-[#25D366]"
-                  >
-                    <svg
-                      className="h-4 w-4 shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      aria-hidden
-                    >
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                    </svg>
-                    WhatsApp: +91 63949 58060
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="mailto:aakashdeep@xphoraai.com"
-                    className="inline-flex items-center gap-2 text-sm text-surface-500 transition-colors hover:text-brand-500"
-                  >
-                    <svg
-                      className="h-4 w-4 shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                    >
-                      <rect x="2" y="4" width="20" height="16" rx="2" />
-                      <path d="m22 7-10 5L2 7" />
-                    </svg>
-                    aakashdeep@xphoraai.com
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+      {/* ── Heritage Footer ───────────────────────────────────── */}
+      <footer className="bg-[#f7ecd9]">
+        {/* Hero band — Bharat's entrepreneurs joined by the handshake M */}
+        <div className="relative w-full overflow-hidden bg-[#f3e6cf]">
+          <Image
+            src="/footer-hero.webp"
+            alt="Bharat's entrepreneurs — a farmer, weaver, kirana owner, delivery partner, professional and tailor — joined by the MSMEMate handshake"
+            width={1814}
+            height={575}
+            sizes="100vw"
+            className="h-auto w-full object-cover"
+          />
         </div>
 
-        {/* ── Engine-style illustration band ──────────────────── */}
-        <FooterIllustration />
-
-        {/* Bottom bar */}
-        <div className="border-t border-surface-200">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-5 sm:flex-row">
-            {/* Logo + copyright */}
-            <div className="flex items-center gap-2.5">
-              <Image
-                src="/logo-mark.png"
-                alt="MSMEMate — two entrepreneurs joining hands"
-                width={24}
-                height={24}
-                className="h-6 w-6 rounded-md"
-              />
-              <span className="text-xs text-surface-400">
+        {/* Link panel */}
+        <div className="mx-auto max-w-7xl px-6 py-12">
+          <div className="grid gap-x-8 gap-y-10 lg:grid-cols-[1.5fr_1fr_1fr_1.1fr_1.1fr]">
+            {/* Brand block */}
+            <div>
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/logo-mark.png"
+                  alt="MSMEMate — two entrepreneurs joining hands"
+                  width={52}
+                  height={52}
+                  className="h-12 w-12 rounded-xl"
+                />
+                <div className="leading-tight">
+                  <p className="font-display text-2xl font-extrabold tracking-tight">
+                    <span className="text-brand-900">MSME</span>
+                    <span className="text-saffron-500">Mate</span>
+                  </p>
+                  <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.22em] text-[#9c8b6c]">
+                    Bridging Bharat&rsquo;s Businesses
+                  </p>
+                </div>
+              </div>
+              <p className="mt-5 max-w-xs text-sm leading-relaxed text-[#5f5238]">
+                Empowering Bharat&rsquo;s 6.3 crore MSMEs to grow, connect and
+                thrive on ONDC through AI in every Indian language.
+              </p>
+              <p className="mt-6 text-xs text-[#9c8b6c]">
                 &copy; 2026 MSMEMate &middot; Made by Xphora AI Technology Pvt
                 Ltd &middot; msmemate.com
-              </span>
+              </p>
+              <p className="mt-1 text-xs text-[#9c8b6c]">All rights reserved.</p>
             </div>
 
-            {/* Legal + trust badges */}
-            <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-surface-400">
-              <Link
-                href="/privacy"
-                className="font-medium transition-colors hover:text-brand-500"
-              >
-                Privacy Policy
-              </Link>
-              <span className="h-1 w-1 rounded-full bg-surface-300" />
-              <Link
-                href="/terms"
-                className="font-medium transition-colors hover:text-brand-500"
-              >
-                Terms &amp; Conditions
-              </Link>
-              <span className="h-1 w-1 rounded-full bg-surface-300" />
-              <span className="flex items-center gap-1.5">
-                <span className="inline-flex gap-0.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF9933]" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-surface-300" />
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#138808]" />
+            {/* Link columns */}
+            {FOOTER_COLUMNS.map((col) => (
+              <div key={col.title}>
+                <h4 className="font-display text-sm font-bold text-[#2e2718]">
+                  {col.title}
+                </h4>
+                <ul className="mt-4 space-y-2.5">
+                  {col.items.map((item) => (
+                    <li key={item.label}>
+                      {item.href === null ? (
+                        <span
+                          className="cursor-default text-sm text-[#b3a486]"
+                          title="Coming soon"
+                        >
+                          {item.label}
+                        </span>
+                      ) : item.external ? (
+                        <a
+                          href={item.href}
+                          target={item.href.startsWith("http") ? "_blank" : undefined}
+                          rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                          className="text-sm text-[#6e5f45] transition-colors hover:text-saffron-600"
+                        >
+                          {item.label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className="text-sm text-[#6e5f45] transition-colors hover:text-saffron-600"
+                        >
+                          {item.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            {/* Connect with us */}
+            <div>
+              <h4 className="font-display text-sm font-bold text-[#2e2718]">
+                Connect with us
+              </h4>
+              <div className="mt-4 flex items-center gap-2.5">
+                {/* WhatsApp */}
+                <a
+                  href="https://wa.me/916394958060"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chat with MSMEMate on WhatsApp"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a08d6b] text-white transition-colors hover:bg-[#25D366]"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  </svg>
+                </a>
+                {/* Email */}
+                <a
+                  href="mailto:aakashdeep@xphoraai.com"
+                  aria-label="Email MSMEMate"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a08d6b] text-white transition-colors hover:bg-brand-500"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="m22 7-10 5L2 7" />
+                  </svg>
+                </a>
+                {/* LinkedIn — handle pending */}
+                <span
+                  title="LinkedIn — coming soon"
+                  className="flex h-9 w-9 cursor-default items-center justify-center rounded-full bg-[#a08d6b]/50 text-white"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 11.002-4.124 2.062 2.062 0 01-.002 4.124zM7.119 20.452H3.555V9h3.564v11.452z" />
+                  </svg>
                 </span>
-                IndiaAI 2026
+                {/* YouTube — handle pending */}
+                <span
+                  title="YouTube — coming soon"
+                  className="flex h-9 w-9 cursor-default items-center justify-center rounded-full bg-[#a08d6b]/50 text-white"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                  </svg>
+                </span>
+              </div>
+
+              {/* Made in India */}
+              <p className="mt-7 font-display text-sm font-bold text-[#2e2718]">
+                Made in India
+              </p>
+              <span className="mt-2 inline-flex h-1 w-16 overflow-hidden rounded-full">
+                <span className="w-1/3 bg-[#FF9933]" />
+                <span className="w-1/3 bg-white" />
+                <span className="w-1/3 bg-[#138808]" />
               </span>
-              <span className="h-1 w-1 rounded-full bg-surface-300" />
-              <Link
-                href="/dpdp"
-                className="font-medium transition-colors hover:text-brand-500"
-              >
-                DPDP Compliant
-              </Link>
-              <span className="h-1 w-1 rounded-full bg-surface-300" />
-              <Link
-                href="/sovereign-ai"
-                className="font-medium transition-colors hover:text-brand-500"
-              >
-                Sovereign AI
-              </Link>
+              <p className="mt-2 text-sm font-medium text-[#6e5f45]">
+                For Bharat. By Bharat.
+              </p>
             </div>
           </div>
         </div>
 
+        {/* Ornamental base strip */}
+        <div
+          className="h-6 border-t border-[#e8d8ba]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 7l5 5-5 5-5-5z' fill='none' stroke='%23d9c49a' stroke-width='1'/%3E%3C/svg%3E\")",
+            backgroundSize: "24px 24px",
+            backgroundRepeat: "repeat-x",
+            backgroundPosition: "center",
+          }}
+        />
         <div className="tricolour-bar" />
       </footer>
     </div>
