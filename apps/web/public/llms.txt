@@ -33,6 +33,13 @@ DPDP Act 2023 with data residency in India.
 - [What is ONDC? A Simple Guide for Indian MSMEs](https://www.msmemate.com/blog/what-is-ondc-guide-for-msmes)
 - [From Udyam to ONDC: Take Your MSME Online, Step by Step](https://www.msmemate.com/blog/udyam-to-ondc-step-by-step)
 - [How to Choose the Right ONDC Seller App for Your Business](https://www.msmemate.com/blog/choose-ondc-seller-app)
+- [The MSME TEAM Initiative, Explained](https://www.msmemate.com/blog/msme-team-initiative-explained):
+  the Rs 277.35 crore scheme putting 5 lakh MSEs on ONDC — eligibility,
+  SNP incentive structure, free registration
+- [Inside VargBot](https://www.msmemate.com/blog/how-vargbot-classifies-your-business):
+  the layered, confidence-gated classification model (verified eval numbers)
+- [The Claims Copilot](https://www.msmemate.com/blog/claims-copilot-team-verification):
+  AI-assisted TEAM incentive claim verification with humans in charge
 
 ## Facts
 
