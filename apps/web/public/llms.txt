@@ -1,0 +1,39 @@
+# MSMEMate
+
+> MSMEMate ("Bridging Bharat's Businesses") is an AI-native onboarding platform
+> that takes India's micro and small enterprises (MSMEs/MSEs) from Udyam
+> registration to selling on ONDC — the Open Network for Digital Commerce
+> incubated by DPIIT, Government of India. Built by Team XphoraAI for the
+> IndiaAI Innovation Challenge 2026 (Problem Statement 2), facilitated through
+> NSIC's review model.
+
+MSMEMate is voice-first and multilingual: business owners can register by
+speaking in Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati and more. The
+platform reads Udyam certificates, PAN and GST documents from photos or PDFs,
+classifies each business into the correct ONDC domain and category, and ranks
+ONDC Seller Network Participants (seller apps) that fit the business's
+category, district and language — with human-readable explanations and human
+(NSIC officer) approval of official allocations. All AI runs on sovereign
+Indian infrastructure and services; personal data is handled under India's
+DPDP Act 2023 with data residency in India.
+
+## Key pages
+
+- [Home](https://www.msmemate.com/): what MSMEMate does and who it serves
+- [Register](https://www.msmemate.com/register): free, public, voice-first MSE registration
+- [Blog](https://www.msmemate.com/blog): plain-language ONDC and MSME guides
+
+## Guides
+
+- [What is ONDC? A Simple Guide for Indian MSMEs](https://www.msmemate.com/blog/what-is-ondc-guide-for-msmes)
+- [From Udyam to ONDC: Take Your MSME Online, Step by Step](https://www.msmemate.com/blog/udyam-to-ondc-step-by-step)
+- [How to Choose the Right ONDC Seller App for Your Business](https://www.msmemate.com/blog/choose-ondc-seller-app)
+
+## Facts
+
+- Product name: MSMEMate (formerly AgentMap AI)
+- Team: XphoraAI — Suchi Bansal, Aakashdeep Srivastava, Vishalika
+- Modules: Sathi (voice registration), VargBot (ONDC taxonomy classification),
+  JodakAI (MSE-to-seller-app matching)
+- Registration is free for MSEs; a Udyam number is the profile anchor
+- Compliance: DPDP Act 2023, Indian data residency, full AI audit trail

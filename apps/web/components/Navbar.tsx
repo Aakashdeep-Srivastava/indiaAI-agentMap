@@ -3,10 +3,15 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [visible, setVisible] = useState(true);
   const [lastY, setLastY] = useState(0);
+  const pathname = usePathname();
+  /* The landing page opens on a dark hero; inner marketing pages (blog)
+   * sit on a light surface — the navbar adapts its scheme to stay legible. */
+  const light = pathname.startsWith("/blog");
 
   useEffect(() => {
     const onScroll = () => {
@@ -31,7 +36,13 @@ export default function Navbar() {
           : "-translate-y-full opacity-0"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-5 py-2.5 backdrop-blur-2xl shadow-lg shadow-black/10">
+      <div
+        className={`mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-5 py-2.5 backdrop-blur-2xl shadow-lg ${
+          light
+            ? "border-surface-200 bg-white/85 shadow-brand-900/5"
+            : "border-white/15 bg-white/10 shadow-black/10"
+        }`}
+      >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
           <Image
@@ -39,10 +50,21 @@ export default function Navbar() {
             alt="MSMEMate"
             width={32}
             height={32}
-            className="h-8 w-8 invert brightness-200 drop-shadow-[0_0_10px_rgba(255,169,66,0.5)]"
+            className={`h-8 w-8 ${
+              light
+                ? ""
+                : "invert brightness-200 drop-shadow-[0_0_10px_rgba(255,169,66,0.5)]"
+            }`}
           />
-          <span className="font-display text-lg font-bold leading-tight tracking-tight text-saffron-400">
-            MSME<span className="text-white">Mate</span>
+          <span
+            className={`font-display text-lg font-bold leading-tight tracking-tight ${
+              light ? "text-brand-900" : "text-saffron-400"
+            }`}
+          >
+            MSME
+            <span className={light ? "text-brand-500" : "text-white"}>
+              Mate
+            </span>
           </span>
         </Link>
 
@@ -52,13 +74,18 @@ export default function Navbar() {
             { label: "Platform", href: "/match" },
             { label: "Classify", href: "/classify" },
             { label: "Register", href: "/register" },
+            { label: "Blog", href: "/blog" },
             { label: "Solutions", href: "/#solutions" },
             { label: "About", href: "/#about" },
           ].map((item) => (
             <Link
               key={item.label}
               href={item.href}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                light
+                  ? "text-surface-600 hover:bg-surface-100 hover:text-brand-900"
+                  : "text-white/70 hover:bg-white/10 hover:text-white"
+              }`}
             >
               {item.label}
             </Link>
@@ -69,7 +96,11 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link
             href="/login"
-            className="rounded-xl px-4 py-2 text-xs font-semibold text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            className={`rounded-xl px-4 py-2 text-xs font-semibold transition-colors ${
+              light
+                ? "text-surface-600 hover:bg-surface-100 hover:text-brand-900"
+                : "text-white/80 hover:bg-white/10 hover:text-white"
+            }`}
           >
             Sign in
           </Link>

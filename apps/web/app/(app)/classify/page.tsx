@@ -488,7 +488,7 @@ export default function ClassifyPage() {
   const doneItems = result?.compliance?.filter((c) => c.status === "done") ?? [];
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto w-full max-w-4xl space-y-5">
       {/* ═══ Panel Navbar — VargBot identity + input modes ═══════════ */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

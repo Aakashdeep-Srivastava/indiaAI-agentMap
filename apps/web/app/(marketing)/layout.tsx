@@ -3,6 +3,42 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import FooterIllustration from "@/components/FooterIllustration";
 
+/* Sitewide structured data — feeds Google rich results and AI answer engines */
+const SITE_JSON_LD = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "MSMEMate",
+    alternateName: "Team XphoraAI",
+    url: "https://www.msmemate.com",
+    logo: "https://www.msmemate.com/logo.png",
+    slogan: "Bridging Bharat's Businesses",
+    description:
+      "AI-native onboarding platform that takes India's MSMEs from Udyam registration to selling on ONDC — voice-first, multilingual, DPDP-compliant.",
+    foundingDate: "2026",
+    areaServed: "IN",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "MSMEMate",
+    url: "https://www.msmemate.com",
+    inLanguage: ["en-IN", "hi-IN"],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "MSMEMate",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: "https://www.msmemate.com",
+    description:
+      "Voice-first registration, ONDC taxonomy classification and seller-platform matching for Indian micro and small enterprises.",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+    inLanguage: ["en-IN", "hi-IN"],
+  },
+];
+
 export default function MarketingLayout({
   children,
 }: {
@@ -10,6 +46,10 @@ export default function MarketingLayout({
 }) {
   return (
     <div className="bg-jali">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_JSON_LD) }}
+      />
       {/* ── Top tricolour accent ──────────────────────────────── */}
       <div className="tricolour-bar" />
 
@@ -74,6 +114,14 @@ export default function MarketingLayout({
                 Resources
               </h4>
               <ul className="mt-4 space-y-2.5">
+                <li>
+                  <Link
+                    href="/blog"
+                    className="text-sm text-surface-500 transition-colors hover:text-brand-500"
+                  >
+                    Blog — ONDC &amp; MSME Guides
+                  </Link>
+                </li>
                 {[
                   "Documentation",
                   "API Reference",

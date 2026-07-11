@@ -57,7 +57,7 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
         </button>
 
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-7xl space-y-6 px-6 py-8">
+          <div className="mx-auto max-w-7xl space-y-6 px-4 pb-8 pt-16 sm:px-6 lg:pt-8">
             <SidebarCollapsedContext.Provider value={collapsed}>
               {children}
             </SidebarCollapsedContext.Provider>
