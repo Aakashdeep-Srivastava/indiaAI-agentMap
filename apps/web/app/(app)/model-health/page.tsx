@@ -32,7 +32,27 @@ interface DomainRow {
   baseline_support: number | null;
   status: "ok" | "watch" | "no_baseline";
 }
+interface RegistryVersion {
+  version: string;
+  stage: "production" | "archived";
+  trained: string | null;
+  algorithm: string | null;
+  corpus: string | null;
+  domains: number;
+  cv_macro_f1: number | null;
+  cv_std: number | null;
+  test_accuracy: number | null;
+  test_macro_f1: number | null;
+  real_accuracy: number | null;
+  n_test: number | null;
+}
+interface Registry {
+  model_name: string;
+  serving: { engine: string | null; loaded: boolean; gate: number; domains: number };
+  versions: RegistryVersion[];
+}
 interface HealthReport {
+  registry: Registry;
   generated_at: string;
   status: "green" | "amber" | "red";
   alerts: Alert[];
@@ -377,6 +397,88 @@ export default function ModelHealthPage() {
               </p>
             )}
           </div>
+
+          {/* Model registry — which version serves, and the version history */}
+          {report.registry && (
+            <div className="glass-card p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-display text-sm font-bold text-brand-900">
+                    Model registry — {report.registry.model_name}
+                  </h3>
+                  <p className="mt-0.5 max-w-xl text-xs text-surface-400">
+                    {report.registry.versions[0]?.algorithm ?? "trained classifier"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-xs font-bold ${
+                    report.registry.serving.loaded
+                      ? "bg-brand-50 text-brand-700"
+                      : "bg-red-50 text-red-700"
+                  }`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${
+                      report.registry.serving.loaded ? "bg-emerald-500" : "bg-red-500"
+                    }`} />
+                    {report.registry.serving.loaded
+                      ? report.registry.serving.engine
+                      : "artifact not loaded"}
+                  </span>
+                  <span className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
+                    Production
+                  </span>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-surface-500">
+                Serving {report.registry.serving.domains} ONDC domains · confidence gate{" "}
+                {pct(report.registry.serving.gate)} · below-gate traffic routes to the LLM chain.
+              </p>
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[640px]">
+                  <thead>
+                    <tr className="border-b border-surface-100 bg-surface-50/50">
+                      {["Version", "Stage", "Trained", "Domains", "CV macro-F1", "Test acc", "Macro-F1", "Real-only acc"].map((h) => (
+                        <th key={h} className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-surface-400">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-surface-100">
+                    {report.registry.versions.map((v) => (
+                      <tr key={v.version} className={v.stage === "production" ? "bg-brand-50/30" : ""}>
+                        <td className="px-3 py-2.5 font-mono text-xs font-bold text-brand-900">{v.version}</td>
+                        <td className="px-3 py-2.5">
+                          <span className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                            v.stage === "production"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-surface-50 text-surface-500"
+                          }`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${
+                              v.stage === "production" ? "bg-emerald-500" : "bg-surface-400"
+                            }`} />
+                            {v.stage}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-surface-600">{v.trained ?? "—"}</td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-surface-600">{v.domains}/14</td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-surface-600">
+                          {v.cv_macro_f1?.toFixed(3) ?? "—"}
+                          {v.cv_std != null && <span className="text-surface-400"> ±{v.cv_std.toFixed(3)}</span>}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-surface-600">{pct(v.test_accuracy)}</td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-surface-600">{v.test_macro_f1?.toFixed(3) ?? "—"}</td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-surface-600">{pct(v.real_accuracy)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-2 text-[11px] text-surface-400">
+                Real-only acc excludes template-generated evaluation rows (the conservative
+                number). Archived versions stay deployable for instant rollback.
+              </p>
+            </div>
+          )}
 
           {/* Stat tiles */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

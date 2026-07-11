@@ -34,11 +34,37 @@ LOW_CONF = float(os.getenv("MONITOR_LOW_CONF", "0.60"))  # mirrors VARGBOT_TFIDF
 
 # Frozen offline evaluation of the trained classifier (held-out test set,
 # stamped at training time). Live per-domain confidence is compared against it.
-_BASELINE_PATH = Path(__file__).resolve().parent.parent / "data" / "vargbot_baseline_eval.json"
+_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+_BASELINE_PATH = _DATA_DIR / "vargbot_baseline_eval.json"
 try:
     _BASELINE: dict = json.loads(_BASELINE_PATH.read_text(encoding="utf-8"))
 except OSError:
     _BASELINE = {}
+try:
+    _V1_EVAL: dict = json.loads((_DATA_DIR / "vargbot_v1_eval.json").read_text(encoding="utf-8"))
+except OSError:
+    _V1_EVAL = {}
+
+
+def _version_entry(ev: dict, version: str, stage: str) -> dict:
+    """One row of the model-registry version table, from a frozen eval JSON."""
+    meta = ev.get("meta") or {}
+    cv = meta.get("cv_5fold_macro_f1") or {}
+    real = ev.get("test_real_products") or {}
+    return {
+        "version": version,
+        "stage": stage,
+        "trained": meta.get("trained"),
+        "algorithm": meta.get("model"),
+        "corpus": meta.get("corpus"),
+        "domains": len(ev.get("per_domain") or {}),
+        "cv_macro_f1": cv.get("mean"),
+        "cv_std": cv.get("std"),
+        "test_accuracy": ev.get("test_accuracy"),
+        "test_macro_f1": ev.get("test_macro_f1"),
+        "real_accuracy": real.get("accuracy"),
+        "n_test": meta.get("n_test"),
+    }
 
 ENGINE_FAMILY_LABELS = {
     "trained": "Trained model (VargBot TF-IDF)",
@@ -234,8 +260,26 @@ def model_health(
     else:
         status = "green"
 
+    # ── Model registry (MLflow-style): what serves now + version history ──
+    import services.classifier as clf
+    serving_loaded = clf._tfidf_model is not None
+    versions = [_version_entry(_BASELINE, "v2", "production")]
+    if _V1_EVAL:
+        versions.append(_version_entry(_V1_EVAL, "v1", "archived"))
+    registry = {
+        "model_name": "VargBot domain classifier",
+        "serving": {
+            "engine": clf._tfidf_engine if serving_loaded else None,
+            "loaded": serving_loaded,
+            "gate": clf.TFIDF_MIN_CONF,
+            "domains": len(clf._tfidf_model.classes_) if serving_loaded else 0,
+        },
+        "versions": versions,
+    }
+
     baseline_meta = _BASELINE.get("meta") or {}
     return {
+        "registry": registry,
         "generated_at": now.isoformat(),
         "status": status,
         "alerts": alerts,
