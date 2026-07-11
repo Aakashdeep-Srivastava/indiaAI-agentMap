@@ -7,18 +7,23 @@ export default function LandingPage() {
           SECTION 1 — HERO (SASC-style: full-bleed dark, left-aligned)
       ═══════════════════════════════════════════════════════════════ */}
       <section className="relative z-0 mx-4 min-h-[92vh] overflow-hidden rounded-b-[2rem] bg-brand-900 sm:mx-6 lg:mx-8">
-        {/* Rich dark background — works standalone, enhanced with hero-bg.jpg if present */}
+        {/* Rich dark background — illuminated ONDC network map of India */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "url('/hero-bg.jpg'), linear-gradient(135deg, #060a1e 0%, #0B1437 30%, #1a2a5e 60%, #0d1c4a 100%)",
+              "url('/hero-india.webp'), linear-gradient(135deg, #060a1e 0%, #0B1437 30%, #1a2a5e 60%, #0d1c4a 100%)",
             backgroundSize: "cover, cover",
             backgroundPosition: "center 40%, center",
           }}
         />
         {/* Dark overlay for legibility */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30" />
+        {/* Moving MSE stories — glowing highlights crossfade inside the blue left zone only */}
+        <div className="hero-motion-layer pointer-events-none absolute inset-0" aria-hidden>
+          <div className="hero-motion" style={{ backgroundImage: "url('/hero-voice.webp')" }} />
+          <div className="hero-motion hero-motion-b" style={{ backgroundImage: "url('/hero-seller.webp')" }} />
+        </div>
         {/* Warm glow accent (bottom-right, like ambient light in SASC) */}
         <div
           className="pointer-events-none absolute inset-0"
