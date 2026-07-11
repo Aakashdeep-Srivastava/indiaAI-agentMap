@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { BLOG_POSTS } from "@/lib/blog";
+import { CITY_CLUSTERS } from "@/lib/cities";
 
 const BASE = "https://www.msmemate.com";
 
@@ -50,6 +51,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...BLOG_POSTS.map((post) => ({
       url: `${BASE}/blog/${post.slug}`,
       lastModified: new Date(post.dateModified),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    {
+      url: `${BASE}/ondc`,
+      lastModified: new Date("2026-07-11"),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
+    ...CITY_CLUSTERS.map((c) => ({
+      url: `${BASE}/ondc/${c.slug}`,
+      lastModified: new Date("2026-07-11"),
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),

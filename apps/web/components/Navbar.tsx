@@ -16,7 +16,8 @@ export default function Navbar() {
     pathname.startsWith("/privacy") ||
     pathname.startsWith("/terms") ||
     pathname.startsWith("/dpdp") ||
-    pathname.startsWith("/sovereign-ai");
+    pathname.startsWith("/sovereign-ai") ||
+    pathname.startsWith("/ondc");
 
   useEffect(() => {
     const onScroll = () => {
