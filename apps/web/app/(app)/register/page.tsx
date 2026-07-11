@@ -542,7 +542,7 @@ export default function RegisterPage() {
 
       {/* ─── Mobile: stacked ─── */}
       <div className="lg:hidden space-y-4">
-        <div style={{ height: "55vh" }}>
+        <div className="h-[72vh] min-h-[520px]">
           <SathiVoicePanel
             form={form}
             onUpdate={update}

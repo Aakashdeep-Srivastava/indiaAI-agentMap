@@ -105,7 +105,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link
             href="/login"
-            className={`rounded-xl px-4 py-2 text-xs font-semibold transition-colors ${
+            className={`whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold transition-colors sm:px-4 ${
               light
                 ? "text-surface-600 hover:bg-surface-100 hover:text-brand-900"
                 : "text-white/80 hover:bg-white/10 hover:text-white"
@@ -115,7 +115,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/login"
-            className="rounded-xl bg-saffron-500 px-5 py-2 text-xs font-semibold text-white transition-all hover:bg-saffron-600"
+            className="whitespace-nowrap rounded-xl bg-saffron-500 px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-saffron-600 sm:px-5"
           >
             Get Started
           </Link>

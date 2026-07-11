@@ -1040,7 +1040,9 @@ export default function SathiVoicePanel({
       </div>
 
       {/* ─── Center content ─── */}
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 overflow-hidden p-3">
+      {/* my-auto on each state block centers when content fits and scrolls from
+          the top when it doesn't — justify-center would clip the orb on phones */}
+      <div className="flex flex-1 flex-col items-center gap-3 overflow-y-auto p-3">
         <AnimatePresence mode="wait">
           {confirming && !complete ? (
             /* ─── Confirmation inline ─── */
@@ -1049,7 +1051,7 @@ export default function SathiVoicePanel({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
-              className="w-full max-w-sm"
+              className="my-auto w-full max-w-sm"
             >
               <div className="space-y-3 rounded-xl border border-surface-200 bg-surface-50 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
@@ -1136,7 +1138,7 @@ export default function SathiVoicePanel({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full max-w-sm"
+              className="my-auto w-full max-w-sm"
             >
               <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
                 <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
@@ -1167,7 +1169,7 @@ export default function SathiVoicePanel({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex w-full flex-col items-center gap-2.5"
+              className="my-auto flex w-full flex-col items-center gap-2.5"
             >
               {/* Orb */}
               <div className="pb-1">
@@ -1275,7 +1277,7 @@ export default function SathiVoicePanel({
               )}
 
               {/* Field cards grid */}
-              <div className="grid w-full grid-cols-4 gap-1">
+              <div className="grid w-full grid-cols-3 gap-1 sm:grid-cols-4">
                 {FIELD_ORDER.map((key) => {
                   const val =
                     (form as unknown as Record<string, string>)[key] || "";
