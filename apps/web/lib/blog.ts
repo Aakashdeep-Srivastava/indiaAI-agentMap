@@ -465,6 +465,80 @@ BLOG_POSTS.push({
   ],
 });
 
+BLOG_POSTS.push({
+  slug: "claims-copilot-team-verification",
+  title: "The Claims Copilot: How AI Helps NSIC Verify MSME TEAM Incentive Claims",
+  metaTitle: "Claims Copilot — AI Verification for MSME TEAM Claims",
+  description:
+    "Inside MSMEMate's officer tool that automates TEAM scheme claim checks — Udyam validation, SKU caps, duplicate detection, risk scoring — with humans making every final call.",
+  datePublished: "2026-07-11",
+  dateModified: "2026-07-11",
+  readMinutes: 6,
+  keywords: [
+    "TEAM claim verification",
+    "NSIC claims",
+    "AI fraud detection government",
+    "SNP incentive claims",
+    "MSME TEAM scheme claims",
+    "risk-based verification",
+  ],
+  hindiTagline: "दावों की जाँच — तेज़, पारदर्शी, और इंसान की निगरानी में।",
+  tldr:
+    "Under the MSME TEAM scheme, seller apps earn milestone incentives for every MSE they onboard — and NSIC must verify each claim against Udyam validity, enterprise size, activity type, SKU caps and live-catalogue evidence, largely by hand today. MSMEMate's Claims Copilot automates that documented checklist, scores every claim for risk so officers review by exception, and blocks approval while any rule fails. Officers make every final decision, and each one lands in an immutable audit trail.",
+  sections: [
+    {
+      heading: "The bottleneck the scheme itself names",
+      paragraphs: [
+        "The IndiaAI Innovation Challenge 2026 describes the TEAM workflow as relying on 'labour-intensive claim verification by NSIC'. The arithmetic explains why: incentives are milestone-based per MSE — ₹450 for onboarding, catalogue support of ₹50 per SKU (up to 50 B2C) or ₹125 per SKU (up to 20 B2B) capped at ₹2,500, account management up to ₹5,000 linked to transactions. Every claim must be checked against a rulebook before public money moves.",
+        "Each check is individually simple; multiplied across lakhs of MSEs and hundreds of seller apps, it becomes the bottleneck.",
+      ],
+    },
+    {
+      heading: "What the Copilot automates",
+      paragraphs: ["Every claim runs the official checklist automatically:"],
+      list: [
+        "Udyam number format and validity of the underlying registration.",
+        "Enterprise is Micro or Small, with Manufacturing or Services as major activity — the scheme's hard gates.",
+        "One SNP per MSE — duplicate claims across seller apps are caught network-wide, instantly.",
+        "Catalogue actually live on ONDC, with SKU counts checked against the B2C/B2B caps.",
+        "Claimed amount recomputed against the scheme's own arithmetic — over-billing shows in red.",
+      ],
+    },
+    {
+      heading: "Risk scoring: review by exception",
+      paragraphs: [
+        "Beyond pass/fail rules, each claim gets anomaly signals — SKU counts sitting exactly at the incentive cap, an MSE outside the seller app's declared coverage, a catalogue nobody can observe on the network — and a green/yellow/red risk band. Officers spend their attention on red, clear green in bulk, and every claim shows exactly why it scored what it scored.",
+        "This is the pattern India's most successful government AI already uses: GST's analytics flag risky filings for human scrutiny, income-tax assessment allocates cases by risk, and GeM's fraud analytics won national awards doing the same for procurement. The Copilot brings that playbook to TEAM claims.",
+      ],
+    },
+    {
+      heading: "Humans stay the authority",
+      paragraphs: [
+        "The Copilot cannot approve anything on its own — and the interface refuses to let an officer approve a claim while any rule fails. Approvals and flags are made by named officers, persisted with their identity and timestamp, and written to the same immutable audit trail that records every AI decision on the platform.",
+        "Transparency note: until the TEAM portal exposes a live claims feed, the Copilot runs on a clearly-stamped simulated queue built from registered businesses and real ONDC registry seller apps — the rule engine, risk scoring and audit trail are fully real.",
+      ],
+    },
+  ],
+  faq: [
+    {
+      q: "Does the AI reject claims automatically?",
+      a: "No. The Copilot checks rules and scores risk; only a named NSIC officer can approve or flag a claim, and the system blocks approval while any check fails. Every decision is recorded in an immutable audit trail.",
+    },
+    {
+      q: "What stops a seller app from claiming the same MSE twice?",
+      a: "The one-SNP-per-MSE rule is enforced network-wide: the Copilot sees all claims across all seller apps at once, so a duplicate claim is flagged the moment it enters the queue — a check that is slow and error-prone to do manually.",
+    },
+    {
+      q: "How does the Copilot know a catalogue is really live on ONDC?",
+      a: "ONDC's observability framework makes catalogue status machine-verifiable — whether a seller's items actually appear on the network. That evidence, not a self-declaration alone, is what the catalogue-live check is designed to consume.",
+    },
+    {
+      q: "Is this using real government claims data?",
+      a: "Not yet — and it says so on screen. The demo queue is simulated from registered businesses and real registry seller apps, stamped as such. The moment a TEAM portal claims feed exists, the same rule engine runs on it unchanged.",
+    },
+  ],
+});
+
 export function getPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((p) => p.slug === slug);
 }
