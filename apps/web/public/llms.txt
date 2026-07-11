@@ -40,6 +40,9 @@ DPDP Act 2023 with data residency in India.
   the layered, confidence-gated classification model (verified eval numbers)
 - [The Claims Copilot](https://www.msmemate.com/blog/claims-copilot-team-verification):
   AI-assisted TEAM incentive claim verification with humans in charge
+- [The MLOps Playbook](https://www.msmemate.com/blog/mlops-honest-ai-lifecycle):
+  data lineage, honest evaluation, drift monitoring, human feedback flywheel,
+  CI model gates and DVC — the lifecycle behind the models
 
 ## Facts
 

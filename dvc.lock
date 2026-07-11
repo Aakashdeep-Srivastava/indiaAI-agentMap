@@ -1,0 +1,83 @@
+schema: '2.0'
+stages:
+  build_corpus:
+    cmd: python scripts/build_training_corpus_v2.py
+    deps:
+    - path: data/processed/mepma_product_pairs.csv
+      hash: md5
+      md5: be0bde31f0df52e27cc1b28b75aed919
+      size: 679638
+    - path: data/processed/mse_profiles_5k.csv
+      hash: md5
+      md5: a7b93ce425680fabbabd121cb8df8256
+      size: 1758343
+    - path: data/processed/ondc_taxonomy.json
+      hash: md5
+      md5: 5a06aff087b876c21c5c37d12277b013
+      size: 284708
+    - path: data/processed/product_category_pairs.csv
+      hash: md5
+      md5: e18e2436413da57c19f336c647ade90d
+      size: 9374679
+    - path: scripts/build_training_corpus_v2.py
+      hash: md5
+      md5: 6f944d411492e7c3c054915b2c6ce8af
+      size: 10773
+    outs:
+    - path: data/processed/training_corpus_v2.csv
+      hash: md5
+      md5: 3265bebe345a3e19fa3fabf7ca3aca8a
+      size: 8354919
+  train:
+    cmd: python ml/train_vargbot_tfidf_v2.py
+    deps:
+    - path: data/processed/training_corpus_v2.csv
+      hash: md5
+      md5: 3265bebe345a3e19fa3fabf7ca3aca8a
+      size: 8354919
+    - path: ml/train_vargbot_tfidf_v2.py
+      hash: md5
+      md5: dd9f5e0b06c867b88df48f3f975f543a
+      size: 9178
+    outs:
+    - path: ml/models/vargbot_tfidf_v2.joblib
+      hash: md5
+      md5: 7dfd83d87b74176fb59346d63004cfaa
+      size: 15819364
+    - path: ml/reports/vargbot_tfidf_v2_eval.json
+      hash: md5
+      md5: 0bca161db4f7d4da26b2795a290b38de
+      size: 7685
+  deploy_artifact:
+    cmd: python -c "import shutil; 
+      shutil.copy('ml/models/vargbot_tfidf_v2.joblib','apps/api/models/vargbot_tfidf_v2.joblib');
+      shutil.copy('ml/reports/vargbot_tfidf_v2_eval.json','apps/api/data/vargbot_baseline_eval.json')"
+    deps:
+    - path: ml/models/vargbot_tfidf_v2.joblib
+      hash: md5
+      md5: 7dfd83d87b74176fb59346d63004cfaa
+      size: 15819364
+    - path: ml/reports/vargbot_tfidf_v2_eval.json
+      hash: md5
+      md5: 0bca161db4f7d4da26b2795a290b38de
+      size: 7685
+    outs:
+    - path: apps/api/data/vargbot_baseline_eval.json
+      hash: md5
+      md5: 0bca161db4f7d4da26b2795a290b38de
+      size: 7685
+    - path: apps/api/models/vargbot_tfidf_v2.joblib
+      hash: md5
+      md5: 7dfd83d87b74176fb59346d63004cfaa
+      size: 15819364
+  smoke_test:
+    cmd: python ml/tests/smoke_test_vargbot.py
+    deps:
+    - path: apps/api/models/vargbot_tfidf_v2.joblib
+      hash: md5
+      md5: 7dfd83d87b74176fb59346d63004cfaa
+      size: 15819364
+    - path: ml/tests/smoke_test_vargbot.py
+      hash: md5
+      md5: ec837173b98762b02b53304f697c1962
+      size: 3360

@@ -539,6 +539,107 @@ BLOG_POSTS.push({
   ],
 });
 
+BLOG_POSTS.push({
+  slug: "mlops-honest-ai-lifecycle",
+  title: "The MLOps Playbook Behind MSMEMate: How We Ship Honest AI",
+  metaTitle: "MLOps for Sovereign AI — MSMEMate's Honest ML Lifecycle",
+  description:
+    "How a small team runs a full ML lifecycle for government-grade AI: data lineage, honest evaluation, calibrated confidence gates, drift monitoring, a human feedback flywheel, CI model gates and a DVC pipeline.",
+  datePublished: "2026-07-12",
+  dateModified: "2026-07-12",
+  readMinutes: 8,
+  keywords: [
+    "MLOps India",
+    "ML lifecycle best practices",
+    "sovereign AI MLOps",
+    "model drift monitoring",
+    "human in the loop AI",
+    "DVC pipeline",
+    "responsible AI government",
+  ],
+  hindiTagline: "ईमानदार AI — हर मॉडल का पूरा जीवन-चक्र, निगरानी के साथ।",
+  tldr:
+    "An AI system that routes public-scheme benefits cannot be a black box that was accurate once, at launch. MSMEMate runs a complete ML lifecycle around its classification model: every training row carries its source, every metric is reported with its weaknesses disclosed, every prediction is stamped with the exact engine that produced it, a live dashboard watches for drift against the frozen training baseline, officer decisions flow back as retraining data, and CI refuses to deploy an artifact that fails behavioural smoke tests. This post walks through each practice and why it exists.",
+  sections: [
+    {
+      heading: "Why lifecycle matters more than launch accuracy",
+      paragraphs: [
+        "A model's accuracy on the day it ships is a snapshot. The world underneath it moves: new kinds of businesses register, vocabulary shifts, upstream services change behaviour. For AI that touches government workflows — deciding which ONDC category a business belongs to, or which seller apps suit it — the real question is not 'how accurate was it at launch?' but 'how will you know when it stops being accurate, and what happens then?'",
+        "That question is what MLOps answers. Here is the lifecycle we run, end to end: data with lineage → training with a locked evaluation protocol → versioned, stamped artifacts → gated deployment → drift monitoring → human feedback → retraining. Each stage below is live in production today.",
+      ],
+    },
+    {
+      heading: "Data: every row knows where it came from",
+      paragraphs: [
+        "VargBot v2 trains on 33,500 labelled examples from four sources: real e-commerce product listings, real product names from Andhra Pradesh's MEPMA self-help-group sellers, business descriptions derived from real Udyog registration data, and — only for the six ONDC domains nothing else covered — template-generated text built from the official taxonomy's own category names.",
+        "Every row carries a source column. The corpus builder is a deterministic, seeded script, so the exact dataset can be rebuilt from its inputs on any machine. This is data lineage in its simplest useful form: when a prediction looks wrong, we can trace what kind of data taught the model that behaviour.",
+      ],
+    },
+    {
+      heading: "Evaluation: report the number that makes you look worse",
+      paragraphs: [
+        "The protocol is standard and locked: stratified 80/10/10 split, hyperparameters tuned only on validation, 5-fold cross-validation for stability, and a test set touched exactly once. VargBot v2 scores 98.9% held-out accuracy with cross-validation at 0.984 ± 0.001.",
+        "But the more important number is the one we publish next to it: on real product text alone — excluding the template-generated rows whose near-duplicates appear on both sides of the split — accuracy is 98.5% and macro-F1 drops from 0.987 to 0.957. The evaluation report carries a written honesty note explaining exactly why the headline number is optimistic. If your eval report only contains numbers that flatter the model, it is marketing, not evaluation.",
+      ],
+    },
+    {
+      heading: "Confidence you can act on: the calibrated gate",
+      paragraphs: [
+        "The trained model only answers when its confidence clears a gate; below it, the case routes to a language model that handles Indic scripts and unusual text, and ultimately to a human reviewer. In v2 the gate stopped being a guess: we compute a full threshold-versus-precision table on validation data, and the shipped gate (0.55) corresponds to a measured coverage/precision trade-off. Saying 'the model is 95% confident' only means something if someone checked what 95% actually delivers.",
+      ],
+    },
+    {
+      heading: "Versioning and honest stamps",
+      paragraphs: [
+        "Model artifacts are versioned (v1 stays deployable for instant rollback via one environment variable), the training library version is pinned identically in training and serving, and — the part we consider non-negotiable — every stored prediction carries the exact engine that produced it: the trained model, the language model, or the keyword fallback. No result ever wears a label it did not earn. That per-prediction lineage is what makes everything downstream possible.",
+      ],
+      list: [
+        "Reproducible pipeline: dvc repro re-runs corpus build → training → artifact deployment as a declared DAG with dependency tracking.",
+        "Model card: a published document covering architecture, data, metrics, limitations and ethics (docs/MODEL_CARD_VARGBOT.md).",
+        "CI model gate: the build fails if the shipped artifact loses domain coverage, regresses on canonical Hinglish/English inputs, or stops deferring on ambiguous text.",
+      ],
+    },
+    {
+      heading: "Monitoring: the model watches itself, officers watch the model",
+      paragraphs: [
+        "The NSIC dashboard includes a Model Health monitor built entirely from data the platform already records: weekly confidence trends (average and 25th percentile), the mix of engines answering live traffic, how often officers reject registrations or override the AI's recommendations, and per-domain live confidence compared against the frozen evaluation baseline from training day.",
+        "Thresholds turn the card red when the fallback share or override rate climbs past configured limits — a plain-language signal that says 'time to retrain', backed by the exact evidence. Drift detection is not an enterprise luxury; ours is a read-only analytics layer over records an honest system was already keeping.",
+      ],
+    },
+    {
+      heading: "The feedback flywheel: humans close the loop",
+      paragraphs: [
+        "Every officer decision — approving a registration, rejecting one, overriding a recommended seller app — is recorded anyway for auditability. A dedicated export turns those decisions into weak-supervision retraining data, clearly labelled with what an approval does and does not confirm. Monitoring tells us when to retrain; the feedback export supplies human-vetted data to retrain with; the same locked evaluation protocol decides whether the new model actually earns its way to production. That loop — not any single model — is the product.",
+        "What about reinforcement learning? For a supervised classifier, true RL does not apply — but the feedback flywheel is its philosophical cousin: the system learns from human judgment over time. Genuine RL (contextual bandits over match acceptance) is a plausible future for the matching engine, once live acceptance data accumulates.",
+      ],
+    },
+    {
+      heading: "What we deliberately do not do (yet)",
+      paragraphs: [
+        "Honest MLOps also means not cosplaying at scale. We skip experiment-tracking servers (two model versions live comfortably in versioned JSON reports), canary infrastructure (traffic does not justify it; env-var rollback covers us), and feature stores. Each becomes worth adopting at a defined trigger — more models, more traffic, more people — and the DVC remote for large artifacts is the first upgrade queued.",
+      ],
+    },
+  ],
+  faq: [
+    {
+      q: "What is MLOps in simple terms?",
+      a: "MLOps is the discipline of treating a machine-learning model like a living system rather than a one-time deliverable: versioning its data and code, testing it before deployment, monitoring it in production for degradation, and feeding real-world feedback back into retraining.",
+    },
+    {
+      q: "How does MSMEMate know when its model degrades?",
+      a: "A live Model Health dashboard tracks weekly confidence trends, which engine answered each request, officer override rates, and per-domain confidence against the frozen training baseline. Configured thresholds raise a red alert recommending retraining — with the evidence attached.",
+    },
+    {
+      q: "Does MSMEMate use reinforcement learning?",
+      a: "Not for classification — RL does not fit supervised text classification. The closest live mechanism is the human feedback flywheel: officer decisions are exported as weak-supervision training data for periodic retraining. Contextual bandits over match acceptance are a possible future for the matching engine.",
+    },
+    {
+      q: "Why publish the lower accuracy number?",
+      a: "Because part of the evaluation data is template-generated and inflates the headline score. Publishing the real-data-only figure (98.5%, macro-F1 0.957) alongside the headline (98.9%, 0.987) with a written explanation is what makes the evaluation trustworthy — for a government-facing system, credibility compounds faster than optics.",
+    },
+  ],
+});
+
 export function getPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((p) => p.slug === slug);
 }

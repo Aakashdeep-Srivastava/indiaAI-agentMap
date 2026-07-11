@@ -288,3 +288,65 @@ def model_health(
             "covered_domains": sorted(baseline_domains.keys()),
         },
     }
+
+
+@router.get("/feedback-export")
+def feedback_export(
+    limit: int = Query(default=1000, ge=1, le=5000),
+    db: Session = Depends(get_db),
+):
+    """Export officer-reviewed classifications as retraining data (the
+    feedback flywheel: monitor detects drift -> this endpoint supplies the
+    human-vetted rows -> scripts/build_training_corpus_v2.py merges them).
+
+    Labels are WEAK supervision: an approved registration means an officer
+    accepted the whole profile (not the domain specifically); rejections
+    flag rows to exclude. Domain corrections are not yet captured in the
+    review UI — noted in meta so downstream training treats these honestly.
+    """
+    rows = (
+        db.query(
+            MSE.id, MSE.description, MSE.products, MSE.language,
+            MSE.status, MSE.reviewed_by, MSE.reviewed_at,
+            ClassificationResult.predicted_domain,
+            ClassificationResult.confidence,
+            ClassificationResult.model_version,
+            ClassificationResult.created_at,
+        )
+        .join(ClassificationResult, ClassificationResult.mse_id == MSE.id)
+        .filter(MSE.status.in_(["approved", "rejected"]))
+        .order_by(ClassificationResult.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    samples = []
+    for r in rows:
+        products = (r.products or "").replace("|", ", ") if isinstance(r.products, str) else ""
+        text = f"{r.description or ''} Products: {products}".strip() if products else (r.description or "")
+        samples.append({
+            "mse_id": r.id,
+            "text": text,
+            "language": r.language,
+            "predicted_domain": r.predicted_domain,
+            "confidence": r.confidence,
+            "engine": r.model_version,
+            "officer_outcome": r.status,
+            "reviewed_by": r.reviewed_by,
+            "reviewed_at": r.reviewed_at.isoformat() if r.reviewed_at else None,
+            "classified_at": r.created_at.isoformat() if r.created_at else None,
+        })
+    return {
+        "meta": {
+            "generated_at": datetime.utcnow().isoformat(),
+            "n": len(samples),
+            "label_semantics": (
+                "weak supervision — 'approved' means the officer accepted the "
+                "registration as a whole, not the domain specifically; use as "
+                "positive-confirmation signal. 'rejected' rows should be "
+                "excluded or manually re-labelled. Explicit domain-correction "
+                "capture in the review UI is a planned upgrade."
+            ),
+            "intended_use": "merge into training_corpus_v2.csv as source=officer_feedback",
+        },
+        "samples": samples,
+    }

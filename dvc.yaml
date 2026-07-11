@@ -1,0 +1,45 @@
+# VargBot end-to-end pipeline — reproduce with `dvc repro`.
+# Outputs use cache:false because the API deploys from git (git archive of
+# apps/api) and no DVC remote is configured yet; when artifacts outgrow git,
+# add a remote (Azure Blob) and flip cache on.
+stages:
+  build_corpus:
+    cmd: python scripts/build_training_corpus_v2.py
+    deps:
+      - scripts/build_training_corpus_v2.py
+      - data/processed/product_category_pairs.csv
+      - data/processed/mepma_product_pairs.csv
+      - data/processed/mse_profiles_5k.csv
+      - data/processed/ondc_taxonomy.json
+    outs:
+      - data/processed/training_corpus_v2.csv:
+          cache: false
+
+  train:
+    cmd: python ml/train_vargbot_tfidf_v2.py
+    deps:
+      - ml/train_vargbot_tfidf_v2.py
+      - data/processed/training_corpus_v2.csv
+    outs:
+      - ml/models/vargbot_tfidf_v2.joblib:
+          cache: false
+    metrics:
+      - ml/reports/vargbot_tfidf_v2_eval.json:
+          cache: false
+
+  deploy_artifact:
+    cmd: python -c "import shutil; shutil.copy('ml/models/vargbot_tfidf_v2.joblib','apps/api/models/vargbot_tfidf_v2.joblib'); shutil.copy('ml/reports/vargbot_tfidf_v2_eval.json','apps/api/data/vargbot_baseline_eval.json')"
+    deps:
+      - ml/models/vargbot_tfidf_v2.joblib
+      - ml/reports/vargbot_tfidf_v2_eval.json
+    outs:
+      - apps/api/models/vargbot_tfidf_v2.joblib:
+          cache: false
+      - apps/api/data/vargbot_baseline_eval.json:
+          cache: false
+
+  smoke_test:
+    cmd: python ml/tests/smoke_test_vargbot.py
+    deps:
+      - ml/tests/smoke_test_vargbot.py
+      - apps/api/models/vargbot_tfidf_v2.joblib

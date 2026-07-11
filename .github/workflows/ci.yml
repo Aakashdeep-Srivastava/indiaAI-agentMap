@@ -29,6 +29,9 @@ jobs:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
           JWT_SECRET: ci-only-secret
         run: python -c "import main"
+      - name: Model smoke test (deployed VargBot artifact must behave)
+        working-directory: .
+        run: python ml/tests/smoke_test_vargbot.py
 
   web:
     name: Web — typecheck + build
