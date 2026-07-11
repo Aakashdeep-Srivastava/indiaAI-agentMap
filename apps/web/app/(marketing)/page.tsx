@@ -17,13 +17,14 @@ export default function LandingPage() {
             backgroundPosition: "center 40%, center",
           }}
         />
-        {/* Dark overlay for legibility */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30" />
-        {/* Moving MSE stories — glowing highlights crossfade inside the blue left zone only */}
-        <div className="hero-motion-layer pointer-events-none absolute inset-0" aria-hidden>
-          <div className="hero-motion" style={{ backgroundImage: "url('/hero-voice.webp')" }} />
-          <div className="hero-motion hero-motion-b" style={{ backgroundImage: "url('/hero-seller.webp')" }} />
+        {/* Rotating hero frames — India network map → voice-first kirana → textile seller */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden>
+          <div className="hero-fade" style={{ backgroundImage: "url('/hero-india.webp')" }} />
+          <div className="hero-fade hero-fade-2" style={{ backgroundImage: "url('/hero-voice.webp')" }} />
+          <div className="hero-fade hero-fade-3" style={{ backgroundImage: "url('/hero-seller.webp')" }} />
         </div>
+        {/* Light left scrim for headline legibility — images stay vivid */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent" />
         {/* Warm glow accent (bottom-right, like ambient light in SASC) */}
         <div
           className="pointer-events-none absolute inset-0"
@@ -66,7 +67,7 @@ export default function LandingPage() {
             </h1>
 
             {/* Subtitle */}
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/50 sm:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
               The sovereign AI platform that onboards MSEs to ONDC — through
               voice, in any Indian language. From registration to matching,
               everything in one place.
