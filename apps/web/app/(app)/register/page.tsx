@@ -461,7 +461,25 @@ export default function RegisterPage() {
         <span className="text-[11px] leading-snug text-surface-600">
           I consent to my enterprise details being processed to classify my
           business and recommend seller platforms (DPDP Act 2023). Data stays
-          in India and can be erased on request.
+          in India and can be erased on request. See our{" "}
+          <a
+            href="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-brand-500 hover:underline"
+          >
+            Privacy Policy
+          </a>{" "}
+          and{" "}
+          <a
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-brand-500 hover:underline"
+          >
+            Terms
+          </a>
+          .
           <span className="mt-0.5 block text-surface-400">
             मैं अपने उद्यम की जानकारी के उपयोग की सहमति देता/देती हूँ।
           </span>

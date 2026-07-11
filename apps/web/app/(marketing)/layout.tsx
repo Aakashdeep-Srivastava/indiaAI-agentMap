@@ -231,8 +231,22 @@ export default function MarketingLayout({
               </span>
             </div>
 
-            {/* Trust badges */}
-            <div className="flex items-center gap-4 text-[11px] text-surface-400">
+            {/* Legal + trust badges */}
+            <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-surface-400">
+              <Link
+                href="/privacy"
+                className="font-medium transition-colors hover:text-brand-500"
+              >
+                Privacy Policy
+              </Link>
+              <span className="h-1 w-1 rounded-full bg-surface-300" />
+              <Link
+                href="/terms"
+                className="font-medium transition-colors hover:text-brand-500"
+              >
+                Terms &amp; Conditions
+              </Link>
+              <span className="h-1 w-1 rounded-full bg-surface-300" />
               <span className="flex items-center gap-1.5">
                 <span className="inline-flex gap-0.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#FF9933]" />

@@ -9,9 +9,12 @@ export default function Navbar() {
   const [visible, setVisible] = useState(true);
   const [lastY, setLastY] = useState(0);
   const pathname = usePathname();
-  /* The landing page opens on a dark hero; inner marketing pages (blog)
-   * sit on a light surface — the navbar adapts its scheme to stay legible. */
-  const light = pathname.startsWith("/blog");
+  /* The landing page opens on a dark hero; inner marketing pages sit on a
+   * light surface — the navbar adapts its scheme to stay legible. */
+  const light =
+    pathname.startsWith("/blog") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/terms");
 
   useEffect(() => {
     const onScroll = () => {
