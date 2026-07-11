@@ -280,23 +280,28 @@ _use_muril = False
 # ── TF-IDF domain classifier state (populated at startup) ────────────
 
 _tfidf_model = None
+_tfidf_engine = "vargbot-tfidf"  # honest stamp; version read from artifact name
 # Below this top-1 probability the trained model defers to the LLM chain
-# (Indic-script input and out-of-corpus domains land here by design).
-TFIDF_MIN_CONF = float(os.getenv("VARGBOT_TFIDF_MIN_CONF", "0.60"))
+# (Indic-script input and unusual text land there by design). v2 calibration:
+# 0.55 gives 97.6% coverage at 99.3% val precision (template-inflated — see
+# gate_calibration + honesty_note in ml/reports/vargbot_tfidf_v2_eval.json).
+TFIDF_MIN_CONF = float(os.getenv("VARGBOT_TFIDF_MIN_CONF", "0.55"))
 
 
 def init_classifier():
     """Initialize the classifier — load MuRIL if adapter is available."""
-    global _muril_model, _muril_tokenizer, _use_muril, _tfidf_model
+    global _muril_model, _muril_tokenizer, _use_muril, _tfidf_model, _tfidf_engine
 
     tfidf_path = Path(os.getenv(
         "VARGBOT_TFIDF_PATH",
-        str(Path(__file__).resolve().parent.parent / "models" / "vargbot_tfidf_v1.joblib"),
+        str(Path(__file__).resolve().parent.parent / "models" / "vargbot_tfidf_v2.joblib"),
     ))
     if tfidf_path.exists():
         try:
             import joblib
             _tfidf_model = joblib.load(tfidf_path)
+            # "vargbot_tfidf_v2.joblib" -> "vargbot-tfidf-v2"
+            _tfidf_engine = tfidf_path.stem.replace("_", "-")
             logger.info(
                 f"VargBot TF-IDF domain model loaded ({tfidf_path.name}, "
                 f"{len(_tfidf_model.classes_)} domains, gate={TFIDF_MIN_CONF})"
@@ -620,8 +625,8 @@ async def classify_mse_description_async(
                 top["category"] = llm_top.get("category")
                 top["category_name"] = llm_top.get("category_name")
                 top["explanation"] = llm_top.get("explanation")
-                return tfidf_preds, "vargbot-tfidf-v1+sarvam-30b", attrs
-        return tfidf_preds, "vargbot-tfidf-v1", {}
+                return tfidf_preds, f"{_tfidf_engine}+sarvam-30b", attrs
+        return tfidf_preds, _tfidf_engine, {}
 
     # 2. Sarvam zero-shot over the full taxonomy (Indic text, out-of-corpus domains)
     parsed = await _classify_with_sarvam(description)
@@ -636,7 +641,7 @@ async def classify_mse_description_async(
     # 4. Trained model even below the gate — still better than keywords
     if tfidf_preds:
         logger.info("Sarvam unavailable, using TF-IDF below confidence gate")
-        return tfidf_preds, "vargbot-tfidf-v1", {}
+        return tfidf_preds, _tfidf_engine, {}
 
     # 5. Keyword fallback
     logger.info("Sarvam unavailable, using keyword fallback")

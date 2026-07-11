@@ -1,0 +1,465 @@
+{
+  "meta": {
+    "trained": "2026-07-11",
+    "model": "TF-IDF union (word 1-2 x120K + char_wb 3-5 x80K) + LogisticRegression (balanced)",
+    "corpus": "training_corpus_v2.csv \u2014 flipkart + mepma + mse_profile + synthetic gap-fillers; 14/14 ONDC retail domains",
+    "corpus_by_domain": {
+      "RET10": 1354,
+      "RET11": 1140,
+      "RET12": 15247,
+      "RET13": 899,
+      "RET14": 1367,
+      "RET15": 819,
+      "RET16": 6783,
+      "RET17": 778,
+      "RET18": 713,
+      "RET19": 797,
+      "RET1A": 1083,
+      "RET1B": 911,
+      "RET1C": 838,
+      "RET1D": 800
+    },
+    "split": "stratified 80/10/10",
+    "hyperparam_grid": {
+      "val_macro_f1_by_C": {
+        "0.5": 0.9769,
+        "1.0": 0.9807,
+        "2.0": 0.9824
+      },
+      "selected_C": 2.0
+    },
+    "cv_5fold_macro_f1": {
+      "mean": 0.9841,
+      "std": 0.001
+    },
+    "level": "domain",
+    "n_test": 3353,
+    "honesty_note": "mse_profile and synthetic rows are template-generated; near-duplicate templates appear in both train and test, so their subset accuracy is optimistic. The real-products metrics (flipkart+mepma) are the conservative evidence."
+  },
+  "test_accuracy": 0.9893,
+  "test_macro_f1": 0.9866,
+  "test_micro_f1": 0.9893,
+  "test_by_source": {
+    "flipkart": {
+      "n": 1667,
+      "accuracy": 0.9808
+    },
+    "mepma": {
+      "n": 799,
+      "accuracy": 0.995
+    },
+    "mse_profile": {
+      "n": 470,
+      "accuracy": 1.0
+    },
+    "synthetic": {
+      "n": 417,
+      "accuracy": 1.0
+    }
+  },
+  "test_real_products": {
+    "n": 2466,
+    "accuracy": 0.9854,
+    "macro_f1": 0.9575
+  },
+  "gate_calibration": {
+    "table": [
+      {
+        "threshold": 0.3,
+        "coverage": 0.9973,
+        "precision": 0.9874
+      },
+      {
+        "threshold": 0.35,
+        "coverage": 0.9964,
+        "precision": 0.9874
+      },
+      {
+        "threshold": 0.4,
+        "coverage": 0.9925,
+        "precision": 0.9889
+      },
+      {
+        "threshold": 0.45,
+        "coverage": 0.9866,
+        "precision": 0.99
+      },
+      {
+        "threshold": 0.5,
+        "coverage": 0.9812,
+        "precision": 0.9918
+      },
+      {
+        "threshold": 0.55,
+        "coverage": 0.9761,
+        "precision": 0.9927
+      },
+      {
+        "threshold": 0.6,
+        "coverage": 0.9687,
+        "precision": 0.9942
+      },
+      {
+        "threshold": 0.65,
+        "coverage": 0.9579,
+        "precision": 0.995
+      },
+      {
+        "threshold": 0.7,
+        "coverage": 0.9499,
+        "precision": 0.9959
+      },
+      {
+        "threshold": 0.75,
+        "coverage": 0.9356,
+        "precision": 0.9968
+      },
+      {
+        "threshold": 0.8,
+        "coverage": 0.9141,
+        "precision": 0.9977
+      },
+      {
+        "threshold": 0.85,
+        "coverage": 0.8762,
+        "precision": 0.9976
+      },
+      {
+        "threshold": 0.9,
+        "coverage": 0.8082,
+        "precision": 0.9982
+      }
+    ],
+    "recommended_gate_p95": 0.3
+  },
+  "per_domain": {
+    "RET10": {
+      "precision": 0.9627,
+      "recall": 0.9556,
+      "f1": 0.9591,
+      "support": 135
+    },
+    "RET11": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 114
+    },
+    "RET12": {
+      "precision": 0.998,
+      "recall": 0.9934,
+      "f1": 0.9957,
+      "support": 1524
+    },
+    "RET13": {
+      "precision": 0.978,
+      "recall": 0.9889,
+      "f1": 0.9834,
+      "support": 90
+    },
+    "RET14": {
+      "precision": 0.9714,
+      "recall": 0.9927,
+      "f1": 0.9819,
+      "support": 137
+    },
+    "RET15": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 82
+    },
+    "RET16": {
+      "precision": 0.9809,
+      "recall": 0.9838,
+      "f1": 0.9824,
+      "support": 679
+    },
+    "RET17": {
+      "precision": 0.9059,
+      "recall": 0.9872,
+      "f1": 0.9448,
+      "support": 78
+    },
+    "RET18": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 71
+    },
+    "RET19": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 79
+    },
+    "RET1A": {
+      "precision": 0.9906,
+      "recall": 0.9633,
+      "f1": 0.9767,
+      "support": 109
+    },
+    "RET1B": {
+      "precision": 1.0,
+      "recall": 0.978,
+      "f1": 0.9889,
+      "support": 91
+    },
+    "RET1C": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 84
+    },
+    "RET1D": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 80
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "RET10",
+      "RET11",
+      "RET12",
+      "RET13",
+      "RET14",
+      "RET15",
+      "RET16",
+      "RET17",
+      "RET18",
+      "RET19",
+      "RET1A",
+      "RET1B",
+      "RET1C",
+      "RET1D"
+    ],
+    "matrix": [
+      [
+        129,
+        0,
+        1,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        114,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        4,
+        0,
+        1514,
+        2,
+        0,
+        0,
+        3,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        89,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        136,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        82,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        2,
+        0,
+        1,
+        0,
+        668,
+        7,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        77,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        71,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        79,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        1,
+        0,
+        0,
+        0,
+        105,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        89,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        84,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        80
+      ]
+    ]
+  }
+}
