@@ -7,24 +7,27 @@ export default function LandingPage() {
           SECTION 1 — HERO (SASC-style: full-bleed dark, left-aligned)
       ═══════════════════════════════════════════════════════════════ */}
       <section className="relative z-0 mx-4 min-h-[92vh] overflow-hidden rounded-b-[2rem] bg-brand-900 sm:mx-6 lg:mx-8">
-        {/* Rich dark background — illuminated ONDC network map of India */}
+        {/* Rich dark base gradient */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
-            backgroundImage:
-              "url('/hero-india.webp'), linear-gradient(135deg, #060a1e 0%, #0B1437 30%, #1a2a5e 60%, #0d1c4a 100%)",
-            backgroundSize: "cover, cover",
-            backgroundPosition: "center 40%, center",
+            background:
+              "linear-gradient(135deg, #060a1e 0%, #0B1437 30%, #1a2a5e 60%, #0d1c4a 100%)",
           }}
+        />
+        {/* Static first frame — illuminated ONDC network map (also the reduced-motion frame) */}
+        <div
+          className="hero-img-india pointer-events-none absolute inset-0 bg-cover"
+          style={{ backgroundPosition: "center 40%" }}
         />
         {/* Rotating hero frames — India network map → voice-first kirana → textile seller */}
         <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <div className="hero-fade" style={{ backgroundImage: "url('/hero-india.webp')" }} />
-          <div className="hero-fade hero-fade-2" style={{ backgroundImage: "url('/hero-voice.webp')" }} />
-          <div className="hero-fade hero-fade-3" style={{ backgroundImage: "url('/hero-seller.webp')" }} />
+          <div className="hero-fade hero-img-india" />
+          <div className="hero-fade hero-fade-2 hero-img-voice" />
+          <div className="hero-fade hero-fade-3 hero-img-seller" />
         </div>
-        {/* Light left scrim for headline legibility — images stay vivid */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent" />
+        {/* Legibility scrim — bottom-up on phones (text sits low), left-in on desktop */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent sm:bg-gradient-to-r sm:from-black/75 sm:via-black/30 sm:to-transparent" />
         {/* Warm glow accent (bottom-right, like ambient light in SASC) */}
         <div
           className="pointer-events-none absolute inset-0"

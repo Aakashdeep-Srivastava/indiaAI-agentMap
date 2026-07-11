@@ -565,3 +565,14 @@
 @media (prefers-reduced-motion: reduce) {
   .hero-fade { animation: none; }
 }
+
+/* Responsive hero frames — portrait subject-crops on phones, wide on desktop */
+.hero-img-india  { background-image: url('/hero-india-m.webp'); }
+.hero-img-voice  { background-image: url('/hero-voice-m.webp'); }
+.hero-img-seller { background-image: url('/hero-seller-m.webp'); }
+@media (min-width: 768px) {
+  .hero-img-india  { background-image: url('/hero-india.webp'); }
+  .hero-img-voice  { background-image: url('/hero-voice.webp'); }
+  .hero-img-seller { background-image: url('/hero-seller.webp'); }
+}
+

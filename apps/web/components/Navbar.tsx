@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [visible, setVisible] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
   const [lastY, setLastY] = useState(0);
   const pathname = usePathname();
   /* The landing page opens on a dark hero; inner marketing pages sit on a
@@ -28,8 +29,10 @@ export default function Navbar() {
       } else if (y > lastY + 5) {
         setVisible(false);
       }
+      setScrolled(y > 40);
       setLastY(y);
     };
+    setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [lastY]);
@@ -43,10 +46,12 @@ export default function Navbar() {
       }`}
     >
       <div
-        className={`mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-5 py-2.5 backdrop-blur-2xl shadow-lg ${
+        className={`mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-5 py-2.5 transition-colors duration-300 ${
           light
-            ? "border-surface-200 bg-white/85 shadow-brand-900/5"
-            : "border-white/15 bg-white/10 shadow-black/10"
+            ? "border-surface-200 bg-white/85 shadow-lg shadow-brand-900/5 backdrop-blur-2xl"
+            : scrolled
+              ? "border-white/10 bg-brand-900/85 shadow-lg shadow-black/10 backdrop-blur-2xl"
+              : "border-transparent bg-transparent shadow-none"
         }`}
       >
         {/* Logo */}
