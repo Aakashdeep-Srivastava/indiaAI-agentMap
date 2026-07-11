@@ -242,6 +242,53 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 - **Fallback engines:** Sarvam primary (paid billing) + neutral-named secondary engines
   for demo reliability only; never fake Sarvam labels on fallback output.
 
+### HOW TO USE the 2026-07-11/12 features
+
+- **Model Health dashboard**: login `nsic@msmemate.com` → Oversight → Model
+  Health (`/model-health`). Top card = MLflow-style registry (serving engine
+  read live from the loaded artifact, v2-production vs v1-archived comparison
+  table); below it drift signals (confidence trend, engine mix, override
+  meters, per-domain vs frozen baseline). Red banner = retrain recommended.
+  Thresholds env-tunable: MONITOR_FALLBACK_ALERT (0.20), MONITOR_OVERRIDE_ALERT
+  (0.10), MONITOR_LOW_CONF (0.60).
+- **Retrain cycle** (repo root): `python scripts/build_training_corpus_v2.py`
+  → `python ml/train_vargbot_tfidf_v2.py` → copy artifact+eval into apps/api
+  — or just `dvc repro` (stages: build_corpus → train → deploy_artifact →
+  smoke_test; `dvc metrics show` prints the eval). Engine stamp auto-derives
+  from the artifact filename (vargbot_tfidf_v3.joblib → "vargbot-tfidf-v3").
+  Ship a new version's eval as apps/api/data/vargbot_baseline_eval.json and
+  keep the old one as vargbot_vN_eval.json so the registry history grows.
+- **Officer-feedback flywheel**: `GET /model-health/feedback-export` (admin
+  JWT) → weak-supervision rows; merge into the corpus as
+  source=officer_feedback (dedupe by mse_id — one row per classification).
+- **CI model gate**: ml/tests/smoke_test_vargbot.py runs on every push —
+  update its canonical cases when retraining changes expected behaviour.
+- **Rollback**: set VARGBOT_TFIDF_PATH to the v1 artifact; gate via
+  VARGBOT_TFIDF_MIN_CONF (default 0.55, calibration table in the eval JSON).
+- **Colab playground** (NSIC-only link, in the registry card):
+  notebooks/vargbot_playground.ipynb — full reproduction on the public
+  corpus: training, CV, per-domain metrics, confusion matrix, gate curve,
+  classify-your-own-text. Do NOT link it from public pages (user decision
+  2026-07-12: repo is public but the notebook stays unadvertised).
+- **Blog diagrams**: add `diagram: { id, caption }` to any BlogSection; ids
+  live in components/BlogDiagram.tsx (ondc-vs-marketplace, vargbot-chain,
+  claims-flow, mlops-loop). Model card: docs/MODEL_CARD_VARGBOT.md.
+
+### VIDEO DEMO NOTES (future 2-3 min video)
+
+1. **Open**: landing hero rotation (desktop + phone) → voice registration in
+   Hinglish → classification result showing the honest vargbot-tfidf-v2 stamp.
+2. **The ML story**: Model Health registry card — v1 (8 domains, CV 0.946) →
+   v2 (14 domains, CV 0.984) trained on Flipkart + MEPMA + real-derived MSE
+   profiles; say the honest number out loud (real-products-only 98.5%).
+3. **The lifecycle story** (differentiator): drift monitor → red-alert
+   thresholds → feedback export → retrain → CI gate. Line: "the loop, not
+   any single model, is the product." B-roll: blog diagrams (mlops-loop,
+   vargbot-chain) and the Colab notebook running the training live.
+4. **Close**: officer approves in review queue → audit trail → "humans stay
+   the authority."
+   Precedent script format: docs/PRESENTATION_SCRIPT.md (gitignored).
+
 ### DONE (2026-07-11/12 — VargBot v2 + Model Health monitor, deployed + verified)
 - **VargBot v2 in serving** — 14/14 ONDC domains (v1: 8). Corpus v2 33.5K
   (scripts/build_training_corpus_v2.py): Flipkart 17K + MEPMA real seller
@@ -259,7 +306,15 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
   (apps/api/data/vargbot_baseline_eval.json = v2 eval), red/amber alerts
   (MONITOR_FALLBACK_ALERT/OVERRIDE_ALERT env-tunable).
 - Landing hero: 3-image rotation + mobile portrait crops; mobile polish
-  (navbar hamburger menu, Sathi orb/header fixes).
+  (navbar hamburger menu + transparent-at-top pill, Sathi orb/header fixes).
+- **MLOps stack**: CI model smoke gate (ml/tests/), officer-feedback export
+  endpoint, model card (docs/MODEL_CARD_VARGBOT.md), DVC pipeline (dvc.yaml,
+  cache:false — deploy still ships from git), Colab reproduction notebook
+  (notebooks/vargbot_playground.ipynb, 16 cells, executed+verified).
+- **Model registry panel** on /model-health (MLflow-style): serving chip from
+  the live artifact, v2/v1 version-history table, Colab link (admin-only).
+- **Blog**: post 7 (MLOps playbook) + BlogDiagram SVG component with diagrams
+  on 4 posts; llms.txt updated. Colab link intentionally NOT on public blog.
 
 ### DONE (2026-07-10 — classification model + matching algorithm completed)
 - **VargBot trained model in serving** — TF-IDF + LogisticRegression domain
