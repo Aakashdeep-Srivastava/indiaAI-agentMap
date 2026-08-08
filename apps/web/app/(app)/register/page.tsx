@@ -72,7 +72,7 @@ export default function RegisterPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<number | null>(null);
-  const [creds, setCreds] = useState<{ login_id: string; passcode: string } | null>(null);
+  const [creds, setCreds] = useState<{ login_id: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   // Ref mirror so the voice panel's submit callback always sees fresh consent
@@ -131,9 +131,10 @@ export default function RegisterPage() {
       }
       const data = await res.json();
       setSuccess(data.id);
-      if (data.login_id && data.temp_passcode) {
-        // Account auto-created — show the one-time credentials, no redirect.
-        setCreds({ login_id: data.login_id, passcode: data.temp_passcode });
+      if (data.login_id) {
+        // Account auto-created — the one-time passcode was EMAILED (never shown
+        // here). Email is the verification channel. Show a "check your inbox" card.
+        setCreds({ login_id: data.login_id });
       } else if (getSession()) {
         setTimeout(() => {
           router.push(`/classify?mseId=${data.id}`);
@@ -149,76 +150,62 @@ export default function RegisterPage() {
   /* ─── Success state ─── */
   if (success !== null) {
     return (
-      <div className="-mx-6 -my-8 flex h-screen overflow-hidden">
-        {/* Center */}
-        <div className="flex-1 overflow-hidden">
-          <SathiVoicePanel
-            form={form}
-            onUpdate={update}
-            onHighlight={handleHighlight}
-            onSubmit={handleSubmit}
-            submitting={submitting}
-            success={success}
-          />
-        </div>
-
-        {/* Right panel — success card */}
-        <div className={`hidden ${panelWidth} shrink-0 overflow-y-auto border-l border-surface-100 bg-white px-5 py-4 transition-all duration-300 lg:block`}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <div className="overflow-hidden rounded-2xl border border-surface-200">
-              <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-8 py-6 text-center text-white">
-                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
-                  <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-                <h3 className="font-display text-xl font-bold">Registration Successful</h3>
+      <div className="flex min-h-[70vh] items-center justify-center px-4 py-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md"
+        >
+          <div className="overflow-hidden rounded-2xl border border-surface-200 bg-white shadow-card">
+            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-8 py-6 text-center text-white">
+              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+                <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
               </div>
-              <div className="space-y-4 p-8 text-center">
-                <div className="inline-flex items-center gap-2 rounded-xl bg-surface-50 px-5 py-3">
-                  <span className="text-sm text-surface-500">Your MSE ID</span>
-                  <span className="font-mono text-2xl font-bold text-brand-900">{success}</span>
-                </div>
-                {creds && (
-                  <div className="rounded-xl border border-saffron-400/40 bg-saffron-500/5 p-4 text-left">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-saffron-600">
-                      Your login — save this now (shown only once)
-                    </p>
-                    <p className="mt-1.5 font-mono text-sm text-brand-900">
-                      ID: <b>{creds.login_id}</b>
-                    </p>
-                    <p className="font-mono text-sm text-brand-900">
-                      Passcode: <b>{creds.passcode}</b>
-                    </p>
-                    <p className="mt-1.5 text-[10px] leading-snug text-surface-500">
-                      आपका लॉगिन बन गया है — इसे संभाल कर रखें।
-                    </p>
-                  </div>
-                )}
-                <p className="text-sm text-surface-500">
-                  {creds
-                    ? "Your application is with NSIC for confirmation. Sign in to see your AI classification and matches."
-                    : getSession()
-                      ? "Redirecting to classification..."
-                      : "Sign in to see your AI classification and seller-platform matches."}
-                </p>
-                <Link
-                  href={getSession() && !creds ? `/classify?mseId=${success}` : "/login"}
-                  className="btn-primary inline-flex"
-                >
-                  {getSession() && !creds ? "Continue to Classification" : "Sign in to Continue"}
-                  <svg className="ml-1.5 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </Link>
-              </div>
+              <h3 className="font-display text-xl font-bold">Registration Successful</h3>
             </div>
-          </motion.div>
-        </div>
+            <div className="space-y-4 p-8 text-center">
+              <div className="inline-flex items-center gap-2 rounded-xl bg-surface-50 px-5 py-3">
+                <span className="text-sm text-surface-500">Your MSE ID</span>
+                <span className="font-mono text-2xl font-bold text-brand-900">{success}</span>
+              </div>
+              {creds && (
+                <div className="rounded-xl border border-brand-200 bg-brand-50 p-4 text-left">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-600">
+                    Check your email to sign in
+                  </p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-brand-900">
+                    We&apos;ve emailed your one-time passcode to{" "}
+                    <b className="font-mono break-all">{creds.login_id}</b>. Open your inbox,
+                    then sign in with that email and the passcode.
+                  </p>
+                  <p className="mt-1.5 text-[10px] leading-snug text-surface-500">
+                    हमने आपका पासकोड आपके ईमेल पर भेज दिया है — इनबॉक्स देखें, फिर साइन इन करें।
+                    (स्पैम फ़ोल्डर भी देखें।)
+                  </p>
+                </div>
+              )}
+              <p className="text-sm text-surface-500">
+                {creds
+                  ? "Your application is with NSIC for confirmation. Sign in to see your AI classification and matches."
+                  : getSession()
+                    ? "Redirecting to classification..."
+                    : "Sign in to see your AI classification and seller-platform matches."}
+              </p>
+              <Link
+                href={getSession() && !creds ? `/classify?mseId=${success}` : "/login"}
+                className="btn-primary inline-flex"
+              >
+                {getSession() && !creds ? "Continue to Classification" : "Sign in to Continue"}
+                <svg className="ml-1.5 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -253,8 +240,8 @@ export default function RegisterPage() {
         />
       </div>
       <Field
-        label="Udyam Number *"
-        placeholder="UDYAM-XX-00-0000001"
+        label="Udyam Number (optional)"
+        placeholder="UDYAM-XX-00-0000001 — leave blank if you don't have one"
         value={form.udyam_number}
         onChange={(v) => update("udyam_number", v)}
         highlighted={highlighted.has("udyam_number")}
@@ -493,7 +480,7 @@ export default function RegisterPage() {
           submitting ||
           !form.entrepreneur_name ||
           !form.name ||
-          !form.udyam_number ||
+          !form.email ||
           !consent
         }
         className="btn-saffron w-full !py-2.5 !text-xs"

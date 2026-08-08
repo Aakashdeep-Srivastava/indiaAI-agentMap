@@ -103,7 +103,7 @@ class MSE(Base):
     __tablename__ = "mses"
 
     id = Column(Integer, primary_key=True)
-    udyam_number = Column(String(30), unique=True, nullable=False)
+    udyam_number = Column(String(30), unique=True, nullable=True)  # optional — informal MSEs have none
     name = Column(String(300), nullable=False)
     description = Column(Text, nullable=False)
     district = Column(String(100))

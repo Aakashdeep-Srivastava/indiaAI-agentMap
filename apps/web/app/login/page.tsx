@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Store, ShieldCheck, LogIn, KeyRound, User } from "lucide-react";
-import { apiFetch, getSession, login, type Role } from "@/lib/auth";
+import { API, apiFetch, getSession, login, type Role } from "@/lib/auth";
 
 /** Demo usernames shown as a hint — passcodes are issued separately (never shipped in the bundle). */
 const DEMO_IDS: Record<Role, string> = { mse: "mse@msmemate.com", admin: "nsic@msmemate.com" };
@@ -41,6 +41,8 @@ export default function LoginPage() {
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
 
   /* Already signed in? Straight to the app. */
   useEffect(() => {
@@ -70,6 +72,33 @@ export default function LoginPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign-in failed. Please try again.");
       setBusy(false);
+    }
+  }
+
+  /* Email a fresh one-time passcode (self-service). Generic response — the
+   * server never reveals whether the email is registered. */
+  async function handleResend() {
+    setError("");
+    setResendMsg("");
+    if (!userId.trim()) {
+      setError("Enter your email above, then tap Resend.");
+      return;
+    }
+    setResending(true);
+    try {
+      await fetch(`${API}/auth/resend-passcode`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: userId.trim().toLowerCase() }),
+        signal: AbortSignal.timeout(15000),
+      });
+      setResendMsg(
+        "If that email is registered, a new passcode is on its way. Check your inbox (and spam).",
+      );
+    } catch {
+      setResendMsg("Couldn't send right now — please try again in a moment.");
+    } finally {
+      setResending(false);
     }
   }
 
@@ -219,6 +248,23 @@ export default function LoginPage() {
               <LogIn className="h-4 w-4" />
               {busy ? "Signing in…" : "Sign in"}
             </button>
+
+            {/* Self-service passcode recovery — the passcode lives only in email */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending}
+                className="text-xs font-medium text-brand-500 transition-colors hover:text-brand-700 hover:underline disabled:opacity-60"
+              >
+                {resending ? "Sending…" : "Didn't get your passcode? Resend to email"}
+              </button>
+            </div>
+            {resendMsg && (
+              <p className="rounded-xl bg-brand-50 px-3.5 py-2.5 text-xs font-medium text-brand-600">
+                {resendMsg}
+              </p>
+            )}
           </form>
 
           {/* New-enterprise registration — PS2 entry point, no account needed */}

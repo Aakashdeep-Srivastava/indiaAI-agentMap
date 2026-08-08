@@ -40,7 +40,7 @@ def _client_key(request: Request) -> str:
 
 
 def _bucket(path: str) -> tuple[str, int]:
-    if path.startswith("/auth/login"):
+    if path.startswith("/auth/login") or path.startswith("/auth/resend-passcode"):
         return "login", LOGIN_LIMIT
     if path.startswith(LLM_PREFIXES):
         return "llm", LLM_LIMIT

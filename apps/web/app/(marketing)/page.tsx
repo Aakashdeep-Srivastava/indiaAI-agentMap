@@ -370,6 +370,58 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════
+          SECTION 4.5 — REAL-BUSINESS TESTIMONIAL (video, factual only)
+      ═══════════════════════════════════════════════════════════════ */}
+      <section className="border-b border-surface-200 bg-surface-50 py-16" id="stories">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            {/* Vertical testimonial video in a phone frame */}
+            <div className="flex justify-center">
+              <div className="relative aspect-[9/16] w-full max-w-[280px] overflow-hidden rounded-[2rem] border-4 border-brand-900 bg-black shadow-card">
+                <video
+                  controls
+                  playsInline
+                  preload="none"
+                  poster="/testimonial-innovativa.jpg"
+                  className="h-full w-full object-cover"
+                >
+                  <source src="/testimonial-innovativa.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+
+            {/* Factual copy — no invented quote */}
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-widest text-saffron-500">
+                Real businesses on MSMEMate
+              </span>
+              <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-brand-900 sm:text-4xl">
+                A listed enterprise, in their own words
+              </h2>
+              <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-surface-600">
+                <b className="text-brand-900">Innovativa Waste Aid &amp; Management Pvt Ltd</b>{" "}
+                is one of the enterprises onboarding to the ONDC network with MSMEMate.
+                Watch their story.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Listed business
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-surface-500">
+                  Onboarding to ONDC
+                </span>
+              </div>
+              <Link href="/register" className="btn-saffron mt-7 inline-flex">
+                Register your business →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
           SECTION 5 — DARK STATS (like Criteo's "Our AI-powered
           technology" section with big numbers)
       ═══════════════════════════════════════════════════════════════ */}

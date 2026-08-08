@@ -26,7 +26,7 @@ except Exception:
 # ── Schemas ───────────────────────────────────────────────────────────
 
 class MSECreate(BaseModel):
-    udyam_number: str
+    udyam_number: Optional[str] = None  # optional — many MSEs have no Udyam yet
     name: str
     description: str
     district: Optional[str] = None
@@ -55,7 +55,7 @@ class MSECreate(BaseModel):
 
 class MSEResponse(BaseModel):
     id: int
-    udyam_number: str
+    udyam_number: Optional[str] = None
     name: str
     status: Optional[str] = None
     description: str
@@ -109,12 +109,17 @@ def register_mse(
             status_code=422,
             detail="Consent to process enterprise data is required (DPDP Act 2023).",
         )
-    existing = db.query(MSE).filter(MSE.udyam_number == payload.udyam_number).first()
-    if existing:
-        raise HTTPException(status_code=409, detail="MSE with this Udyam number already exists")
+    # Udyam is optional — PS2 reaches the informal long-tail, and many MSEs have
+    # no Udyam yet. Only enforce uniqueness when a number is actually supplied.
+    udyam = (payload.udyam_number or "").strip() or None
+    if udyam:
+        existing = db.query(MSE).filter(MSE.udyam_number == udyam).first()
+        if existing:
+            raise HTTPException(status_code=409, detail="MSE with this Udyam number already exists")
 
     data = payload.model_dump()
     data.pop("consent_given", None)
+    data["udyam_number"] = udyam
     # Convert empty strings to None for enum/nullable fields
     for key in (
         "turnover_band", "nic_code", "org_type", "major_activity",
@@ -158,15 +163,15 @@ def register_mse(
         action="mse_registered",
         entity_type="mse",
         entity_id=mse.id,
-        details=f"Registered {payload.name} ({payload.udyam_number}), consent recorded",
+        details=f"Registered {payload.name} ({udyam or 'no Udyam'}), consent recorded",
         performed_by=user.username if user else "public-registration",
     ))
     db.commit()
     db.refresh(mse)
 
-    # Email the one-time credentials AFTER the response is sent, so a slow mail
-    # provider never delays registration (and never blocks it — send is
-    # best-effort, failures are logged, and the passcode is still shown on-screen).
+    # Email the one-time passcode AFTER the response is sent (non-blocking).
+    # The passcode is NEVER returned to the client — email is the verification
+    # channel, so possessing the inbox is what proves the person owns the email.
     if login_id and temp_passcode and payload.email:
         from services.email import send_registration_passcode
 
@@ -180,8 +185,8 @@ def register_mse(
         )
 
     resp = MSEResponse.model_validate(mse)
-    resp.login_id = login_id
-    resp.temp_passcode = temp_passcode
+    resp.login_id = login_id       # the email — not a secret; lets the UI say "check <email>"
+    resp.temp_passcode = None      # never expose the passcode; it is delivered only by email
     return resp
 
 
