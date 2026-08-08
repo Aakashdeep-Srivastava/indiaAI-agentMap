@@ -28,11 +28,20 @@ if not DATABASE_URL:
 
 REDIS_URL = os.getenv("REDIS_URL")
 
+# Pool sized for concurrency spikes (login/registration bursts). Tune per Azure
+# plan and Supabase pooler limits: total server connections ≈
+# (instances × workers × (DB_POOL_SIZE + DB_MAX_OVERFLOW)). Defaults give one
+# worker up to 40 connections — comfortable headroom for ~100 concurrent users.
+DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "20"))
+DB_MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "20"))
+DB_POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", "10"))  # fail fast, don't hang the request
+
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
+    pool_size=DB_POOL_SIZE,
+    max_overflow=DB_MAX_OVERFLOW,
+    pool_timeout=DB_POOL_TIMEOUT,
     pool_recycle=300,
 )
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)

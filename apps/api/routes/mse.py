@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -99,6 +99,7 @@ class MSEResponse(BaseModel):
 @router.post("/", response_model=MSEResponse, status_code=201)
 def register_mse(
     payload: MSECreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     user: User | None = Depends(get_optional_user),
 ):
@@ -162,6 +163,22 @@ def register_mse(
     ))
     db.commit()
     db.refresh(mse)
+
+    # Email the one-time credentials AFTER the response is sent, so a slow mail
+    # provider never delays registration (and never blocks it — send is
+    # best-effort, failures are logged, and the passcode is still shown on-screen).
+    if login_id and temp_passcode and payload.email:
+        from services.email import send_registration_passcode
+
+        background_tasks.add_task(
+            send_registration_passcode,
+            to_email=login_id,
+            login_id=login_id,
+            passcode=temp_passcode,
+            business_name=payload.name,
+            entrepreneur_name=payload.entrepreneur_name,
+        )
+
     resp = MSEResponse.model_validate(mse)
     resp.login_id = login_id
     resp.temp_passcode = temp_passcode
