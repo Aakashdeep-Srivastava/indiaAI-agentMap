@@ -65,6 +65,7 @@ const FOOTER_COLUMNS: {
     items: [
       { label: "Blog", href: "/blog" },
       { label: "ONDC by City", href: "/ondc" },
+      { label: "Share Feedback", href: "/feedback" },
       { label: "Help Center", href: "https://wa.me/916394958060", external: true },
       { label: "Documentation", href: null },
       { label: "API Reference", href: null },

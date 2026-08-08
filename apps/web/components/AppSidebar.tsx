@@ -18,6 +18,7 @@ import {
   PanelLeftOpen,
   PackageOpen,
   Activity,
+  MessageSquare,
 } from "lucide-react";
 import { getSession, logout, type Session } from "@/lib/auth";
 
@@ -36,6 +37,7 @@ const OVERSIGHT = [
   { label: "Claims Copilot", desc: "TEAM incentive claims", href: "/claims", icon: ShieldCheck },
   { label: "Audit Trail", desc: "Every AI decision", href: "/audit", icon: Shield },
   { label: "Model Health", desc: "Degradation monitor", href: "/model-health", icon: Activity },
+  { label: "Product Feedback", desc: "User reviews of the app", href: "/reviews", icon: MessageSquare },
 ] as const;
 
 const ADMIN_AI_TOOLS = [

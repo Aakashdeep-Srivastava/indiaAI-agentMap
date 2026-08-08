@@ -13,6 +13,7 @@ export default function robots(): MetadataRoute.Robots {
           "/match",
           "/catalogue",
           "/review",
+          "/reviews",
           "/audit",
           "/allocate",
           "/certificate",

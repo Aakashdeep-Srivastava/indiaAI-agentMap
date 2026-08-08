@@ -254,6 +254,22 @@ class SNPClaim(Base):
     snp = relationship("SNP")
 
 
+# ── App reviews (public product feedback) ────────────────────────────
+
+class AppReview(Base):
+    __tablename__ = "app_reviews"
+
+    id = Column(Integer, primary_key=True)
+    rating = Column(Integer, nullable=False)          # 1..5 stars
+    comment = Column(Text, nullable=True)
+    name = Column(String(200), nullable=True)         # optional (DPDP-minimal)
+    email = Column(String(200), nullable=True)        # optional
+    persona = Column(String(40), nullable=True)       # mse | officer | visitor
+    source = Column(String(40), default="web", nullable=False)
+    user_agent = Column(String(400), nullable=True)   # coarse device string for abuse triage
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 # ── Dependency injection ──────────────────────────────────────────────
 
 def get_db():

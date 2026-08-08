@@ -48,6 +48,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: `${BASE}/feedback`,
+      lastModified: new Date("2026-08-08"),
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
     ...BLOG_POSTS.map((post) => ({
       url: `${BASE}/blog/${post.slug}`,
       lastModified: new Date(post.dateModified),

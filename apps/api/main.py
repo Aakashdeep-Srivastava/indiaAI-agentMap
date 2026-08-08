@@ -20,6 +20,7 @@ from routes.ner import router as ner_router
 from routes.catalogue import router as catalogue_router
 from routes.claims import router as claims_router
 from routes.model_health import router as model_health_router
+from routes.reviews import router as reviews_router
 from services.auth import get_current_user, require_admin
 from services.classifier import init_classifier
 from services.ratelimit import rate_limit_middleware
@@ -74,6 +75,10 @@ app.include_router(stt_router, prefix="/stt", tags=["STT"])
 app.include_router(ocr_router, prefix="/ocr", tags=["OCR"])
 app.include_router(tts_router, prefix="/tts", tags=["TTS"])
 app.include_router(ner_router, prefix="/ner", tags=["NER"])
+
+# App reviews: POST is public (anyone rates the app, rate-limited per IP);
+# GET is admin-only, enforced per-route via require_admin inside the router.
+app.include_router(reviews_router, prefix="/reviews", tags=["Reviews"])
 
 # ── Authenticated (valid signed token required) ─────────────────────────
 app.include_router(classify_router, prefix="/classify", tags=["Classification"], dependencies=authed)
