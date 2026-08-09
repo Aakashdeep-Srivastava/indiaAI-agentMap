@@ -372,7 +372,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION 4.5 — REAL-BUSINESS TESTIMONIAL (video, factual only)
       ═══════════════════════════════════════════════════════════════ */}
-      <section className="border-b border-surface-200 bg-surface-50 py-16" id="stories">
+      <section className="border-b border-surface-200 bg-surface-50 py-16" id="testimonial">
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid items-center gap-10 lg:grid-cols-2">
             {/* Vertical testimonial video in a phone frame */}
@@ -394,7 +394,7 @@ export default function LandingPage() {
             {/* Factual copy — no invented quote */}
             <div>
               <span className="text-[11px] font-semibold uppercase tracking-widest text-saffron-500">
-                Real businesses on MSMEMate
+                Testimonial
               </span>
               <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-brand-900 sm:text-4xl">
                 A listed enterprise, in their own words
