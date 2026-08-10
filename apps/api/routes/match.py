@@ -1,15 +1,18 @@
 """Match route – IndicBERT-based MSE-to-SNP matching with multi-factor scoring."""
 
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from database import MSE, SNP, AuditLog, ClassificationResult, MatchResult, User, get_db
+from database import (MSE, SNP, AuditLog, ClassificationResult, MatchResult,
+                      Notification, User, get_db)
 from services.auth import get_current_user
 from services.matcher import compute_match_scores, readiness_nudges
 from services.explainer import generate_explainer
+from services.notifications import action_needed, safe_notify
 
 router = APIRouter()
 
@@ -136,6 +139,32 @@ def match_mse_to_snps(
         details=f"Matched to {len(items)} SNPs, top={items[0].snp_name if items else 'none'} ({MODEL_VERSION})",
         performed_by=user.username,
     ))
+
+    # Readiness nudges are recomputed on every /match call, which the page runs
+    # on each visit. Emitting one notification per call would bury the events
+    # that actually matter, so keep at most a single OPEN nudge per enterprise
+    # and only replace it when the advice itself has changed.
+    nudges = readiness_nudges(mse)
+    built = action_needed(nudges)
+    if built:
+        event, body_en, body_hi = built
+        already = (
+            db.query(Notification)
+            .filter(
+                Notification.mse_id == mse.id,
+                Notification.event == "action_needed",
+                Notification.is_read.is_(False),
+            )
+            .first()
+        )
+        if already is None:
+            safe_notify(db, mse.id, event, body_en=body_en, body_hi=body_hi)
+        elif already.body_en != body_en:
+            # The advice moved on — supersede rather than stack, so the owner
+            # sees current guidance instead of a pile of stale ones.
+            already.body_en, already.body_hi = body_en, body_hi
+            already.created_at = datetime.utcnow()
+
     db.commit()
 
     return MatchResponse(
@@ -143,7 +172,7 @@ def match_mse_to_snps(
         mse_name=mse.name,
         predicted_domain=predicted_domain,
         matches=items,
-        nudges=readiness_nudges(mse),
+        nudges=nudges,
     )
 
 

@@ -13,6 +13,7 @@ from database import (MSE, AuditLog, ClassificationResult, OndcCategory,
                       OndcDomain, User, get_db)
 from services.auth import require_admin
 from services.classifier import classify_mse_description_async, get_compliance_checklist
+from services.notifications import classification_complete, safe_notify
 
 router = APIRouter()
 
@@ -123,6 +124,19 @@ async def classify(payload: ClassifyRequest, db: Session = Depends(get_db)):
         details=f"Predicted {top_pred['domain']} ({top_pred['confidence']:.2f}) via {engine}",
         performed_by=engine,
     ))
+
+    # Tell the owner in their own words. The notification carries the domain's
+    # display name and a qualitative band — never the raw score, matching what
+    # the UI is allowed to show an MSE user.
+    conf = top_pred["confidence"]
+    band = "green" if conf >= 0.85 else "yellow" if conf >= 0.60 else "red"
+    domain_row = (
+        db.query(OndcDomain).filter(OndcDomain.code == top_pred["domain"]).first()
+    )
+    event, body_en, body_hi = classification_complete(
+        domain_row.name if domain_row else top_pred["domain"], band)
+    safe_notify(db, mse.id, event, body_en=body_en, body_hi=body_hi)
+
     db.commit()
 
     return ClassifyResponse(

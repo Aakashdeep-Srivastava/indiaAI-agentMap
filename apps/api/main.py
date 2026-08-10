@@ -21,6 +21,7 @@ from routes.catalogue import router as catalogue_router
 from routes.claims import router as claims_router
 from routes.model_health import router as model_health_router
 from routes.reviews import router as reviews_router
+from routes.notifications import router as notifications_router
 from services.auth import get_current_user, require_admin
 from services.classifier import init_classifier
 from services.ratelimit import rate_limit_middleware
@@ -84,6 +85,9 @@ app.include_router(reviews_router, prefix="/reviews", tags=["Reviews"])
 app.include_router(classify_router, prefix="/classify", tags=["Classification"], dependencies=authed)
 app.include_router(match_router, prefix="/match", tags=["Matching"], dependencies=authed)
 app.include_router(catalogue_router, prefix="/catalogue", tags=["Catalogue"], dependencies=authed)
+# Notifications are scoped to the caller's own enterprise inside the router —
+# the token identifies the reader, a client-supplied id never does.
+app.include_router(notifications_router, prefix="/notifications", tags=["Notifications"], dependencies=authed)
 
 # ── Admin only (NSIC oversight) ─────────────────────────────────────────
 app.include_router(audit_router, prefix="/audit", tags=["Audit"], dependencies=admin_only)

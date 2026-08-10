@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from database import MSE, AuditLog, ClassificationResult, MatchResult, User, get_db
 from services.auth import get_current_user, get_optional_user, require_admin
+from services.notifications import registration_reviewed, safe_notify, snp_allocated
 
 router = APIRouter()
 
@@ -247,6 +248,7 @@ class ReviewRequest(BaseModel):
 def review_mse(
     mse_id: int,
     payload: ReviewRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     user: User = Depends(require_admin),
 ):
@@ -262,6 +264,15 @@ def review_mse(
     mse.review_note = payload.note
     mse.reviewed_by = user.username
     mse.reviewed_at = datetime.utcnow()
+
+    # Tell the owner. This decision happens entirely on the officer's screen,
+    # so without this the enterprise has no way to learn its own status.
+    event, body_en, body_hi = registration_reviewed(
+        approved=payload.action == "approve", note=payload.note)
+    safe_notify(db, mse.id, event, body_en=body_en, body_hi=body_hi,
+                background_tasks=background_tasks, email_to=mse.email,
+                business_name=mse.name)
+
     db.add(AuditLog(
         action=f"mse_{mse.status}",
         entity_type="mse",
@@ -287,6 +298,7 @@ class AllocateRequest(BaseModel):
 def allocate_snp(
     mse_id: int,
     payload: AllocateRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     user: User = Depends(require_admin),
 ):
@@ -322,6 +334,14 @@ def allocate_snp(
     verdict = ("" if followed is None
                else " [accepted AI recommendation]" if followed
                else " [overrode AI recommendation]")
+
+    # The moment the certificate becomes real — and the one an owner most
+    # needs to hear about, since nothing else on the platform announces it.
+    event, body_en, body_hi = snp_allocated(snp.name)
+    safe_notify(db, mse.id, event, body_en=body_en, body_hi=body_hi,
+                href="/certificate", background_tasks=background_tasks,
+                email_to=mse.email, business_name=mse.name)
+
     db.add(AuditLog(
         action="mse_allocated",
         entity_type="mse",

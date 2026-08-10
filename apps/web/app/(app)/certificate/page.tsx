@@ -31,21 +31,55 @@ function fmt(d?: string | null) {
 
 function CertificateInner() {
   const params = useSearchParams();
-  const mseId = params.get("mseId");
+  const paramId = params.get("mseId");
   const [mse, setMse] = useState<MSE | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [resolving, setResolving] = useState(true);
 
+  /* An owner arriving from their own sidebar has no mseId to pass — only the
+   * officer flows carry one. Fall back to the signed-in user's own enterprise
+   * (the same /auth/me -> mse_id resolution MSEPicker uses), so the
+   * certificate is reachable from the enterprise side at all. */
   useEffect(() => {
-    if (!mseId) return;
-    apiFetch(`/mse/${mseId}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then(setMse)
-      .catch(() => setError("Could not load the enterprise record."));
-  }, [mseId]);
+    let cancelled = false;
 
-  if (!mseId) return <p className="py-16 text-center text-sm text-surface-400">No enterprise selected.</p>;
+    async function load() {
+      try {
+        let id = paramId;
+        if (!id) {
+          const me = await apiFetch("/auth/me").then((r) => (r.ok ? r.json() : null));
+          id = me?.mse_id ? String(me.mse_id) : null;
+        }
+        if (!id) {
+          if (!cancelled) {
+            setError("No enterprise is linked to this account.");
+            setResolving(false);
+          }
+          return;
+        }
+        const data = await apiFetch(`/mse/${id}`).then((r) =>
+          r.ok ? r.json() : Promise.reject(new Error("load failed")),
+        );
+        if (!cancelled) {
+          setMse(data);
+          setResolving(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setError("Could not load the enterprise record.");
+          setResolving(false);
+        }
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [paramId]);
+
   if (error) return <p className="py-16 text-center text-sm text-red-500">{error}</p>;
-  if (!mse) return (
+  if (resolving || !mse) return (
     <div className="flex justify-center py-16">
       <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
     </div>

@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import AppSidebar from "@/components/AppSidebar";
+import NotificationBell from "@/components/NotificationBell";
+import QueryProvider from "@/lib/query-provider";
 import { canAccess, getSession } from "@/lib/auth";
 import { SidebarCollapsedContext } from "@/lib/sidebar-context";
 
@@ -56,6 +58,12 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
           <Menu className="h-4 w-4 text-surface-600" />
         </button>
 
+        {/* Chrome on every portal page. It renders itself away when there is
+            nothing to show, so officers (who have no enterprise feed) and
+            brand-new owners never see an empty bell. Not shown on /register,
+            which is public and has no session to scope a feed to. */}
+        {!pathname.startsWith("/register") && <NotificationBell />}
+
         <main className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-7xl space-y-6 px-4 pb-8 pt-16 sm:px-6 lg:pt-8">
             <SidebarCollapsedContext.Provider value={collapsed}>
@@ -74,8 +82,12 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Suspense>
-      <AppLayoutInner>{children}</AppLayoutInner>
-    </Suspense>
+    /* Query cache wraps the portal only — the marketing routes are static and
+       gain nothing from a client data runtime. */
+    <QueryProvider>
+      <Suspense>
+        <AppLayoutInner>{children}</AppLayoutInner>
+      </Suspense>
+    </QueryProvider>
   );
 }

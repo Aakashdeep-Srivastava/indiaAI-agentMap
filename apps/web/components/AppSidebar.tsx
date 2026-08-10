@@ -19,8 +19,11 @@ import {
   PackageOpen,
   Activity,
   MessageSquare,
+  Award,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getSession, logout, type Session } from "@/lib/auth";
+import { certificateReady, useMyEnterprise } from "@/lib/useMyEnterprise";
 
 /* ── Journey steps (Sathi → VargBot → JodakAI) ──────────────── */
 const JOURNEY = [
@@ -72,6 +75,8 @@ export default function AppSidebar({
   const searchParams = useSearchParams();
   const mseId = searchParams.get("mseId");
   const [session, setSession] = useState<Session | null>(null);
+  const enterprise = useMyEnterprise();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setSession(getSession());
@@ -80,14 +85,35 @@ export default function AppSidebar({
   const isAdmin = session?.role === "admin";
 
   function handleLogout() {
+    // Drop every cached response before the next account signs in — otherwise
+    // the new user briefly sees the previous one's enterprise and feed.
+    queryClient.clear();
     logout();
     router.replace("/login");
   }
 
   /* Logged-in owners are already registered — Register is only for visitors */
-  const journeySteps = session
+  const baseSteps = session
     ? JOURNEY.filter((s) => s.href !== "/register")
     : JOURNEY;
+
+  /* Certificate is the end of the journey, not a step in it: it exists only
+   * once an officer has approved the enterprise AND allocated an SNP. Showing
+   * it earlier would promise a document that cannot yet be issued, so the
+   * entry appears at the moment it becomes real. Until this shipped there was
+   * no link to it from the enterprise side at all — only officers could reach
+   * a certificate, via /allocate. */
+  const journeySteps = certificateReady(enterprise)
+    ? [
+        ...baseSteps,
+        {
+          label: "Certificate",
+          codename: "ONDC Allocation",
+          href: "/certificate",
+          icon: Award,
+        } as const,
+      ]
+    : baseSteps;
 
   /* Which journey step is active? */
   const activeJourneyIndex = journeySteps.findIndex((s) =>

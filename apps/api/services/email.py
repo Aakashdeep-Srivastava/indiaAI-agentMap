@@ -153,6 +153,80 @@ def _send_smtp(to: str, subject: str, text_body: str, html_body: str | None) -> 
         return False
 
 
+def send_notification_email(
+    to_email: str,
+    title: str,
+    body: str,
+    href: str | None = None,
+    business_name: str | None = None,
+    title_hi: str | None = None,
+    body_hi: str | None = None,
+) -> bool:
+    """Email the significant in-app notifications (EN + HI in one message).
+
+    Only the events an owner would want to be interrupted for are sent here —
+    approval, rejection, allocation and platform announcements. Routine ones
+    (a classification finishing, a readiness nudge that recomputes on every
+    visit) stay in-app, because an inbox that fills with noise gets muted, and
+    then the allocation email gets missed too.
+    """
+    who = business_name or "there"
+    link = f"https://www.msmemate.com{href}" if href and href.startswith("/") else (href or APP_LOGIN_URL)
+
+    text_body = (
+        f"Namaste {who},\n\n"
+        f"{title}\n\n"
+        f"{body}\n\n"
+        f"View it here: {link}\n\n"
+    )
+    if title_hi or body_hi:
+        text_body += f"--\n{title_hi or ''}\n{body_hi or ''}\n\n"
+    text_body += "MSMEMate — Bridging Bharat's Businesses\n"
+
+    hindi_block = ""
+    if title_hi or body_hi:
+        hindi_block = (
+            '<p style="margin:20px 0 0;font-size:12px;line-height:1.7;color:#9EA5BE">'
+            f'<b>{title_hi or ""}</b><br/>{body_hi or ""}</p>'
+        )
+
+    html_body = f"""\
+<!doctype html>
+<html>
+  <body style="margin:0;background:#F8F9FC;font-family:'Segoe UI',Arial,sans-serif;color:#4A5170;">
+    <div style="height:3px;display:flex">
+      <span style="flex:1;background:#FF9933"></span>
+      <span style="flex:1;background:#FFFFFF"></span>
+      <span style="flex:1;background:#138808"></span>
+    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr><td align="center" style="padding:28px 16px">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0"
+               style="max-width:480px;background:#ffffff;border:1px solid #E4E7F1;border-radius:16px;overflow:hidden">
+          <tr><td style="background:#0B1437;padding:22px 28px">
+            <span style="font-size:20px;font-weight:800;color:#FFA942">MSME<span style="color:#fff">Mate</span></span>
+          </td></tr>
+          <tr><td style="padding:28px">
+            <h1 style="margin:0 0 12px;font-size:19px;color:#0B1437">{title}</h1>
+            <p style="margin:0 0 20px;font-size:14px;line-height:1.7">{body}</p>
+            <a href="{link}"
+               style="display:inline-block;background:#1B4FCC;color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 22px;border-radius:12px">
+              Open MSMEMate &rarr;
+            </a>
+            {hindi_block}
+          </td></tr>
+          <tr><td style="padding:16px 28px;border-top:1px solid #E4E7F1;font-size:11px;color:#9EA5BE">
+            MSMEMate — Bridging Bharat's Businesses
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>"""
+
+    return send_email(to_email, title, text_body, html_body)
+
+
 def send_registration_passcode(
     to_email: str,
     login_id: str,

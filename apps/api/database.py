@@ -289,6 +289,40 @@ class AppReview(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+# ── In-app notifications (enterprise-facing) ─────────────────────────
+
+class Notification(Base):
+    """One event an MSE owner needs to know about.
+
+    Everything that changes an enterprise's standing happens somewhere the
+    owner is not looking: an officer approves the registration, an officer
+    allocates the SNP, the classifier finishes. Email already carries the
+    passcode, but nothing told an owner their allocation had landed — so the
+    certificate they had earned sat unseen. These rows are that channel.
+
+    Deliberately denormalised (title/body stored, not derived): a notification
+    is a record of what the owner was told at that moment, so later changes to
+    copy or to the underlying row must not rewrite history.
+    """
+
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True)
+    mse_id = Column(Integer, ForeignKey("mses.id"), nullable=False, index=True)
+    # registration_approved | registration_rejected | snp_allocated |
+    # classification_complete | action_needed
+    event = Column(String(40), nullable=False)
+    title_en = Column(String(200), nullable=False)
+    title_hi = Column(String(200), nullable=True)
+    body_en = Column(Text, nullable=True)
+    body_hi = Column(Text, nullable=True)
+    # In-app destination, e.g. /certificate. Never an external URL.
+    href = Column(String(200), nullable=True)
+    is_read = Column(Boolean, default=False, nullable=False)
+    read_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
 # ── Dependency injection ──────────────────────────────────────────────
 
 def get_db():
