@@ -4,12 +4,15 @@
 > Product renamed from "AgentMap AI" to **MSMEMate** on 2026-07-08.
 > Live at https://www.msmemate.com (frontend) + agentmap-api.azurewebsites.net (API).
 > Azure/infra resource names keep the legacy `agentmap-*` prefix — do NOT recreate them.
+> **This repo is PUBLIC.** Anything committed here is public-facing material.
 
 ## CONFIDENTIALITY
 
 - **The composite scoring formula (weights, factor names, computation methods) is a TRADE SECRET.** NEVER expose it in frontend code, UI, API responses to unauthenticated users, README, or any public-facing material.
 - Factor scores shown to end-users must use descriptive labels only (e.g. "Domain Fit: High") — never raw weights or the formula.
+- The formula lives in `apps/api/services/matcher.py`. Refer to it by name, never reproduce it in docs, comments, notebooks, or this file.
 - The PRD document is CONFIDENTIAL. Do not reproduce its contents in code comments or documentation.
+- ⚠️ **The trade-secret claim is currently unenforceable — see "Open items" #1.** `README.md` and `ml/pipelines/match_engine.py` were redacted on 2026-08-09, but `matcher.py` holds the same weights and **the repo is public**, so "server-side only" ≠ private. Awaiting a user decision (repo private / weights to secret config / accept disclosure). Until then, treat the weighting as **disclosed** and do not build claims on its secrecy.
 
 ## Team
 
@@ -21,10 +24,11 @@
 ## Architecture (Do NOT Change)
 
 - **Frontend:** Next.js 15 (App Router) + Tailwind CSS + Framer Motion — DO NOT switch to React CRA or any other framework
-- **Backend:** FastAPI (Python) + SQLAlchemy + PostgreSQL + Redis
-- **ML:** PyTorch + HuggingFace Transformers + PEFT (LoRA)
-- **Orchestration:** LangGraph (planned for Phase 2+)
-- **Infrastructure:** Docker Compose (dev), Kubernetes (production)
+- **Backend:** FastAPI (Python 3.11) + SQLAlchemy + PostgreSQL (Supabase Mumbai)
+- **ML (serving):** scikit-learn TF-IDF + LogisticRegression artifact, loaded at API startup
+- **ML (research):** PyTorch + HuggingFace Transformers + PEFT (LoRA) — `ml/pipelines/`, NOT in the serving path
+- **Orchestration:** LangGraph (planned for Phase 2+, not implemented)
+- **Infrastructure:** Azure App Service (API) + Vercel (web) + Supabase (DB). Docker Compose exists but is dev-optional.
 
 ## Sovereign AI Mandate
 
@@ -34,39 +38,46 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 - Google Cloud AI APIs (Gemini, etc.)
 - Any foreign-hosted LLM inference API
 
-**Approved AI stack:**
-| Component | Model/Service |
-|-----------|---------------|
-| STT | Sarvam Saras |
-| TTS | Sarvam Bulbul V3 |
-| OCR/Vision | Sarvam Vision (3B) |
-| Classification | Fine-tuned MuRIL (google/muril-base-cased + LoRA) |
-| Semantic Match | IndicBERT Bi-Encoder (ai4bharat/IndicBERTv2-MLM-Sam-TLM) |
-| NER + Translation | Sarvam Mayura |
-| LLM Reasoning | Llama 3.1 8B (self-hosted) |
-| Orchestration | LangGraph (Python) |
+### AI stack — what is ACTUALLY in the serving path (keep this honest)
+
+| Component | Shipped today | Engine stamp emitted |
+|-----------|---------------|----------------------|
+| STT | Sarvam Saras (`saarika:v2.5`) → Azure Speech secondary → mock | `sarvam-saras` / `fallback-stt` / `mock` |
+| TTS | Sarvam Bulbul V3 (`bulbul:v3`, speaker `ritu`) → mock | `sarvam-bulbul-v3` / `mock` |
+| OCR | pypdf text layer → Sarvam Document Intelligence → Azure DocInt secondary → mock | `pdf-text` / `sarvam-vision` / `fallback-ocr` / `mock` (+`+sarvam-30b` when NER runs) |
+| NER | Sarvam-30B chat → regex fallback | `sarvam-30b` / `regex` |
+| Classification | **VargBot TF-IDF v2 artifact** (gate 0.55) → Sarvam-30B leaf resolution → keyword | `vargbot-tfidf-v2+sarvam-30b` / `vargbot-tfidf-v2` / `sarvam-llm` / `keyword-fallback` |
+| Matching | JodakAI `weighted-multifactor-v2` (deterministic, server-side) | `weighted-multifactor-v2` |
+| Explainer | Template-based EN/HI, **no AI call** | n/a |
+
+**Aspirational / research-only (NOT serving):** MuRIL + LoRA fine-tune (`ml/pipelines/train_vargbot.py`), IndicBERT bi-encoder (`ml/pipelines/match_engine.py`), Llama 3.1 8B reasoning, LangGraph.
+The MuRIL branch in `classifier.py` is unreachable in production — `apps/api/requirements.txt` ships no `torch`/`transformers`/`peft`.
+
+**Rule: never stamp an engine name the code did not actually run.** Fallback output is labelled as fallback.
 
 ## Module Names (Use These Everywhere)
 
 | Module | Codename | Function |
 |--------|----------|----------|
 | Module 1 | **Sathi** | AI Registration Engine — voice-first multilingual MSE onboarding |
-| Module 2 | **VargBot** | Taxonomy Classification Engine — MuRIL ONDC domain mapping |
+| Module 2 | **VargBot** | Taxonomy Classification Engine — ONDC domain + leaf mapping |
 | Module 3 | **JodakAI** | Intelligent Matching Engine — multi-factor MSE-to-SNP scoring |
+
+Beyond the three PS2 modules, two officer-facing products have shipped: **Catalogue Studio** (ONDC template + Beckn payload) and **Claims Copilot** (TEAM incentive verification).
 
 ## Design Language
 
 ### Brand Identity
-- **Logo:** `/public/logo.png` — Ashoka Chakra tree with tricolour neural branches
+- **Logo:** handshake-M mark — favicon, PWA icons, navbar, footer (regenerate via `scripts/generate-icons.mjs`)
 - **Name:** MSMEMate (wordmark styled as MSME + Mate two-tone; renamed from AgentMap AI 2026-07-08)
 - **Domain:** msmemate.com (Vercel production alias)
 - **Tagline:** Bridging Bharat's Businesses
 
 ### Typography
-- **Display/Headings:** Plus Jakarta Sans (bold, 700-800)
-- **Body:** DM Sans (regular 400, medium 500)
-- **Monospace/Data:** JetBrains Mono
-- Load via Google Fonts in layout.tsx
+- **Display/Headings:** Plus Jakarta Sans (`--font-display`, bold 700-800)
+- **Body:** DM Sans (`--font-body`, regular 400, medium 500)
+- **Monospace/Data:** JetBrains Mono (`--font-mono`)
+- Loaded via `next/font` in `app/layout.tsx`, all `display: swap`
 
 ### Color Palette
 | Token | Hex | Usage |
@@ -82,10 +93,9 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 | `surface-600` | #4A5170 | Body text |
 
 ### Tricolour
-- Saffron: #FF9933
-- White: #FFFFFF
-- Green: #138808
+- Saffron: #FF9933 · White: #FFFFFF · Green: #138808
 - Used as 3px accent bars at top/bottom of page — never as dominant theme colors
+- Diagram convention: blue = AI, saffron = human, green = outcome
 
 ### Component Patterns
 - **Cards:** `.glass-card` — rounded-2xl, border surface-200, white bg, shadow-card, hover elevation
@@ -100,301 +110,262 @@ All AI/ML must use self-hosted open-weights or Indian-origin services. NEVER use
 4. Support EN/HI language toggle on all explainer text
 5. Government-appropriate aesthetic — professional, trustworthy, not flashy
 
-## Data Model (Registration Fields)
+---
 
-### MSE Profile (Module 1 — Sathi)
-| Field | Type | Required | Source |
-|-------|------|----------|--------|
-| udyam_number | string | Yes | User input / OCR |
-| name | string | Yes | User input / Voice |
-| description | text | Yes | User input / Voice |
-| state | string | Yes | User input / Udyam API |
-| district | string | Yes | User input |
-| pin_code | string | Yes | User input |
-| pan_number | string | Phase 2 | OCR / User input |
-| gst_number | string | Phase 2 | OCR / User input |
-| sector | string | No | Derived from classification |
-| turnover_band | enum | No | Udyam API |
-| gender_owner | enum | No | User input (for fairness tracking) |
-| products | text[] | No | User input / Voice |
-| language | string | Yes | User selection |
-| channel | enum | No | auto-detected (web/whatsapp) |
+# SHIPPED FEATURE INVENTORY (authoritative — verified against the codebase 2026-07-20)
 
-### SNP Profile
-| Field | Type | Source |
-|-------|------|--------|
-| subscriber_id | string | ONDC Registry |
-| name | string | ONDC Registry |
-| domain_codes | string[] | ONDC Registry |
-| geo_coverage | string[] | ONDC Registry |
-| capacity / load | float | TEAM Portal |
-| b2b_b2c | enum | ONDC Registry |
-| commission_pct | float | SNP self-report |
-| rating | float | Match history |
-| onboarding_support | enum | SNP self-report |
-| languages_supported | string[] | SNP self-report |
+## Frontend — `apps/web` (Next.js 15.1, React 19, `output: standalone`)
 
-## Development Phases & Module Tracking
+Runtime deps are deliberately few: `framer-motion`, `lucide-react`, `leaflet`/`react-leaflet`. **No i18n library** — bilingual copy is hardcoded inline.
 
-### Phase 1: Stage 1 PoC (7 weeks)
+### Public marketing routes — group `app/(marketing)/`
+Shell: tricolour bar + floating `Navbar` + heritage footer (`/footer-hero.webp`) + sitewide JSON-LD (`Organization`, `WebSite`, `SoftwareApplication`).
 
-**Week 1–2: Data & Baseline**
-- [ ] Ingest/create training data (AIKosh + synthetic)
-- [ ] Clean ONDC taxonomy (3-5 domains for PoC)
-- [ ] Create synthetic SNP dataset (50 SNPs) ✅
-- [ ] Create synthetic MSE dataset (5K profiles) — 20 done, need 5K
-- [ ] Implement rule-based baseline classifier ✅
-- [ ] Implement rule-based baseline matcher ✅
-- [ ] Compute baseline NDCG@3, accuracy metrics ✅
-- [ ] Baseline Performance Report
+| URL | Purpose |
+|-----|---------|
+| `/` | Landing — 8 sections: rotating hero frames, persona tabs `#solutions`, journey, before/after, dark stats band, resources, CTA `#about` |
+| `/blog` + `/blog/[slug]` | 7 static posts; `Article` + `FAQPage` + `BreadcrumbList` JSON-LD |
+| `/ondc` + `/ondc/[city]` | Cluster hub + **24 local-SEO city pages**; `Service` + `FAQPage` JSON-LD |
+| `/dpdp` | DPDP Act 2023 posture — 6 pillars |
+| `/sovereign-ai` | Sovereign-AI stance — 6 pillars |
+| `/privacy` · `/terms` | Legal |
 
-**Week 3–4: Module 2 — VargBot (Classification)**
-- [ ] Fine-tune MuRIL on product-category pairs
-- [ ] Stratified 80/10/10 split with 5-fold CV
-- [ ] Compute accuracy, precision, recall, F1, confusion matrix, AUC-ROC
-- [ ] Model Evaluation Document
+### Portal routes — group `app/(app)/`
+Client gate in `app/(app)/layout.tsx`: no session → `/login`; `/register` is explicitly exempt (public entry point). Sidebar rail via `SidebarCollapsedContext`.
 
-**Week 5: Module 3 — JodakAI (Matching)**
-- [ ] Build IndicBERT embedding similarity
-- [ ] Implement multi-factor scoring (production version)
-- [ ] Grid search weight optimization
-- [ ] Evaluate NDCG@3, MRR, reassignment simulation
-- [ ] Ranking Evaluation Report
+| URL | Purpose | Access |
+|-----|---------|--------|
+| `/register` | **Sathi** voice-first registration — `SathiVoicePanel` beside a live-filling TEAM-form; 28 states, multi-language | **Public** |
+| `/classify` | **VargBot** domain/category classification (largest page, ~1580 ln) | mse + admin |
+| `/match` | **JodakAI** ranked SNP recommendations + `ClusterMap` (`/dashboard` redirects here) | mse + admin |
+| `/catalogue` | **Catalogue Studio** — template download, sheet upload, auto-categorisation, Beckn payload | mse + admin |
+| `/certificate` | Print-ready Certificate of ONDC Onboarding Allocation (`?mseId=`) | mse + admin |
+| `/upload` | Taxonomy upload — ⚠️ **MOCK ONLY**, renders 18 hardcoded rows, never calls the API | mse + admin |
+| `/review` | NSIC review queue — approve/reject | **admin** |
+| `/allocate` | Official SNP allocation — confirm or reassign the AI pick | **admin** |
+| `/claims` | **Claims Copilot** — TEAM incentive rule checks, risk bands, officer decision | **admin** |
+| `/audit` | Immutable audit trail of every AI decision | **admin** |
+| `/model-health` | Drift dashboard + MLflow-style model registry | **admin** |
 
-**Week 6: Frontend & Integration**
-- [ ] Landing page
-- [ ] MSE registration flow (Module 1 — Sathi) with proper data fields
-- [ ] Match explanation view with score breakdown
-- [ ] Confidence band visualization
-- [ ] Admin dashboard with aggregate metrics
-- [ ] NSIC Review Queue
-- [ ] Baseline vs AI comparison charts
-- [ ] Integrate all modules end-to-end
+Admin gate list: `ADMIN_ONLY` in `lib/auth.ts` = `/review`, `/audit`, `/allocate`, `/claims`, `/model-health`.
+Root-level: `/login` (role picker, no passcodes in the bundle), `app/error.tsx`, `global-error.tsx` (inline-styled, Tailwind-free), `not-found.tsx` (bilingual).
 
-**Week 7: Submission**
-- [ ] 2-3 minute demo video
-- [ ] Architecture diagram
-- [ ] Evaluation summary document
-- [ ] Final testing & polish
-- [ ] Submission package
+### Key components
+`SNPCard` (composite score + qualitative `factor_bands` + fit reasons; numbers withheld from MSE users) · `ConfidenceBadge` (the core honesty primitive) · `DomainPredictionCard` (bands at 0.85/0.60) · `TaxonomyBrowser` · `ClassificationHistory` · `MSEPicker` (never exposes numeric IDs) · `ClusterMap` (Leaflet, `ssr:false`) · `VoiceInput` (30s cap → `/stt`) · `AppSidebar` (journey rail + OVERSIGHT block, 72px collapsed rail, propagates `?mseId=`) · `Navbar` (hide-on-scroll, dark/light variants) · `BlogDiagram` (4 inline SVGs, zero external assets, `role="img"` + aria-label).
+`components/sathi/`: `SathiVoicePanel` (1319 ln — the shipped voice experience), `VoiceOrb`, `WaveformVisualizer`, `LiveTranscript`, `ProgressRing`, `ExtractedFieldCard`.
 
-### Current Status
-- [x] Project scaffolding & Docker setup
-- [x] FastAPI backend with routes (/mse, /classify, /match)
-- [x] Database models (SQLAlchemy)
-- [x] Mock classifier (keyword-based — replace with MuRIL)
-- [x] Mock matcher (heuristic-based — replace with IndicBERT)
-- [x] Explainer service (template-based — replace with Llama/Sarvam)
-- [x] Frontend: Dashboard, Register, Review Queue, Audit
-- [x] SNPCard with factor bars + EN/HI explainer
-- [x] ConfidenceBadge component
-- [x] Seed data: 50 SNPs, 20 MSEs, 5 ONDC domains
-- [x] ML pipeline: train_vargbot.py (MuRIL LoRA)
-- [x] ML pipeline: match_engine.py (IndicBERT)
-- [x] Evaluation: metrics.py (NDCG@3, MRR, Accuracy)
-- [x] Evaluation: baseline.py (rule-based benchmark)
-- [ ] Landing page
-- [ ] Expand MSE seed to 5K
-- [ ] Real MuRIL fine-tuning (needs GPU)
-- [ ] Real IndicBERT embeddings (needs GPU)
-- [ ] Voice onboarding (Sarvam AI integration)
-- [ ] Document OCR (Sarvam Vision)
-- [ ] Sovereign infrastructure deployment
+**Orphaned (unreachable from any route — do not extend, delete or revive deliberately):** `AppTopBar`, `FooterIllustration`, `SathiAgent` (superseded by `SathiVoicePanel`), `sathi/DocPreview`, `sathi/DocumentScanner`, `sathi/FieldStatusPanel`, `sathi/PermissionGate`, `sathi/DocUploadButton` (transitively). ~1,700 lines total.
 
-## Deployment Target
+### lib/
+`auth.ts` — session in `localStorage["agentmap_session"]`, `login()`, `canAccess()`, and **`apiFetch()`** (base URL + Bearer + 30s `AbortSignal.timeout` + 401 → clear session → `/login`). Local role is a UI hint only; the server re-authorizes.
+`blog.ts` (651 ln, static post source) · `cities.ts` (24 clusters) · `extractFields.ts` (13 fields, `/ner/extract` + regex fallback, `detectLanguage()`) · `useAudioAnalyzer.ts` (FFT 64, 24 bins) · `sidebar-context.tsx`.
 
-- **Dev:** Docker Compose (current)
-- **Staging:** Indian cloud (Yotta/CtrlS or AWS Mumbai)
-- **Production:** MeitY Param Siddhi or Indian cloud with GPU (T4/A10 for inference)
-- **Compliance:** DPDP Act 2023, Indian data residency, RBAC, encryption at rest + transit
+### SEO / PWA
+`app/layout.tsx` is the metadata hub (`metadataBase`, title template `%s | MSMEMate`, OG `en_IN`, robots, `viewportFit: cover`, light/dark themeColor).
+`sitemap.ts` = 39 URLs (7 static + 7 posts + `/ondc` + 24 cities) · `robots.ts` (disallows portal routes) · `manifest.ts` (standalone, 5 icons, 2 shortcuts) · `public/llms.txt` (AI-answer-engine brief) · per-page `metadata` / `generateMetadata` on every marketing route.
+
+## Backend — `apps/api` (FastAPI, 15 route modules, 27 endpoints)
+
+> **Note:** the ORM lives in `database.py`. There is **no `models.py`** — `models/` is a directory of sklearn artifacts.
+
+Auth is enforced in two layers: router-level `dependencies=` in `main.py` plus per-route `Depends(...)`. The stricter wins.
+
+| Router | Prefix | Gate | Endpoints |
+|--------|--------|------|-----------|
+| `health` | — | public | `GET /health` |
+| `auth` | `/auth` | public | `POST /login` (bcrypt + DB lockout + HS256 JWT, 429 when locked) · `GET /me` (JWT) |
+| `domains` | `/domains` | public | `GET /` — domains + nested categories |
+| `mse` | `/mse` | per-route | `POST /` public (requires `consent_given`, 409 dup Udyam, auto-creates an `mse` user + one-time passcode when anonymous) · `GET /` **admin** · `POST /{id}/review` **admin** · `POST /{id}/allocate` **admin** (409 unless approved) · `GET /search` JWT · `GET /{id}` JWT · `GET /{id}/clusters` JWT · `DELETE /{id}` **admin** (DPDP erasure) |
+| `stt` `ocr` `tts` `ner` | resp. | **public** | `POST /stt/transcribe` · `POST /ocr/extract` · `POST /tts/synthesize` · `POST /ner/extract` |
+| `classify` | `/classify` | JWT | `POST /` (persists result + leaf + audit) · `POST /text` (no DB write) · `GET /history/{mse_id}` · `POST /{result_id}/verify` **admin** — officer confirms/corrects a prediction; codes validated against the live taxonomy; the only source of **leaf-level gold labels** |
+| `match` | `/match` | JWT | `POST /` — raw `factors` returned **only when `role == "admin"`**; MSE users get `factor_bands` |
+| `catalogue` | `/catalogue` | JWT | `GET /template/{domain}` (3-sheet XLSX, 8 RET domains) · `POST /upload` (caps 500 rows, returns 100) |
+| `audit` | `/audit` | **admin** | `GET /` (limit ≤ 200) |
+| `claims` | `/claims` | **admin** | `GET /queue` · `POST /decide` |
+| `model_health` | `/model-health` | **admin** | `GET /` (weeks 2–52) · `GET /feedback-export` (limit ≤ 5000) |
+
+### Services
+- **`classifier.py`** — the VargBot chain: TF-IDF `predict_proba` → if top-1 ≥ `VARGBOT_TFIDF_MIN_CONF` (0.55) the domain is fixed and Sarvam-30B resolves leaf + attributes with a `domain_hint`; else Sarvam zero-shot over the live-DB taxonomy (14 domains, 30 leaves/domain in-prompt); then MuRIL (unreachable), TF-IDF below gate, keyword frequency. Engine stamp derives from the artifact filename (`vargbot_tfidf_v2.joblib` → `vargbot-tfidf-v2`). Also exports `get_compliance_checklist()` (FSSAI / BIS-CRS / CDSCO / AYUSH / BEE + 4 generic).
+- **`matcher.py`** — JodakAI `weighted-multifactor-v2`. Registry-aware: multi-category SNPs, undisclosed domain lists, pan-India geo; rating Bayesian-shrunk to a network prior (cold-start explore); capacity + onboarding speed blended from `data/snp_capacity.json` (**synthetic-disclosed**, pending TEAM-portal integration). Also `readiness_nudges()` (max 3) and `_fit_reasons()` (max 4). **Weights never leave the server.**
+- **`ner.py`** — Sarvam-30B → regex. Own in-process limiter (30 rpm / 1000 daily); short text skips the LLM. Regex covers Udyam/mobile/email/PAN/GSTIN/PIN + 29 English states, 8 abbreviations, 21 Hindi state names.
+- **`ocr.py`** — digital-PDF text layer (pypdf, 3 pages, `<40` chars falls through) → Sarvam DocInt (job upload/poll/download-zip, `DOCINT_TIMEOUT_S` 120) → Azure DocInt → mock. Every text path runs Udyam label regexes + LLM NER, then `_sanitize_fields()` (format validation + hallucination filter, drops known prompt-parroted artifacts). Doc triage: `udyam_certificate` / `incorporation_certificate` / `aoa` / `moa` / `gst_certificate` / `pan_card` / `business_document`; spreadsheets short-circuit to `doc-triage`.
+- **`stt.py`** — Sarvam Saras (webm→WAV 16 kHz via `ffmpeg` when present) → Azure Speech → mock (8 languages). Every result carries `is_mock` + `detected_language`.
+- **`tts.py`** — Bulbul v3; on mock the frontend falls back to browser `speechSynthesis`.
+- **`explainer.py`** — pure EN/HI templates, qualitative labels only. No AI call.
+- **`auth.py`** — bcrypt, HS256, DB-backed lockout, `get_current_user` / `require_admin` / `get_optional_user`. Logs `CRITICAL` if `JWT_SECRET` is unset.
+- **`ratelimit.py`** — in-memory sliding window (60s). Buckets: `login`, `llm` (`/classify` `/match` `/ner` `/stt` `/tts` `/ocr`), `default`. Keys on bearer-token tail → `x-forwarded-for` → client host. OPTIONS bypasses. **Per-worker, not Redis-backed.**
+- **`geo.py`** — 36 hardcoded state/UT centroids, no external call.
+- `redis_client.py` exists but **nothing imports it** (lockout is in Postgres, rate limiting is in-memory).
+
+### `main.py`
+Title "MSMEMate", version 0.1.0. Lifespan startup calls `init_classifier()` only — no `create_all()`, no migrations. CORS with credentials + wildcard methods/headers, origins from `CORS_ORIGINS`. Rate-limit middleware registered after CORS. No exception handlers, no GZip, no TrustedHost. Container: `python:3.11-slim`, single uvicorn worker.
+
+### Database — 10 tables (`database.py`), Supabase Mumbai
+`ondc_domains` · `ondc_categories` · `users` (role enum mse/admin, lockout columns) · `mses` (full TEAM-form: udyam, entrepreneur, email, address, org_type, major_activity, transaction_type, PAN/GST, turnover_prev_fy, ondc_awareness, wish_snp, **consent_given + consent_at**, review + allocation columns) · `snps` · `classification_results` · `match_results` (sub-scores + confidence_band + explainer_en/hi) · `audit_logs` · `snp_claims` (claim_ref, type, channel, sku_count, claimed_amount, source, status, decision columns).
+4 native Postgres enums: `user_role`, `turnover_band`, `support_level`, `confidence_band`. Pool: `pool_pre_ping`, size 5, overflow 10, recycle 300. RLS deny-all on every table (backend owner connection bypasses).
+**Undeclared table:** `geo_districts` is queried by raw SQL in `routes/mse.py` and created by `scripts/geocode_districts.py`; the query is try/except-wrapped so a missing table degrades to state-level bubbles.
+
+### Shipped API artifacts
+`data/category_demand.json` (AIKosh orders: 129,591 mapped / 45,137 unmapped) · `data/district_msme.json` (788 districts, official Udyam counts) · `data/snp_capacity.json` (synthetic-disclosed) · `data/vargbot_baseline_eval.json` (v2, stage `production`) · `data/vargbot_v1_eval.json` (stage `archived`) · `models/vargbot_tfidf_v1.joblib` (4.1 MB) · `models/vargbot_tfidf_v2.joblib` (15.8 MB, **the served default**).
+
+### Claims Copilot rule engine (`routes/claims.py`)
+Rates: onboarding ₹450 · SKU B2C ₹50 (cap 50) · SKU B2B ₹125 (cap 20) · catalogue cap ₹2,500. Seven rule checks (`udyam_valid`, `micro_small`, `activity`, `one_snp`, `catalogue_live`, `sku_cap`, `amount`). Risk = failed×0.22 + anomalies×0.12, capped 1.0; bands green <0.2, yellow <0.55, red above. Queue is honestly stamped `simulated-claims-demo` pending the real TEAM portal claims feed.
+
+## ML & MLOps — `ml/`, `scripts/`, `data/`, `dvc.yaml`
+
+### Training / eval scripts
+`ml/train_vargbot_tfidf.py` (v1) · `ml/train_vargbot_tfidf_v2.py` (v2, word+char FeatureUnion) · `ml/pipelines/train_vargbot.py` (MuRIL+LoRA, research) · `ml/pipelines/match_engine.py` (IndicBERT, research) · `ml/evaluation/` (`metrics.py`, `baseline.py`, `evaluate_vargbot.py`, `eval_vargbot_live.py`, `eval_jodakai_ranking.py`) · `ml/tests/smoke_test_vargbot.py` (CI behavioural gate).
+
+### Evidence (real numbers — quote these, never round up)
+| Report | Key metrics |
+|--------|-------------|
+| `vargbot_tfidf_v2_eval.json` | 14/14 domains, n_test 3,353, C=2.0. **CV-5 macro-F1 0.9841 ± 0.0010**; test acc **0.9893** / macro-F1 **0.9866**. Per source: flipkart 0.9808 · mepma 0.995 · mse_profile 1.0 · synthetic 1.0. **Real-products-only: n=2,466, acc 0.9854, macro-F1 0.9575 ← the honest headline.** Carries a `honesty_note` that template twins make the synthetic subsets optimistic. Gate calibration table 0.3→0.9; `recommended_gate_p95` 0.3. |
+| `vargbot_tfidf_eval.json` (v1) | 8 domains, n_test 1,966. CV 0.9459 ± 0.0098; test acc 0.9863 / macro-F1 0.9612. |
+| `vargbot_domain_eval.json` | **Live Sarvam-30B zero-shot, before the trained model**: n=320, acc **0.397**, macro-F1 0.354 (RET17 and RET1B scored 0.0). This is the "before" evidence — a different system from the TF-IDF number above. |
+| `jodakai_ranking_eval.json` | 281 SNPs × 189 queries, heuristic relevance 0-3 (expert labels pending). rating-only NDCG@3 0.425 → heuristic-v1 0.659 → **multifactor-v2 0.879**; MRR 0.099 → 0.570 → **0.681**; Recall@5 0.090 → 0.526 → **0.718**. |
+| `vargbot_robustness_eval.json` (2026-08-09) | Evaluates the **shipped artifact** (never retrains); split reproduced from the same SEED. Covers the Annexure-II metrics the primary report lacked: **AUC-ROC macro-OVR 0.9996**, log loss **0.0865**, balanced accuracy **0.9888**; latency **p50 2.06 ms / p95 2.96 ms**, ~2,920 items/s batched; cost-per-inference model (compute rate is a stated assumption, and the Sarvam leaf call is excluded). Plus a 5-family model comparison. **OPEN FINDING: LogisticRegression 0.9824 is not the best probability-capable family — SGD(modified_huber) scores 0.9880.** Not acted on: modified_huber probabilities are poorly calibrated and the gate, the bands and the drift alerts are all calibration-dependent, so a swap needs gate re-calibration first. |
+
+### Data
+`data/processed/`: `training_corpus_v2.csv` (33,530 lines, 8.35 MB, 4 sources) · `product_category_pairs.csv` (19,654) · `mepma_product_pairs.csv` (9,072) · `mse_profiles_5k.csv` (5,001 + `.meta.json` provenance, gender split M 3,824 / F 1,176) · `snp_profiles.csv`/`.json` (281) · `snp_transaction_history.csv` (54) · `ondc_taxonomy.json` (285 KB).
+`data/raw/`: Flipkart 20K, AIKosh Udyog Aadhaar 100K sample + district-wise Udyam counts + ONDC order xlsx, ONDC `livenetwork_v91.json` + protocol-network-extension clone. Large raw CSV/PDF are gitignored via `data/.gitignore`; `SOURCE.md` provenance files are kept.
+
+### Build scripts (`scripts/`)
+`build_ondc_taxonomy.py` · `build_product_category_pairs.py` · `build_snp_profiles.py` · `build_mepma_artifacts.py` · `build_mse_profiles.py` · `build_training_corpus_v2.py` · `build_demand_index.py` · `geocode_districts.py` (OSM Nominatim, 1 req/s, idempotent) · `seed_real_data.py` (Supabase REST, idempotent).
+
+### DVC pipeline (`dvc.yaml`, all outs `cache: false` — deploy ships from git)
+`build_corpus` → `train` (metric: `ml/reports/vargbot_tfidf_v2_eval.json`) → `deploy_artifact` (copies model + report into `apps/api/`) → `smoke_test`.
+
+### CI — `.github/workflows/ci.yml` (push + PR to main)
+Job **api**: Python 3.12, install, `compileall`, `import main` with dummy env, then **`python ml/tests/smoke_test_vargbot.py`** (fails the build on missing artifact, lost domain coverage, or regression on canonical EN + Hinglish cases).
+Job **web**: Node 20, `npm ci`, `tsc --noEmit`, `npm run build`.
+No lint, no DVC-repro, no deploy workflow.
+
+### Docs & notebooks
+`docs/MODEL_CARD_VARGBOT.md` · `docs/STRATEGY.md` · `docs/DPDP.md` · `docs/AgentMapAI_PRD_v2.docx` · `docs/PRESENTATION_SCRIPT.md` (**gitignored, local-only**).
+`notebooks/vargbot_playground.ipynb` — 16 cells, reproduces v2 end-to-end on Colab CPU from the public GitHub raw corpus. **NSIC-only link** (surfaced in the model-registry card); deliberately never linked from public pages.
 
 ---
 
-## SESSION PROGRESS & RESUME POINT (updated 2026-07-08)
+## Development Phases & Module Tracking
 
-### LIVE DEPLOYMENT (verified end-to-end)
-- **Frontend:** https://www.msmemate.com (Vercel, project msmseagentmap56;
-  deploy from REPO ROOT — project rootDirectory=apps/web)
-- **API:** https://agentmap-api.azurewebsites.net (Azure B1 until the Jul-10
-  deadline passes, then downgrade the same plan to F1; Always-On on)
-- **DB:** Supabase Mumbai `qiigylrybzdxkeibsfvh` — 14 domains, 408 categories,
-  281 real registry SNPs, 5,020 real-derived MSEs, RLS deny-all
+### Phase 1: Stage 1 PoC — status as of 2026-07-20
+
+**Week 1–2: Data & Baseline** — ✅ complete
+- [x] Ingest training data (AIKosh + Flipkart + MEPMA + ONDC registry)
+- [x] Clean ONDC taxonomy — 14 domains / 392 leaves (not 3-5; full taxonomy)
+- [x] SNP dataset — **281 real registry SNPs** (the synthetic 50 were deleted)
+- [x] MSE dataset — **5,020 real-derived profiles** (5K target met)
+- [x] Rule-based baseline classifier + matcher
+- [x] Baseline metrics computed and persisted
+
+**Week 3–4: Module 2 — VargBot** — ✅ shipped (TF-IDF, not MuRIL)
+- [x] Trained domain classifier in serving, 14/14 domains
+- [x] Stratified 80/10/10 + 5-fold CV
+- [x] Accuracy, per-domain F1, per-source breakdown, gate calibration
+- [x] Model card (`docs/MODEL_CARD_VARGBOT.md`)
+- [ ] MuRIL fine-tune (needs GPU; pipeline written, never run) — Stage 2
+- [ ] Leaf-level (category) accuracy evaluation — currently domain-level only
+
+**Week 5: Module 3 — JodakAI** — ✅ shipped (heuristic, not embeddings)
+- [x] Multi-factor scoring v2 in production
+- [x] NDCG@3 / MRR / Recall@5 evaluated vs two baselines
+- [ ] IndicBERT embedding similarity (pipeline written, never run) — Stage 2
+- [ ] Grid-search weight optimisation
+- [ ] Expert relevance labels from the NSIC queue (current labels are heuristic)
+
+**Week 6: Frontend & Integration** — ✅ complete
+- [x] Landing page + full marketing site (blog, legal, trust, 24 city pages)
+- [x] Sathi registration on the TEAM-form schema
+- [x] Match explanation with qualitative bands
+- [x] Confidence band visualisation
+- [x] NSIC review queue, allocation, audit trail
+- [x] Model Health dashboard + model registry
+- [x] All modules integrated end-to-end and verified live
+
+**Week 7: Submission**
+- [x] Architecture + explainer diagrams (`BlogDiagram`)
+- [x] Evaluation evidence persisted (`ml/reports/`)
+- [ ] 2-3 minute demo video (notes below)
+- [ ] Final testing & polish
+- [ ] Submission package
+
+## Deployment
+
+- **Frontend:** Vercel, project `msmseagentmap56`, rootDirectory `apps/web`. **Git push to main = auto-deploy.** Manual only if needed: `npx vercel deploy --prod --yes` from repo root.
+- **API:** Azure App Service `agentmap-api`, Python 3.11 runtime. Deploy with `git archive -o zip HEAD:apps/api` then `az webapp deploy`. **NEVER `Compress-Archive`** — backslash zip entries break Linux.
+- **DB:** Supabase Mumbai `qiigylrybzdxkeibsfvh` (ap-south-1, DPDP residency), session pooler port 5432.
 - **Demo logins:** mse@msmemate.com / bharat123 · nsic@msmemate.com / nsic123
-- **AI engines (all live, no mocks):** Sarvam Saras STT · Bulbul V3 TTS ·
-  Sarvam-30B NER/classify · Sarvam Document Intelligence OCR; secondary
-  fallback engines (F0 free tiers: agentmap-speech, agentmap-docintel) fire
-  only if Sarvam fails, labelled truthfully fallback-stt / fallback-ocr
-- **Deploy recipe:** web `npx vercel deploy --prod --yes` from repo root;
-  API `git archive -o zip HEAD:apps/api` (NEVER Compress-Archive — backslash
-  zip entries break Linux) then `az webapp deploy`. PS 5.1: no double quotes
-  inside commit-message here-strings.
+- **PS 5.1 gotcha:** no double quotes inside commit-message here-strings. Test Indic scripts via Python UTF-8, not curl.
+- **Compliance:** DPDP Act 2023, Indian data residency, RBAC, encryption at rest + transit.
 
-### Decisions made
-- **Commits:** NO Claude/Anthropic attribution lines in commit messages (team-authored).
-- **Name:** MSMEMate (msmemate.com bought + aliased). Renamed from AgentMap AI.
-- **Database = Supabase Mumbai (ap-south-1)** for DPDP data residency. Neon is REMOVED
-  from the stack entirely (user decision 2026-07-07). Supabase project ref:
-  `qiigylrybzdxkeibsfvh`; MCP in `.mcp.json`.
-- **Auth:** custom JWT (not Supabase Auth / third-party) — zero extra cost, exact control
-  over login lockout. Redis kept optional (login lockout is DB-backed, so no Redis cost).
-- **PS2 flow:** registration is PUBLIC (voice-first entry point, per-IP rate limited);
-  classify + match are the logged-in dashboard steps.
-- **Fallback engines:** Sarvam primary (paid billing) + neutral-named secondary engines
-  for demo reliability only; never fake Sarvam labels on fallback output.
+---
 
-### HOW TO USE the 2026-07-11/12 features
+## Decisions made (do not relitigate)
 
-- **Model Health dashboard**: login `nsic@msmemate.com` → Oversight → Model
-  Health (`/model-health`). Top card = MLflow-style registry (serving engine
-  read live from the loaded artifact, v2-production vs v1-archived comparison
-  table); below it drift signals (confidence trend, engine mix, override
-  meters, per-domain vs frozen baseline). Red banner = retrain recommended.
-  Thresholds env-tunable: MONITOR_FALLBACK_ALERT (0.20), MONITOR_OVERRIDE_ALERT
-  (0.10), MONITOR_LOW_CONF (0.60).
-- **Retrain cycle** (repo root): `python scripts/build_training_corpus_v2.py`
-  → `python ml/train_vargbot_tfidf_v2.py` → copy artifact+eval into apps/api
-  — or just `dvc repro` (stages: build_corpus → train → deploy_artifact →
-  smoke_test; `dvc metrics show` prints the eval). Engine stamp auto-derives
-  from the artifact filename (vargbot_tfidf_v3.joblib → "vargbot-tfidf-v3").
-  Ship a new version's eval as apps/api/data/vargbot_baseline_eval.json and
-  keep the old one as vargbot_vN_eval.json so the registry history grows.
-- **Officer-feedback flywheel**: `GET /model-health/feedback-export` (admin
-  JWT) → weak-supervision rows; merge into the corpus as
-  source=officer_feedback (dedupe by mse_id — one row per classification).
-- **CI model gate**: ml/tests/smoke_test_vargbot.py runs on every push —
-  update its canonical cases when retraining changes expected behaviour.
-- **Rollback**: set VARGBOT_TFIDF_PATH to the v1 artifact; gate via
-  VARGBOT_TFIDF_MIN_CONF (default 0.55, calibration table in the eval JSON).
-- **Colab playground** (NSIC-only link, in the registry card):
-  notebooks/vargbot_playground.ipynb — full reproduction on the public
-  corpus: training, CV, per-domain metrics, confusion matrix, gate curve,
-  classify-your-own-text. Do NOT link it from public pages (user decision
-  2026-07-12: repo is public but the notebook stays unadvertised).
-- **Blog diagrams**: add `diagram: { id, caption }` to any BlogSection; ids
-  live in components/BlogDiagram.tsx (ondc-vs-marketplace, vargbot-chain,
-  claims-flow, mlops-loop). Model card: docs/MODEL_CARD_VARGBOT.md.
+- **Commits:** NO Claude/Anthropic attribution lines — the work is team-authored.
+- **Name:** MSMEMate. Azure resources keep `agentmap-*`; localStorage key stays `agentmap_session`.
+- **Database = Supabase Mumbai.** Neon is REMOVED from the stack entirely (2026-07-07).
+- **Auth:** custom JWT, not Supabase Auth — zero extra cost, exact control over lockout. Redis optional (lockout is DB-backed).
+- **PS2 flow:** registration is PUBLIC (voice-first entry, rate-limited); classify + match are logged-in steps.
+- **Fallback engines:** Sarvam primary (paid) + neutral-named secondaries for demo reliability; never fake a Sarvam label on fallback output.
+- **Colab notebook:** repo is public, but the notebook stays unadvertised — NSIC-only link (2026-07-12).
+- **Always consult the user before changing anything.**
 
-### VIDEO DEMO NOTES (future 2-3 min video)
+## HOW TO USE the shipped features
 
-1. **Open**: landing hero rotation (desktop + phone) → voice registration in
-   Hinglish → classification result showing the honest vargbot-tfidf-v2 stamp.
-2. **The ML story**: Model Health registry card — v1 (8 domains, CV 0.946) →
-   v2 (14 domains, CV 0.984) trained on Flipkart + MEPMA + real-derived MSE
-   profiles; say the honest number out loud (real-products-only 98.5%).
-3. **The lifecycle story** (differentiator): drift monitor → red-alert
-   thresholds → feedback export → retrain → CI gate. Line: "the loop, not
-   any single model, is the product." B-roll: blog diagrams (mlops-loop,
-   vargbot-chain) and the Colab notebook running the training live.
-4. **Close**: officer approves in review queue → audit trail → "humans stay
-   the authority."
-   Precedent script format: docs/PRESENTATION_SCRIPT.md (gitignored).
+- **Model Health**: login `nsic@msmemate.com` → Oversight → Model Health (`/model-health`). Top card = MLflow-style registry (serving engine read live from the loaded artifact, v2-production vs v1-archived table, Colab link); below it drift signals (weekly confidence trend avg+p25, engine-mix drift, officer override meters, per-domain vs the frozen baseline). Red banner = retrain recommended. Thresholds env-tunable: `MONITOR_FALLBACK_ALERT` (0.20), `MONITOR_OVERRIDE_ALERT` (0.10), `MONITOR_LOW_CONF` (0.60).
+- **Retrain cycle** (repo root): `python scripts/build_training_corpus_v2.py` → `python ml/train_vargbot_tfidf_v2.py` → copy artifact + eval into `apps/api` — or just `dvc repro` (`dvc metrics show` prints the eval). Engine stamp auto-derives from the artifact filename (`vargbot_tfidf_v3.joblib` → `vargbot-tfidf-v3`). Ship the new eval as `apps/api/data/vargbot_baseline_eval.json` and keep the old one as `vargbot_vN_eval.json` so the registry history grows.
+- **Officer-feedback flywheel**: `GET /model-health/feedback-export` (admin JWT) → weak-supervision rows (the response carries an explicit `label_semantics` disclaimer). Merge into the corpus as `source=officer_feedback`, deduped by `mse_id`.
+- **CI model gate**: `ml/tests/smoke_test_vargbot.py` runs on every push — update its canonical cases when retraining changes expected behaviour.
+- **Rollback**: set `VARGBOT_TFIDF_PATH` to the v1 artifact; tune the gate via `VARGBOT_TFIDF_MIN_CONF` (default 0.55; calibration table in the eval JSON).
+- **Claims Copilot**: `/claims` (admin) — rule checks + risk band per claim, officer decides. Queue is honestly stamped `simulated-claims-demo`.
+- **Catalogue Studio**: `/catalogue` — download the domain XLSX template, upload a filled sheet, rows are auto-categorised and emitted as a Beckn `on_search` payload. 8 domains supported (RET10-16, RET18).
+- **Blog diagrams**: add `diagram: { id, caption }` to any `BlogSection`; ids live in `components/BlogDiagram.tsx` (`ondc-vs-marketplace`, `vargbot-chain`, `claims-flow`, `mlops-loop`).
+- **City pages**: add a `CityCluster` to `lib/cities.ts` — the route, sitemap entry and JSON-LD follow automatically. Keep entries factual; these are not doorway pages.
 
-### DONE (2026-07-11/12 — VargBot v2 + Model Health monitor, deployed + verified)
-- **VargBot v2 in serving** — 14/14 ONDC domains (v1: 8). Corpus v2 33.5K
-  (scripts/build_training_corpus_v2.py): Flipkart 17K + MEPMA real seller
-  products 7.6K + real-derived MSE Hinglish profiles 4.7K + synthetic
-  gap-fillers 4.1K (RET15/17/18/19/1C/1D only). TF-IDF word+char union →
-  balanced LogReg: CV macro-F1 0.984±0.001, held-out 98.9%/0.987;
-  real-products-only 98.5%/0.957 (honest number — template twins disclosed).
-  Gate 0.55 (calibration table in ml/reports/vargbot_tfidf_v2_eval.json);
-  engine stamp vargbot-tfidf-v2 derived from artifact filename. Live-verified
-  on all 6 new domains incl. Hinglish (RET1C cement 0.9988, RET1D, RET19,
-  RET11, RET15, RET18).
-- **Model Health monitor** — GET /model-health/ (admin-only) + /model-health
-  Oversight page: weekly confidence trend (avg+p25), engine-mix drift,
-  officer override signals, per-domain drift vs frozen baseline
-  (apps/api/data/vargbot_baseline_eval.json = v2 eval), red/amber alerts
-  (MONITOR_FALLBACK_ALERT/OVERRIDE_ALERT env-tunable).
-- Landing hero: 3-image rotation + mobile portrait crops; mobile polish
-  (navbar hamburger menu + transparent-at-top pill, Sathi orb/header fixes).
-- **MLOps stack**: CI model smoke gate (ml/tests/), officer-feedback export
-  endpoint, model card (docs/MODEL_CARD_VARGBOT.md), DVC pipeline (dvc.yaml,
-  cache:false — deploy still ships from git), Colab reproduction notebook
-  (notebooks/vargbot_playground.ipynb, 16 cells, executed+verified).
-- **Model registry panel** on /model-health (MLflow-style): serving chip from
-  the live artifact, v2/v1 version-history table, Colab link (admin-only).
-- **Blog**: post 7 (MLOps playbook) + BlogDiagram SVG component with diagrams
-  on 4 posts; llms.txt updated. Colab link intentionally NOT on public blog.
+## Key environment variables
 
-### DONE (2026-07-10 — classification model + matching algorithm completed)
-- **VargBot trained model in serving** — TF-IDF + LogisticRegression domain
-  classifier (ml/train_vargbot_tfidf.py) on the 19.6K labelled pairs:
-  stratified 80/10/10, 5-fold CV 0.946±0.010, held-out 98.6% acc / 0.961
-  macro-F1 (ml/reports/vargbot_tfidf_eval.json). Artifact ships in the API
-  (apps/api/models/, 4.1 MB); confidence-gated primary engine
-  (VARGBOT_TFIDF_MIN_CONF, default 0.60) — Sarvam-30B resolves leaf category
-  + attributes within the predicted domain, and handles Indic text /
-  out-of-corpus domains zero-shot. Engines: vargbot-tfidf-v1+sarvam-30b /
-  vargbot-tfidf-v1 / sarvam-llm / keyword-fallback (honest stamps).
-  Zero-shot before-evidence: 39.7% domain acc (vargbot_domain_eval.json).
-  Corpus covers 8/14 domains (Flipkart) — gate handles the rest.
-- **JodakAI weighted-multifactor-v2** — real-registry aware: RET-MULTI
-  multi-category SNPs (0.85), undisclosed domain lists 101/281 (0.3),
-  "Pan India" spelling; rating Bayesian-shrunk toward network prior 4.0
-  (cold-start explore); capacity + onboarding-speed blend from
-  apps/api/data/snp_capacity.json (synthetic-disclosed). Ranking eval
-  (ml/evaluation/eval_jodakai_ranking.py, heuristic relevance pending
-  NSIC-queue expert labels): NDCG@3 0.659→0.879, MRR 0.570→0.681,
-  Recall@5 0.526→0.718 vs frozen v1 (jodakai_ranking_eval.json).
-- snp_transaction_history.csv sellers (MEPMA/WowGeni) do NOT join to the 281
-  registry SNPs by name — used as network-prior evidence only.
-- requirements.txt: + scikit-learn==1.9.0, joblib==1.5.3.
+`DATABASE_URL` (required — RuntimeError at import if unset) · `JWT_SECRET` (CRITICAL log + insecure dev fallback if unset) · `JWT_TTL_MIN` 720 · `MAX_LOGIN_ATTEMPTS` 5 · `LOCKOUT_MINUTES` 15 · `CORS_ORIGINS` · `RATE_LIMIT_LOGIN` 10 · `RATE_LIMIT_LLM` 60 · `RATE_LIMIT_DEFAULT` 120 · `SARVAM_API_KEY` · `SARVAM_CHAT_MODEL` sarvam-30b · `VARGBOT_TFIDF_PATH` · `VARGBOT_TFIDF_MIN_CONF` 0.55 · `VARGBOT_MODEL_DIR` · `USE_MOCK_STT/OCR/TTS` · `STT_FALLBACK_KEY/REGION` · `OCR_FALLBACK_KEY/ENDPOINT` · `DOCINT_TIMEOUT_S` 120 · `MONITOR_FALLBACK_ALERT/OVERRIDE_ALERT/LOW_CONF` · `REDIS_URL` (optional, unused).
+`GEMINI_API_KEY`, `NVIDIA_API_KEY`, `AIKOSH_API_KEY` sit in `.env` but are **read by nothing** under `apps/api` — leftovers from the pre-sovereign era.
 
-### DONE (2026-07-08 session 2 — all deployed + verified live)
-- **TEAM-form alignment** — registration mirrors the official NSIC form: entrepreneur
-  name, email, address, org type, major activity, PAN/GST, B2B/B2C, prev-FY turnover,
-  ONDC-awareness + SNP opt-ins. Sathi voice collects 12 fields with spoken email/PAN
-  validation; consent gate integrated into the voice flow.
-- **Real document extraction (no mock)** — digital PDFs parse text layer (pypdf);
-  scanned PDFs/images via Sarvam Document Intelligence; Udyam label regexes +
-  Sarvam-30B NER + strict sanitizer (format validation, hallucination filter).
-  Verified on a real Udyam certificate live: 16 fields in ~15s.
-- **Document triage** — dropped files are classified: certificates (Udyam/incorp/
-  AOA/MOA/GST/PAN) extract; product-catalogue CSV/Excel → bilingual "next step"
-  message; junk → "not relevant". Scan animation + corner doc chip in the panel.
-- **Multilingual verified live** — NER in Hindi/Hinglish/Tamil/Bengali/Marathi/
-  Gujarati/Konkani (9–11 fields each, sarvam-30b); TTS audio hi/ta/bn/gu; Hindi +
-  Konkani classification correct. (Test Indic scripts via Python UTF-8, not curl.)
-- **Public registration** — /register + voice endpoints anonymous (rate-limited);
-  Register card on login page; sign-in handoff after anonymous registration.
-- **UI** — icon-collapsible sidebar (rail + toggle); register form in collapsible
-  sections; form panel widens when sidebar collapses (lib/sidebar-context.tsx).
-- **MSMEMate rebrand** everywhere; demo-access card removed from login.
+## VIDEO DEMO NOTES (2-3 min)
 
-### DONE (2026-07-08 session 1 — security/data P0s)
-- **#5 Auth+RBAC** — backend (JWT/bcrypt/lockout) + FRONTEND REWRITTEN: `lib/auth.ts` now
-  calls real `POST /auth/login`, stores JWT, `apiFetch()` attaches Bearer + 30s timeout +
-  401→re-login on ALL 18 call sites; hardcoded creds removed from bundle & login screen.
-- **#6 Scoring/PII leak** — match API returns qualitative `factor_bands` (high/med/low) to
-  MSE users; raw `factors` admin-only; SNPCard renders bands (numbers only for admin);
-  `GET /mse/` list is admin-only; honest `model_version="heuristic-baseline-v1"` stamps.
-- **#7 Rate limiting** — `services/ratelimit.py` sliding-window middleware
-  (login 10/min/IP, LLM endpoints 30/min/user, default 120/min; env-tunable).
-- **#8 CI** — `.github/workflows/ci.yml` (API deps+compile+import; web tsc+build).
-  Infra move off Azure F1 still needs a paid-plan DECISION from the user.
-- **#9 DPDP** — consent checkbox (EN/HI) + server-side 422 enforcement + consent columns;
-  `DELETE /mse/{id}` erasure (profile + derived AI results); `docs/DPDP.md` policy.
-- **#10 Real data in Supabase** — 14 domains, 408 categories (392-leaf full taxonomy),
-  281 real registry SNPs (synthetic 50 deleted), 5,020 MSEs from real Udyog data.
-  RLS enabled deny-all on every table (backend owner connection bypasses it).
-- **#13 Role identity** — role-coloured sidebar identity card + role badge chip.
-- **#15 Reliability** — `app/error.tsx`, `global-error.tsx`, `not-found.tsx`; apiFetch
-  timeouts; unknown-domain-code fallbacks in classify/match UIs.
+1. **Open**: landing hero rotation (desktop + phone) → voice registration in Hinglish → classification showing the honest `vargbot-tfidf-v2` stamp.
+2. **The ML story**: Model Health registry card — v1 (8 domains, CV 0.946) → v2 (14 domains, CV 0.984). Say the honest number out loud: **real-products-only 98.5% / 0.957**.
+3. **The lifecycle story** (the differentiator): drift monitor → red-alert thresholds → feedback export → retrain → CI gate. Line: *"the loop, not any single model, is the product."* B-roll: `mlops-loop` + `vargbot-chain` diagrams, Colab notebook training live.
+4. **Close**: officer approves in the review queue → audit trail → *"humans stay the authority."*
+   Script format precedent: `docs/PRESENTATION_SCRIPT.md` (gitignored).
 
-### Open items
-1. **After the Jul-10 deadline:** downgrade the plan to F1 (₹0/mo) — disable
-   Always-On first, then `az appservice plan update -n agentmap-plan -g agentmap-rg
-   --sku F1`. Same resources only; never recreate.
-2. Old Neon project deletion (kills git-history-leaked creds) — must be done in the
-   Neon console (not visible from current Neon MCP orgs). Git history purge pending.
-3. Human microphone test of the live voice flow (only thing automation can't drive).
+---
 
-### Remaining feature tasks (not started)
-11 Elasticsearch search · 12 AI chat panel (RAG, sovereign) ·
-14 ONDC integration + visibility nudges (seller-app SDK handoff; catalog+serviceability
-nudges) · i18n/mobile/offline polish (rest of #15).
+## Open items (ranked)
 
-### Known honest gaps (Stage-2)
-- Matcher is heuristic (no IndicBERT embeddings yet); classifier runtime is Sarvam-30B
-  (MuRIL fine-tune not in the serving path); eval evidence still to be produced.
-- Monitoring/backups/migration tooling not yet set up.
+1. **🔴 TRADE-SECRET — the weights are still public, in the source of truth itself.** `README.md` and `ml/pipelines/match_engine.py` were redacted on 2026-08-09, **but `apps/api/services/matcher.py` carries the identical live weight constants and this repo is confirmed PUBLIC** (`gh repo view` → PUBLIC). The CONFIDENTIALITY rule's claim that the formula "lives server-side only" does not hold while server-side code is world-readable. Redacting the docs alone was hygiene, not a fix. **Needs a user decision:** (a) make the repo private — also satisfies the Stage-2 source-code-sharing terms, which are private disclosures to IndiaAI; (b) move the weights to env/secret config; or (c) accept the disclosure and drop the trade-secret claim.
+2. ~~`apps/api/.env` committed with live secrets~~ — **VERIFIED FALSE 2026-08-09.** `.env` is untracked, matched by `.gitignore:14`, and no `.env` path was ever added in any branch's history. The only committed env file is `apps/web/.env.production`, which contains one public API URL. Secret-shaped strings in `.github/workflows/ci.yml` (`ci:ci@localhost`, `ci-only-secret`) and `.claude/settings.local.json` (`u:p@localhost`, `JWT_SECRET=dummy`) are all dummies. No history purge is needed.
+3. **Azure plan downgrade — DO NOT DO THIS.** Superseded 2026-08-08: the plan was deliberately upgraded B1→S1 with autoscale (min 1 / max 3) and a `/health` check. This entry is retained only to stop the old F1 downgrade being re-attempted.
+4. Human microphone test of the live voice flow (the only thing automation cannot drive).
+5. `/upload` is a mock-only page — either wire it to `/catalogue/upload` or remove it from the sidebar.
+6. `robots.ts` does not disallow `/claims` or `/model-health` although both are admin-gated — crawlable shells.
+7. ~1,700 lines of orphaned components (see the frontend inventory) — delete or revive deliberately.
+
+## Known inconsistencies in the code (documented, not yet fixed)
+
+- `classifier.py` probes for `vargbot_tfidf_v1.joblib` when building its startup log line while `init_classifier()` loads **v2** — the advertised chain string can disagree with the served stamp. The module docstring also still describes v1.
+- `MONITOR_LOW_CONF` defaults to 0.60 with a comment saying it mirrors `VARGBOT_TFIDF_MIN_CONF`, whose default is **0.55**.
+- The v2 eval recommends `recommended_gate_p95: 0.3`; production runs the gate at **0.55** and the notebook narrates 0.55. The choice is defensible (precision over coverage) but is nowhere written down.
+- `classification_results.model_version` still defaults to `"muril-v1-lora"` and `match_results.model_version` to `"indicbert-v1"` in the ORM. Every write path overrides them, so no live row is mis-stamped — but the defaults are dishonest if a path ever forgets.
+- `apps/api/ml/` is an empty directory; a comment in `classifier.py` references `ml/reports/vargbot_tfidf_v2_eval.json` at that path.
+- `infra/init.sql` is the obsolete 5-domain / 50-SNP PoC seed, superseded by `scripts/seed_real_data.py`. It is wired into no compose service.
+
+## Remaining feature tasks (not started)
+
+Elasticsearch search · AI chat panel (RAG, sovereign) · ONDC integration + visibility nudges (seller-app SDK handoff; catalog + serviceability nudges) · i18n framework (copy is currently hardcoded) · offline polish.
+
+## Known honest gaps (Stage-2 narrative)
+
+- Matching is **deterministic heuristic scoring**, not learned ranking — no IndicBERT embeddings in the path, and ranking relevance labels are heuristic pending expert NSIC labels.
+- Classification is **TF-IDF + LLM leaf resolution**, not a MuRIL fine-tune. The MuRIL pipeline exists but has never been run (no GPU) and cannot execute in the shipped image.
+- Leaf-level (category) accuracy is **still unmeasured** — all published evidence is domain-level. The *capture* path now exists (`POST /classify/{id}/verify` → `classification_results.officer_category`, surfaced via `/model-health/feedback-export` as `label_strength: "gold"`), but no labels have been collected yet, and there is **no officer-facing UI to enter a correction** — the endpoint is API-only. Measurement follows collection.
+- SNP capacity / onboarding-speed data is synthetic-disclosed, pending TEAM-portal integration; the claims queue is a simulated demo feed for the same reason.
+- Rate limiting is per-worker in-memory; `/stt` `/ocr` `/tts` `/ner` are fully public and spend paid Sarvam quota under IP limits only.
+- No DB backups, no migration tooling (no Alembic; `main.py` does not even `create_all()`).

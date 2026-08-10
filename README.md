@@ -44,27 +44,30 @@ This project is **Sovereign-Ready** and compliant with the **DPDP Act 2023**:
     └───────────┘   └───────────┘   └───────────┘
 ```
 
-## Scoring Formula
+## Scoring
 
-```
-M(mse, snp) = 0.35·D + 0.20·G + 0.15·C + 0.20·H + 0.10·S
-```
+JodakAI ranks SNPs for an MSE with a deterministic multi-factor model
+(`weighted-multifactor-v2`). It combines five factors:
 
-| Factor | Weight | Description |
-|--------|--------|-------------|
-| **D** — Domain | 0.35 | IndicBERT cosine similarity between MSE description and SNP capability embeddings |
-| **G** — Geo | 0.20 | Geographic proximity (district > state > national) |
-| **C** — Commission | 0.15 | Commission competitiveness (lower is better for MSE) |
-| **H** — History | 0.20 | SNP historical rating and performance |
-| **S** — Sentiment | 0.10 | Onboarding support quality + language match |
+| Factor | Description |
+|--------|-------------|
+| **Domain** | Alignment between the MSE's classified ONDC domain/category and the SNP's declared capability |
+| **Geo** | Geographic proximity (district > state > national), with pan-India SNPs handled explicitly |
+| **Commission** | Commission competitiveness from the MSE's perspective |
+| **History** | SNP rating and performance, Bayesian-shrunk to a network prior so new SNPs are not unfairly penalised |
+| **Support** | Onboarding support quality and language match |
+
+The relative weighting and the composite computation are proprietary and are
+evaluated server-side only. They are never returned to end-users: MSE-facing
+responses carry qualitative factor **bands** and plain-language fit reasons,
+not raw sub-scores or weights.
 
 ### Confidence Bands
 
-| Band | Score Range | Action |
-|------|-------------|--------|
-| Green | >= 0.85 | Auto-recommend to MSE |
-| Yellow | 0.60 – 0.85 | Present with caveats, NSIC review optional |
-| Red | < 0.60 | Flag for manual NSIC review |
+Every recommendation carries a Green / Yellow / Red band that governs how it is
+presented — Green is surfaced directly, Yellow is shown with caveats, and Red is
+flagged for manual NSIC review. The officer's decision is always the authority;
+the AI recommendation is advisory and fully audited.
 
 ---
 

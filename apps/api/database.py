@@ -141,6 +141,11 @@ class MSE(Base):
     assigned_by = Column(String(100), nullable=True)
     assigned_at = Column(DateTime, nullable=True)
     assignment_note = Column(Text, nullable=True)
+    # The SNP the AI actually put in front of the officer at decision time.
+    # Recorded so "did the officer accept the recommendation?" is a fact rather
+    # than a guess — without it, override rate can only be approximated by
+    # re-scoring after the fact, which drifts as new match rows accumulate.
+    recommended_snp_id = Column(Integer, ForeignKey("snps.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     classifications = relationship("ClassificationResult", back_populates="mse")
@@ -177,10 +182,24 @@ class ClassificationResult(Base):
     id = Column(Integer, primary_key=True)
     mse_id = Column(Integer, ForeignKey("mses.id"), nullable=False)
     predicted_domain = Column(String(20), nullable=False)
+    # Leaf the chain settled on. Also present inside top3_predictions, but kept
+    # as a column so leaf-level accuracy is a query rather than a JSON parse.
+    predicted_category = Column(String(40), nullable=True)
     confidence = Column(Float, nullable=False)
     top3_predictions = Column(Text)  # JSON string of top-3
     model_version = Column(String(50), default="muril-v1-lora")
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # ── Officer ground truth ──────────────────────────────────────────
+    # The NSIC officer is the authority on what an enterprise actually sells.
+    # Capturing the verdict turns each reviewed registration into a gold label:
+    # domain-level and — the gap in every eval so far — leaf-level.
+    officer_verdict = Column(String(20), nullable=True)   # confirmed | corrected
+    officer_domain = Column(String(20), nullable=True)
+    officer_category = Column(String(40), nullable=True)
+    officer_note = Column(Text, nullable=True)
+    corrected_by = Column(String(100), nullable=True)
+    corrected_at = Column(DateTime, nullable=True)
 
     mse = relationship("MSE", back_populates="classifications")
 

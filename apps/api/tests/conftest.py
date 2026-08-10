@@ -80,12 +80,57 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 
+# ── Authenticated clients ────────────────────────────────────────────
+# Most routes moved behind JWT + RBAC after these tests were first written.
+# Overriding the auth dependencies keeps each test focused on the endpoint's
+# own behaviour instead of on token plumbing, while `client` stays anonymous
+# so the gates themselves remain testable.
+
+
+def _authed_client(client, username, role):
+    from main import app
+    from database import User
+    from services.auth import get_current_user, get_optional_user, require_admin
+
+    user = User(
+        id=9000 + (1 if role == "admin" else 2),
+        username=username,
+        role=role,
+        hashed_password="not-used",
+        is_active=True,
+    )
+    app.dependency_overrides[get_current_user] = lambda: user
+    app.dependency_overrides[get_optional_user] = lambda: user
+    if role == "admin":
+        app.dependency_overrides[require_admin] = lambda: user
+    return client
+
+
+@pytest.fixture
+def admin_client(client):
+    """Authenticated as an NSIC officer (role=admin)."""
+    return _authed_client(client, "nsic-test@msmemate.com", "admin")
+
+
+@pytest.fixture
+def mse_client(client):
+    """Authenticated as an enterprise user (role=mse) — no admin routes."""
+    return _authed_client(client, "mse-test@msmemate.com", "mse")
+
+
 # ── Seed data fixtures ───────────────────────────────────────────────
 
 
 @pytest.fixture
 def seed_domains(db_session):
-    """Insert 5 ONDC domains and sample categories."""
+    """Ensure 5 ONDC domains and sample categories exist.
+
+    Get-or-create, deliberately. Per-test rollback isolates what a test
+    *writes*, but it does not give a clean slate: this suite runs against the
+    shared Postgres instance, which is already seeded with the real 14-domain
+    /408-category taxonomy. A blind INSERT here fails on the unique code
+    constraint before the test body ever runs.
+    """
     from database import OndcDomain, OndcCategory
 
     domains_data = [
@@ -97,29 +142,46 @@ def seed_domains(db_session):
     ]
     domains = []
     for code, name, desc in domains_data:
-        d = OndcDomain(code=code, name=name, description=desc)
-        db_session.add(d)
+        d = db_session.query(OndcDomain).filter_by(code=code).first()
+        if d is None:
+            d = OndcDomain(code=code, name=name, description=desc)
+            db_session.add(d)
+            db_session.flush()
         domains.append(d)
-    db_session.flush()
 
+    by_code = {d.code: d for d in domains}
     categories_data = [
-        (domains[0].id, "RET10-001", "Staples & Grains"),
-        (domains[0].id, "RET10-002", "Spices & Condiments"),
-        (domains[1].id, "RET12-001", "Sarees & Traditional Wear"),
-        (domains[2].id, "RET14-001", "Mobile Phones & Accessories"),
-        (domains[3].id, "RET16-001", "Kitchen Utensils"),
-        (domains[4].id, "RET18-001", "Ayurvedic Medicines"),
+        ("RET10", "RET10-001", "Staples & Grains"),
+        ("RET10", "RET10-002", "Spices & Condiments"),
+        ("RET12", "RET12-001", "Sarees & Traditional Wear"),
+        ("RET14", "RET14-001", "Mobile Phones & Accessories"),
+        ("RET16", "RET16-001", "Kitchen Utensils"),
+        ("RET18", "RET18-001", "Ayurvedic Medicines"),
     ]
-    for domain_id, code, name in categories_data:
-        db_session.add(OndcCategory(domain_id=domain_id, code=code, name=name))
+    for domain_code, code, name in categories_data:
+        existing = db_session.query(OndcCategory).filter_by(code=code).first()
+        if existing is None:
+            db_session.add(OndcCategory(
+                domain_id=by_code[domain_code].id, code=code, name=name))
     db_session.flush()
     return domains
 
 
 @pytest.fixture
 def seed_mse(db_session):
-    """Insert a single test MSE (grocery, Maharashtra)."""
+    """Ensure a single test MSE exists (grocery, Maharashtra).
+
+    Reuses a leftover row with the same Udyam number rather than colliding on
+    the unique constraint — see seed_domains for why a clean slate is not a
+    safe assumption here.
+    """
     from database import MSE
+
+    existing = (
+        db_session.query(MSE).filter_by(udyam_number="UDYAM-TEST-001").first()
+    )
+    if existing is not None:
+        return existing
 
     mse = MSE(
         udyam_number="UDYAM-TEST-001",
@@ -196,8 +258,14 @@ def seed_snps(db_session):
     ]
     snps = []
     for data in snps_data:
-        snp = SNP(**data)
-        db_session.add(snp)
+        snp = (
+            db_session.query(SNP)
+            .filter_by(subscriber_id=data["subscriber_id"])
+            .first()
+        )
+        if snp is None:
+            snp = SNP(**data)
+            db_session.add(snp)
         snps.append(snp)
     db_session.flush()
     return snps

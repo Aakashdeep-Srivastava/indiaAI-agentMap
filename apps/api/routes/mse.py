@@ -277,6 +277,10 @@ def review_mse(
 class AllocateRequest(BaseModel):
     snp_id: int
     note: Optional[str] = None
+    # The SNP the UI actually had at the top of the list when the officer
+    # decided. Sent by the client because only the client knows what was on
+    # screen; re-deriving it later from match_results drifts as new rows land.
+    recommended_snp_id: Optional[int] = None
 
 
 @router.post("/{mse_id}/allocate", response_model=MSEResponse)
@@ -306,11 +310,23 @@ def allocate_snp(
     mse.assigned_by = user.username
     mse.assigned_at = datetime.utcnow()
     mse.assignment_note = payload.note
+    if payload.recommended_snp_id is not None:
+        mse.recommended_snp_id = payload.recommended_snp_id
+
+    # Accept vs override is the expert relevance label the ranking evaluation
+    # currently lacks — record it explicitly rather than inferring it later.
+    followed = (
+        None if payload.recommended_snp_id is None
+        else payload.recommended_snp_id == snp.id
+    )
+    verdict = ("" if followed is None
+               else " [accepted AI recommendation]" if followed
+               else " [overrode AI recommendation]")
     db.add(AuditLog(
         action="mse_allocated",
         entity_type="mse",
         entity_id=mse.id,
-        details=f"Official allocation → {snp.name} ({snp.subscriber_id})"
+        details=f"Official allocation → {snp.name} ({snp.subscriber_id}){verdict}"
                 + (f" — {payload.note}" if payload.note else ""),
         performed_by=user.username,
     ))

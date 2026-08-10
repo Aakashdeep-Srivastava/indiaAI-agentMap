@@ -9,7 +9,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from database import MSE, AuditLog, ClassificationResult, get_db
+from database import (MSE, AuditLog, ClassificationResult, OndcCategory,
+                      OndcDomain, User, get_db)
+from services.auth import require_admin
 from services.classifier import classify_mse_description_async, get_compliance_checklist
 
 router = APIRouter()
@@ -108,6 +110,7 @@ async def classify(payload: ClassifyRequest, db: Session = Depends(get_db)):
     result = ClassificationResult(
         mse_id=mse.id,
         predicted_domain=top_pred["domain"],
+        predicted_category=top_pred.get("category"),
         confidence=top_pred["confidence"],
         top3_predictions=json.dumps([dict(p) for p in predictions[:3]]),
         model_version=engine,
@@ -208,3 +211,119 @@ def classify_history(mse_id: int, db: Session = Depends(get_db)):
         ))
 
     return items
+
+
+class VerifyRequest(BaseModel):
+    verdict: str                        # "confirmed" | "corrected"
+    domain: Optional[str] = None        # required when correcting
+    category: Optional[str] = None      # leaf code — the label nothing else captures
+    note: Optional[str] = None
+
+
+class VerifyResponse(BaseModel):
+    result_id: int
+    mse_id: int
+    predicted_domain: str
+    predicted_category: Optional[str]
+    officer_verdict: str
+    officer_domain: str
+    officer_category: Optional[str]
+    corrected_by: str
+    corrected_at: datetime
+
+
+@router.post("/{result_id}/verify", response_model=VerifyResponse)
+def verify_classification(
+    result_id: int,
+    payload: VerifyRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_admin),
+):
+    """NSIC officer verdict on a stored prediction — the ground-truth capture.
+
+    The officer is the authority on what an enterprise actually sells, so their
+    verdict is the only real label this system can produce. Confirming stores
+    the prediction as correct; correcting stores what it should have been,
+    including the leaf category — which no evaluation has ever had.
+
+    Codes are validated against the live taxonomy so a typo cannot silently
+    poison the training corpus downstream.
+    """
+    if payload.verdict not in ("confirmed", "corrected"):
+        raise HTTPException(
+            status_code=422, detail="verdict must be confirmed or corrected")
+
+    result = db.query(ClassificationResult).get(result_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Classification not found")
+
+    if payload.verdict == "confirmed":
+        # Store the prediction as the label so gold rows read uniformly and
+        # consumers never have to branch on verdict to find the answer.
+        officer_domain = result.predicted_domain
+        officer_category = result.predicted_category
+    else:
+        if not payload.domain:
+            raise HTTPException(
+                status_code=422,
+                detail="domain is required when verdict is corrected")
+        domain = (
+            db.query(OndcDomain)
+            .filter(OndcDomain.code == payload.domain)
+            .first()
+        )
+        if not domain:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Unknown ONDC domain code: {payload.domain}")
+
+        officer_domain = domain.code
+        officer_category = None
+        if payload.category:
+            category = (
+                db.query(OndcCategory)
+                .filter(OndcCategory.code == payload.category)
+                .first()
+            )
+            if not category:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Unknown ONDC category code: {payload.category}")
+            if category.domain_id != domain.id:
+                raise HTTPException(
+                    status_code=422,
+                    detail=(f"Category {category.code} does not belong to "
+                            f"domain {domain.code}"))
+            officer_category = category.code
+
+    result.officer_verdict = payload.verdict
+    result.officer_domain = officer_domain
+    result.officer_category = officer_category
+    result.officer_note = payload.note
+    result.corrected_by = user.username
+    result.corrected_at = datetime.utcnow()
+
+    db.add(AuditLog(
+        action=f"classification_{payload.verdict}",
+        entity_type="classification_result",
+        entity_id=result.id,
+        details=(f"Officer {payload.verdict}: predicted "
+                 f"{result.predicted_domain}/{result.predicted_category or '-'} "
+                 f"→ {officer_domain}/{officer_category or '-'}"
+                 + (f" — {payload.note}" if payload.note else "")),
+        performed_by=user.username,
+    ))
+    db.commit()
+    db.refresh(result)
+
+    return VerifyResponse(
+        result_id=result.id,
+        mse_id=result.mse_id,
+        predicted_domain=result.predicted_domain,
+        predicted_category=result.predicted_category,
+        officer_verdict=result.officer_verdict,
+        officer_domain=result.officer_domain,
+        officer_category=result.officer_category,
+        corrected_by=result.corrected_by,
+        corrected_at=result.corrected_at,
+    )

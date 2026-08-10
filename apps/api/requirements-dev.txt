@@ -1,0 +1,6 @@
+# Test-only dependencies. Kept out of requirements.txt so the deployed
+# container stays lean — the Azure image installs requirements.txt only.
+-r requirements.txt
+
+pytest==9.1.1
+pytest-asyncio==1.3.0

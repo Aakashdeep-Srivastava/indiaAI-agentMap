@@ -1,0 +1,53 @@
+name: E2E (production smoke)
+
+# Deliberately NOT on push. These tests drive the live production site, so
+# running them per-commit would put CI traffic on a single-instance App Service
+# backend and make every PR depend on production being up. A daily run plus
+# on-demand covers regressions without that coupling.
+#
+# To check a change before it ships, run the suite locally against a preview
+# deployment instead:
+#   E2E_BASE_URL=https://<preview>.vercel.app npm run test:e2e
+on:
+  schedule:
+    - cron: "30 2 * * *" # 08:00 IST
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Target to test (defaults to production)"
+        required: false
+        default: "https://www.msmemate.com"
+
+jobs:
+  e2e:
+    name: Playwright — ${{ matrix.project }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, mobile, safari, mobile-safari, firefox]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.project == 'firefox' && 'firefox' || contains(matrix.project, 'safari') && 'webkit' || 'chromium' }}
+      - name: Run suite
+        env:
+          E2E_BASE_URL: ${{ github.event.inputs.base_url || 'https://www.msmemate.com' }}
+        run: npx playwright test --project=${{ matrix.project }} --reporter=github,list
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: apps/web/playwright-report/
+          retention-days: 14

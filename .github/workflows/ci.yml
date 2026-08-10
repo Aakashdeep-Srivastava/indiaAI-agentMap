@@ -8,20 +8,38 @@ on:
 
 jobs:
   api:
-    name: API — deps + syntax
+    name: API — deps + syntax + tests
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: apps/api
+    # Disposable Postgres for the test suite. Locally the suite runs against
+    # the shared Supabase instance, which is why several assertions are written
+    # relative to a baseline rather than against absolute row counts — here it
+    # starts empty and Base.metadata.create_all builds the schema from the ORM.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: apps/api/requirements.txt
+          cache-dependency-path: apps/api/requirements-dev.txt
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
       - name: Compile all modules
         run: python -m compileall -q .
       - name: Import check (app must load without a live DB connection)
@@ -29,6 +47,14 @@ jobs:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
           JWT_SECRET: ci-only-secret
         run: python -c "import main"
+      - name: API test suite
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          JWT_SECRET: ci-only-secret
+          USE_MOCK_STT: "true"
+          USE_MOCK_OCR: "true"
+          USE_MOCK_TTS: "true"
+        run: python -m pytest -q --no-header
       - name: Model smoke test (deployed VargBot artifact must behave)
         working-directory: .
         run: python ml/tests/smoke_test_vargbot.py

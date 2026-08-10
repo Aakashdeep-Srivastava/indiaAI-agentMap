@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from database import MSE, ClassificationResult, MatchResult, OndcDomain, get_db
@@ -343,38 +344,73 @@ def feedback_export(
     feedback flywheel: monitor detects drift -> this endpoint supplies the
     human-vetted rows -> scripts/build_training_corpus_v2.py merges them).
 
-    Labels are WEAK supervision: an approved registration means an officer
-    accepted the whole profile (not the domain specifically); rejections
-    flag rows to exclude. Domain corrections are not yet captured in the
-    review UI — noted in meta so downstream training treats these honestly.
+    Rows carry one of two label strengths, and each sample says which:
+
+      gold — an officer gave an explicit verdict on the prediction itself via
+             POST /classify/{id}/verify. `label_domain` is authoritative, and
+             `label_category` (when present) is a LEAF label, which is the
+             evidence every VargBot evaluation so far has lacked.
+      weak — only a whole-profile approve/reject exists. 'approved' means the
+             officer accepted the registration, not the domain specifically.
+
+    Never train on the two as if they were equivalent.
     """
     rows = (
         db.query(
             MSE.id, MSE.description, MSE.products, MSE.language,
             MSE.status, MSE.reviewed_by, MSE.reviewed_at,
+            ClassificationResult.id.label("result_id"),
             ClassificationResult.predicted_domain,
+            ClassificationResult.predicted_category,
             ClassificationResult.confidence,
             ClassificationResult.model_version,
             ClassificationResult.created_at,
+            ClassificationResult.officer_verdict,
+            ClassificationResult.officer_domain,
+            ClassificationResult.officer_category,
+            ClassificationResult.corrected_by,
+            ClassificationResult.corrected_at,
         )
         .join(ClassificationResult, ClassificationResult.mse_id == MSE.id)
-        .filter(MSE.status.in_(["approved", "rejected"]))
+        .filter(
+            or_(
+                MSE.status.in_(["approved", "rejected"]),
+                ClassificationResult.officer_verdict.isnot(None),
+            )
+        )
         .order_by(ClassificationResult.created_at.desc())
         .limit(limit)
         .all()
     )
     samples = []
+    n_gold = n_leaf = n_corrections = 0
     for r in rows:
         products = (r.products or "").replace("|", ", ") if isinstance(r.products, str) else ""
         text = f"{r.description or ''} Products: {products}".strip() if products else (r.description or "")
+        is_gold = r.officer_verdict is not None
+        if is_gold:
+            n_gold += 1
+            if r.officer_category:
+                n_leaf += 1
+            if r.officer_verdict == "corrected":
+                n_corrections += 1
         samples.append({
             "mse_id": r.id,
+            "result_id": r.result_id,
             "text": text,
             "language": r.language,
             "predicted_domain": r.predicted_domain,
+            "predicted_category": r.predicted_category,
             "confidence": r.confidence,
             "engine": r.model_version,
+            # The label to train on, and how much to trust it.
+            "label_strength": "gold" if is_gold else "weak",
+            "label_domain": r.officer_domain if is_gold else r.predicted_domain,
+            "label_category": r.officer_category if is_gold else None,
+            "officer_verdict": r.officer_verdict,
             "officer_outcome": r.status,
+            "corrected_by": r.corrected_by,
+            "corrected_at": r.corrected_at.isoformat() if r.corrected_at else None,
             "reviewed_by": r.reviewed_by,
             "reviewed_at": r.reviewed_at.isoformat() if r.reviewed_at else None,
             "classified_at": r.created_at.isoformat() if r.created_at else None,
@@ -383,12 +419,24 @@ def feedback_export(
         "meta": {
             "generated_at": datetime.utcnow().isoformat(),
             "n": len(samples),
+            "n_gold": n_gold,
+            "n_weak": len(samples) - n_gold,
+            "n_with_leaf_label": n_leaf,
+            "n_officer_corrections": n_corrections,
             "label_semantics": (
-                "weak supervision — 'approved' means the officer accepted the "
-                "registration as a whole, not the domain specifically; use as "
-                "positive-confirmation signal. 'rejected' rows should be "
-                "excluded or manually re-labelled. Explicit domain-correction "
-                "capture in the review UI is a planned upgrade."
+                "Mixed strength — read label_strength per sample. 'gold': an "
+                "officer gave an explicit verdict on this prediction via "
+                "/classify/{id}/verify; label_domain is authoritative and "
+                "label_category, where present, is a leaf-level label. 'weak': "
+                "only a whole-profile approve/reject exists — 'approved' means "
+                "the officer accepted the registration, not the domain "
+                "specifically, and 'rejected' rows should be excluded or "
+                "manually re-labelled. Do not mix the two without weighting."
+            ),
+            "leaf_evaluation_readiness": (
+                f"{n_leaf} leaf-labelled row(s) available. Leaf-level accuracy "
+                "remains unmeasured until this set is large and diverse enough "
+                "to evaluate against; domain-level evidence is unaffected."
             ),
             "intended_use": "merge into training_corpus_v2.csv as source=officer_feedback",
         },

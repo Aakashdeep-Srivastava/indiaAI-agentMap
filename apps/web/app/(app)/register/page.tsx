@@ -163,7 +163,7 @@ export default function RegisterPage() {
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
-              <h3 className="font-display text-xl font-bold">Registration Successful</h3>
+              <h1 className="font-display text-xl font-bold">Registration Successful</h1>
             </div>
             <div className="space-y-4 p-8 text-center">
               <div className="inline-flex items-center gap-2 rounded-xl bg-surface-50 px-5 py-3">
@@ -214,9 +214,9 @@ export default function RegisterPage() {
   const formContent = (
     <div className="space-y-4">
       <div>
-        <h3 className="font-display text-base font-bold text-brand-900">
+        <h2 className="font-display text-base font-bold text-brand-900">
           Registration Details
-        </h3>
+        </h2>
         <p className="mt-1 text-xs text-surface-500">
           Sathi fills these as you speak. You can also edit directly.
         </p>
@@ -507,6 +507,14 @@ export default function RegisterPage() {
 
   return (
     <>
+      {/* The page's accessible name. Visually hidden because the Sathi panel
+          carries the visual identity, but this is the public entry point of
+          the whole product — assistive tech and search engines both need a
+          real h1, and without one the heading order started at h3. */}
+      <h1 className="sr-only">
+        Register your enterprise with Sathi — voice-first ONDC onboarding
+      </h1>
+
       {/* ─── Desktop: White center + right form panel, no scroll ─── */}
       <div className="-mx-6 -my-8 hidden h-screen overflow-hidden lg:flex">
         {/* Center: Sathi voice area — white, fills space */}

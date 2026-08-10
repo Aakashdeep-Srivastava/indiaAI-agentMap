@@ -1,12 +1,16 @@
-"""IndicBERT embedding & multi-factor scoring engine.
+"""IndicBERT embedding & multi-factor scoring engine (RESEARCH — not served).
 
-Generates dense embeddings using ai4bharat/IndicBERTv2-MLM-Sam-TLM for
-MSE descriptions and SNP capability profiles, then computes the composite
-matching score:
+Generates dense embeddings using ai4bharat/IndicBERTv2-MLM-Sam-TLM for MSE
+descriptions and SNP capability profiles, then combines a domain-alignment
+factor (cosine similarity of IndicBERT embeddings) with geo, commission,
+history and support factors into a composite score.
 
-    M(mse, snp) = 0.35*D + 0.20*G + 0.15*C + 0.20*H + 0.10*S
-
-Where D (Domain alignment) uses cosine similarity of IndicBERT embeddings.
+This pipeline is exploratory and is NOT in the serving path — production
+matching runs the deterministic `weighted-multifactor-v2` engine inside the
+API. The production weighting is proprietary and is deliberately not
+reproduced here; the defaults below are neutral placeholders so this script
+stays runnable for research. Override them via environment variables when
+reproducing production-comparable numbers locally.
 
 Usage:
     python -m ml.pipelines.match_engine --mse_text "handloom sarees from Varanasi"
@@ -14,6 +18,7 @@ Usage:
 
 import argparse
 import logging
+import os
 from dataclasses import dataclass
 
 import numpy as np
@@ -23,12 +28,14 @@ logger = logging.getLogger(__name__)
 INDICBERT_MODEL = "ai4bharat/IndicBERTv2-MLM-Sam-TLM"
 
 # ── Weights ───────────────────────────────────────────────────────────
+# Neutral placeholders (equal weighting). The production values are
+# server-side only and are not published in this repository.
 
-W_DOMAIN = 0.35
-W_GEO = 0.20
-W_COMMISSION = 0.15
-W_HISTORY = 0.20
-W_SENTIMENT = 0.10
+W_DOMAIN = float(os.getenv("MATCH_W_DOMAIN", "0.20"))
+W_GEO = float(os.getenv("MATCH_W_GEO", "0.20"))
+W_COMMISSION = float(os.getenv("MATCH_W_COMMISSION", "0.20"))
+W_HISTORY = float(os.getenv("MATCH_W_HISTORY", "0.20"))
+W_SENTIMENT = float(os.getenv("MATCH_W_SENTIMENT", "0.20"))
 
 
 @dataclass

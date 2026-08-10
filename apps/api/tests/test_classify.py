@@ -6,8 +6,8 @@ from database import AuditLog, ClassificationResult
 # ── POST /classify/ ──────────────────────────────────────────────────
 
 
-def test_classify_mse_by_id(client, seed_mse):
-    resp = client.post("/classify/", json={"mse_id": seed_mse.id})
+def test_classify_mse_by_id(mse_client, seed_mse):
+    resp = mse_client.post("/classify/", json={"mse_id": seed_mse.id})
     assert resp.status_code == 200
     data = resp.json()
     assert data["mse_id"] == seed_mse.id
@@ -16,13 +16,13 @@ def test_classify_mse_by_id(client, seed_mse):
     assert 0 < data["confidence"] <= 1.0
 
 
-def test_classify_mse_not_found(client):
-    resp = client.post("/classify/", json={"mse_id": 99999})
+def test_classify_mse_not_found(mse_client):
+    resp = mse_client.post("/classify/", json={"mse_id": 99999})
     assert resp.status_code == 404
 
 
-def test_classify_creates_classification_result(client, seed_mse, db_session):
-    resp = client.post("/classify/", json={"mse_id": seed_mse.id})
+def test_classify_creates_classification_result(mse_client, seed_mse, db_session):
+    resp = mse_client.post("/classify/", json={"mse_id": seed_mse.id})
     data = resp.json()
 
     cr = (
@@ -34,23 +34,29 @@ def test_classify_creates_classification_result(client, seed_mse, db_session):
     assert cr.predicted_domain == data["selected_domain"]
 
 
-def test_classify_creates_audit_log(client, seed_mse, db_session):
-    client.post("/classify/", json={"mse_id": seed_mse.id})
+def test_classify_creates_audit_log(mse_client, seed_mse, db_session):
+    mse_client.post("/classify/", json={"mse_id": seed_mse.id})
     log = (
         db_session.query(AuditLog)
         .filter(AuditLog.action == "mse_classified", AuditLog.entity_id == seed_mse.id)
         .first()
     )
     assert log is not None
-    assert log.performed_by == "muril-v1-lora"
+    # The audit trail must name the engine that actually ran. "muril-v1-lora"
+    # is the stale ORM default for a model that has never been in the serving
+    # path — recording it would be a false provenance claim.
+    assert log.performed_by != "muril-v1-lora"
+    assert log.performed_by.startswith(
+        ("vargbot-tfidf", "sarvam", "keyword-fallback")
+    ), f"unrecognised engine stamp: {log.performed_by}"
 
 
 # ── POST /classify/text ──────────────────────────────────────────────
 
 
-def test_classify_text_grocery(client):
+def test_classify_text_grocery(mse_client):
     payload = {"description": "We sell rice, dal, atta and spices wholesale", "language": "en"}
-    resp = client.post("/classify/text", json=payload)
+    resp = mse_client.post("/classify/text", json=payload)
     assert resp.status_code == 200
     data = resp.json()
     assert data["mse_id"] == 0
@@ -58,32 +64,32 @@ def test_classify_text_grocery(client):
     assert len(data["top3"]) == 3
 
 
-def test_classify_text_fashion(client):
+def test_classify_text_fashion(mse_client):
     payload = {"description": "Traditional silk saree weaving and kurta garments"}
-    resp = client.post("/classify/text", json=payload)
+    resp = mse_client.post("/classify/text", json=payload)
     assert resp.status_code == 200
     assert resp.json()["selected_domain"] == "RET12"
 
 
-def test_classify_text_electronics(client):
+def test_classify_text_electronics(mse_client):
     payload = {"description": "Mobile phone repair and laptop computer service center"}
-    resp = client.post("/classify/text", json=payload)
+    resp = mse_client.post("/classify/text", json=payload)
     assert resp.status_code == 200
     assert resp.json()["selected_domain"] == "RET14"
 
 
-def test_classify_text_empty_returns_400(client):
-    resp = client.post("/classify/text", json={"description": ""})
+def test_classify_text_empty_returns_400(mse_client):
+    resp = mse_client.post("/classify/text", json={"description": ""})
     assert resp.status_code == 400
 
 
-def test_classify_text_whitespace_returns_400(client):
-    resp = client.post("/classify/text", json={"description": "   "})
+def test_classify_text_whitespace_returns_400(mse_client):
+    resp = mse_client.post("/classify/text", json={"description": "   "})
     assert resp.status_code == 400
 
 
-def test_classify_text_confidence_bounds(client):
-    resp = client.post("/classify/text", json={"description": "rice dal flour grocery"})
+def test_classify_text_confidence_bounds(mse_client):
+    resp = mse_client.post("/classify/text", json={"description": "rice dal flour grocery"})
     data = resp.json()
     for pred in data["top3"]:
         assert 0 <= pred["confidence"] <= 1.0
@@ -92,12 +98,12 @@ def test_classify_text_confidence_bounds(client):
 # ── GET /classify/history/{mse_id} ───────────────────────────────────
 
 
-def test_classify_history_returns_results(client, seed_mse):
+def test_classify_history_returns_results(mse_client, seed_mse):
     # Classify twice
-    client.post("/classify/", json={"mse_id": seed_mse.id})
-    client.post("/classify/", json={"mse_id": seed_mse.id})
+    mse_client.post("/classify/", json={"mse_id": seed_mse.id})
+    mse_client.post("/classify/", json={"mse_id": seed_mse.id})
 
-    resp = client.get(f"/classify/history/{seed_mse.id}")
+    resp = mse_client.get(f"/classify/history/{seed_mse.id}")
     assert resp.status_code == 200
     data = resp.json()
     assert len(data) == 2
@@ -105,12 +111,17 @@ def test_classify_history_returns_results(client, seed_mse):
     assert data[0]["created_at"] >= data[1]["created_at"]
 
 
-def test_classify_history_mse_not_found(client):
-    resp = client.get("/classify/history/99999")
+def test_classify_history_mse_not_found(mse_client):
+    resp = mse_client.get("/classify/history/99999")
     assert resp.status_code == 404
 
 
-def test_classify_history_empty(client, seed_mse):
-    resp = client.get(f"/classify/history/{seed_mse.id}")
+def test_classify_history_empty(mse_client, seed_mse):
+    resp = mse_client.get(f"/classify/history/{seed_mse.id}")
     assert resp.status_code == 200
     assert resp.json() == []
+
+
+def test_classify_requires_authentication(client, seed_mse):
+    resp = client.post("/classify/", json={"mse_id": seed_mse.id})
+    assert resp.status_code in (401, 403)

@@ -19,6 +19,11 @@ export default function robots(): MetadataRoute.Robots {
           "/certificate",
           "/upload",
           "/login",
+          // Admin-only oversight surfaces. Both are gated, but leaving them
+          // out of this list advertised their existence to anyone reading
+          // robots.txt.
+          "/claims",
+          "/model-health",
         ],
       },
     ],

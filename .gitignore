@@ -37,6 +37,21 @@ wandb/
 *.log
 logs/
 
+# Test output
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/blob-report/
+apps/web/playwright/.cache/
+.pytest_cache/
+
+# Build / deploy artifacts
+*.tsbuildinfo
+api-deploy.zip
+
+# Local tool state (machine-specific: project ids, resource groups, auth)
+.vercel/
+.azure/
+
 # Docker
 docker-compose.override.yml
 
