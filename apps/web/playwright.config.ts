@@ -45,6 +45,11 @@ export default defineConfig({
     // assumptions Blink is lenient about.
     { name: 'safari', use: { ...devices['Desktop Safari'] } },
     { name: 'mobile-safari', use: { ...devices['iPhone 14'] } },
+    // Firefox on Windows crashes its compositor under parallel workers on the
+    // video-bearing landing page — it surfaces as "Tearing down context
+    // exceeded the timeout" with GFX crash annotations, never as a failed
+    // assertion. That is the local machine, not the site: rerun with
+    // `--project=firefox --workers=1` and it passes clean.
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
   ],
 })
