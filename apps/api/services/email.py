@@ -28,6 +28,7 @@ Shared:
   APP_LOGIN_URL           sign-in URL used in the email CTA.
 """
 
+import html
 import logging
 import os
 import smtplib
@@ -173,6 +174,21 @@ def send_notification_email(
     who = business_name or "there"
     link = f"https://www.msmemate.com{href}" if href and href.startswith("/") else (href or APP_LOGIN_URL)
 
+    # Escape everything before it reaches html_body. The broadcast endpoint
+    # constrains `href` to an in-app path precisely so an announcement cannot
+    # carry an off-site link — but `body_en` has no character constraint, so
+    # raw interpolation would let an anchor tag in the body defeat that check
+    # entirely and mail a live off-site link from the platform's own verified
+    # sender. Escaping is what actually enforces the intent.
+    #
+    # The plaintext branch is deliberately left unescaped: it is not markup,
+    # and escaping there would show owners literal &amp; in their email.
+    e_title = html.escape(title)
+    e_body = html.escape(body)
+    e_link = html.escape(link, quote=True)
+    e_title_hi = html.escape(title_hi) if title_hi else ""
+    e_body_hi = html.escape(body_hi) if body_hi else ""
+
     text_body = (
         f"Namaste {who},\n\n"
         f"{title}\n\n"
@@ -187,7 +203,7 @@ def send_notification_email(
     if title_hi or body_hi:
         hindi_block = (
             '<p style="margin:20px 0 0;font-size:12px;line-height:1.7;color:#9EA5BE">'
-            f'<b>{title_hi or ""}</b><br/>{body_hi or ""}</p>'
+            f'<b>{e_title_hi}</b><br/>{e_body_hi}</p>'
         )
 
     html_body = f"""\
@@ -207,9 +223,9 @@ def send_notification_email(
             <span style="font-size:20px;font-weight:800;color:#FFA942">MSME<span style="color:#fff">Mate</span></span>
           </td></tr>
           <tr><td style="padding:28px">
-            <h1 style="margin:0 0 12px;font-size:19px;color:#0B1437">{title}</h1>
-            <p style="margin:0 0 20px;font-size:14px;line-height:1.7">{body}</p>
-            <a href="{link}"
+            <h1 style="margin:0 0 12px;font-size:19px;color:#0B1437">{e_title}</h1>
+            <p style="margin:0 0 20px;font-size:14px;line-height:1.7">{e_body}</p>
+            <a href="{e_link}"
                style="display:inline-block;background:#1B4FCC;color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 22px;border-radius:12px">
               Open MSMEMate &rarr;
             </a>

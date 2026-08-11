@@ -142,6 +142,26 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
     return user
 
 
+def authorize_mse_access(user: User, mse_id: int) -> None:
+    """Assert this caller may act on this enterprise.
+
+    Registration is public, so anyone can obtain an mse-role token. Routes that
+    take an `mse_id` from the request body must therefore check it against the
+    caller's own enterprise — being authenticated is not the same as being
+    entitled to a particular enterprise's record.
+
+    Officers (admin) act across all enterprises by design; that is their job.
+
+    Raises 404 rather than 403 deliberately: a 403 distinguishes "exists but is
+    not yours" from "does not exist", which turns the endpoint into an
+    enumeration oracle over every enterprise on the platform.
+    """
+    if user.role == "admin":
+        return
+    if user.mse_id is None or user.mse_id != mse_id:
+        raise HTTPException(status_code=404, detail="MSE not found")
+
+
 def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     db: Session = Depends(get_db),

@@ -76,7 +76,8 @@
       "Bash(/c/Users/aakas/anaconda3/python -c ' *)",
       "Skill(playwright-testing)",
       "Skill(playwright-testing:*)",
-      "PowerShell(foreach \\($f in 'F:\\\\indiaAI-agentMap\\\\apps\\\\api\\\\routes\\\\mse.py','F:\\\\indiaAI-agentMap\\\\apps\\\\api\\\\routes\\\\classify.py'\\) { $bytes = [System.IO.File]::ReadAllBytes\\($f\\); $bom = if \\($bytes[0] -eq 0xEF\\) { 'BOM' } else { 'no-BOM' }; $text = [System.Text.Encoding]::UTF8.GetString\\($bytes\\); \"$\\(Split-Path $f -Leaf\\) : $bom | box-drawing-ok=$\\($text.Contains\\([char]0x2500\\)\\) | mojibake=$\\($text.Contains\\('â'\\)\\)\" }; \"--- pydantic ---\"; python -c \"import pydantic; print\\('pydantic', pydantic.VERSION\\)\")"
+      "PowerShell(foreach \\($f in 'F:\\\\indiaAI-agentMap\\\\apps\\\\api\\\\routes\\\\mse.py','F:\\\\indiaAI-agentMap\\\\apps\\\\api\\\\routes\\\\classify.py'\\) { $bytes = [System.IO.File]::ReadAllBytes\\($f\\); $bom = if \\($bytes[0] -eq 0xEF\\) { 'BOM' } else { 'no-BOM' }; $text = [System.Text.Encoding]::UTF8.GetString\\($bytes\\); \"$\\(Split-Path $f -Leaf\\) : $bom | box-drawing-ok=$\\($text.Contains\\([char]0x2500\\)\\) | mojibake=$\\($text.Contains\\('â'\\)\\)\" }; \"--- pydantic ---\"; python -c \"import pydantic; print\\('pydantic', pydantic.VERSION\\)\")",
+      "PowerShell(python \"C:\\\\Users\\\\aakas\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--indiaAI-agentMap\\\\bc85aa4e-0bc2-4a3f-8cb8-03c27bafc809\\\\scratchpad\\\\e2e_notifications.py\")"
     ]
   },
   "enabledMcpjsonServers": [

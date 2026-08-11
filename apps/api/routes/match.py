@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from database import (MSE, SNP, AuditLog, ClassificationResult, MatchResult,
                       Notification, User, get_db)
-from services.auth import get_current_user
+from services.auth import authorize_mse_access, get_current_user
 from services.matcher import compute_match_scores, readiness_nudges
 from services.explainer import generate_explainer
 from services.notifications import action_needed, safe_notify
@@ -63,6 +63,12 @@ def match_mse_to_snps(
     user: User = Depends(get_current_user),
 ):
     """Find the best SNP matches for an MSE using the multi-factor scoring algorithm."""
+    # mse_id comes from the request body: an mse-role caller may only match
+    # their own enterprise. This route also writes readiness nudges into the
+    # owner's notification feed, so an unchecked id would let any registered
+    # user post messages into another enterprise's bell.
+    authorize_mse_access(user, payload.mse_id)
+
     mse = db.query(MSE).get(payload.mse_id)
     if not mse:
         raise HTTPException(status_code=404, detail="MSE not found")

@@ -320,6 +320,59 @@ def test_broadcast_is_admin_only(owner_client):
     assert res.status_code == 403
 
 
+def test_broadcast_href_must_be_an_in_app_path(admin_client):
+    """An announcement is mailed from the platform's verified sender, so an
+    off-site href would be a phishing link with our branding on it.
+
+    `//host` is the case a naive startswith('/') check misses — browsers read
+    it as protocol-relative and follow it off-site.
+    """
+    for bad in ["https://evil.example", "//evil", "javascript:alert(1)"]:
+        res = admin_client.post(
+            "/notifications/broadcast",
+            json={"title_en": "News", "body_en": "Body", "href": bad},
+        )
+        assert res.status_code == 422, f"href {bad!r} should have been rejected"
+
+
+# ── Cross-enterprise write protection ────────────────────────────────
+
+
+def test_cannot_classify_another_enterprise(owner_client, other_mse):
+    """Registration is public, so an mse token proves nothing about ownership.
+
+    Before this check, any registered user could reclassify a stranger's record
+    and push a notification into that owner's feed.
+    """
+    res = owner_client.post("/classify/", json={"mse_id": other_mse.id})
+    assert res.status_code == 404, "classified an enterprise the caller does not own"
+
+
+def test_cannot_match_another_enterprise(owner_client, other_mse, seed_snps):
+    res = owner_client.post("/match/", json={"mse_id": other_mse.id})
+    assert res.status_code == 404, "matched an enterprise the caller does not own"
+
+
+def test_a_cross_enterprise_call_writes_no_notification(
+    owner_client, db_session, other_mse, seed_snps
+):
+    """The point of the check: nothing reaches the victim's bell."""
+    before = _notif_ids(db_session, other_mse.id)
+
+    owner_client.post("/match/", json={"mse_id": other_mse.id})
+    owner_client.post("/classify/", json={"mse_id": other_mse.id})
+
+    assert _new_notifications(db_session, other_mse.id, before) == [], (
+        "a stranger posted into another enterprise's notification feed"
+    )
+
+
+def test_officers_may_still_act_on_any_enterprise(admin_client, other_mse, seed_snps):
+    """Cross-enterprise access is an officer's job — the fix must not break it."""
+    res = admin_client.post("/match/", json={"mse_id": other_mse.id})
+    assert res.status_code == 200
+
+
 # ── Helpers ──────────────────────────────────────────────────────────
 
 

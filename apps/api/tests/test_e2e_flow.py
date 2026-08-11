@@ -3,9 +3,15 @@
 from database import AuditLog
 
 
-def test_full_pipeline_register_classify_match(mse_client, seed_snps, db_session):
-    """Complete user journey: register MSE, classify, then match to SNPs."""
-    # Step 1: Register MSE
+def test_full_pipeline_register_classify_match(client, as_owner, seed_snps, db_session):
+    """Complete user journey: register MSE, classify, then match to SNPs.
+
+    Registration is public and mints the account that owns the new enterprise,
+    so the journey switches identity after step 1 — /classify and /match
+    authorise an mse-role caller against their OWN enterprise, and acting as
+    an unrelated owner is precisely what must not work.
+    """
+    # Step 1: Register MSE (public — a brand-new MSE has no account yet)
     mse_payload = {
         "udyam_number": "UDYAM-E2E-001",
         "consent_given": True,
@@ -16,18 +22,21 @@ def test_full_pipeline_register_classify_match(mse_client, seed_snps, db_session
         "pin_code": "411001",
         "language": "en",
     }
-    reg_resp = mse_client.post("/mse/", json=mse_payload)
+    reg_resp = client.post("/mse/", json=mse_payload)
     assert reg_resp.status_code == 201
     mse_id = reg_resp.json()["id"]
 
+    # The owner signs in to their newly created enterprise.
+    owner = as_owner(mse_id)
+
     # Step 2: Classify
-    classify_resp = mse_client.post("/classify/", json={"mse_id": mse_id})
+    classify_resp = owner.post("/classify/", json={"mse_id": mse_id})
     assert classify_resp.status_code == 200
     c_data = classify_resp.json()
     assert c_data["selected_domain"] == "RET10"
 
     # Step 3: Match
-    match_resp = mse_client.post("/match/", json={"mse_id": mse_id, "top_k": 3})
+    match_resp = owner.post("/match/", json={"mse_id": mse_id, "top_k": 3})
     assert match_resp.status_code == 200
     m_data = match_resp.json()
     assert m_data["predicted_domain"] == "RET10"
@@ -47,10 +56,10 @@ def test_full_pipeline_register_classify_match(mse_client, seed_snps, db_session
     assert "mse_matched" in actions
 
 
-def test_pipeline_match_uses_latest_classification(mse_client, seed_snps, db_session):
+def test_pipeline_match_uses_latest_classification(client, as_owner, seed_snps, db_session):
     """When classified multiple times, match should use the latest result."""
     # Register
-    resp = mse_client.post("/mse/", json={
+    resp = client.post("/mse/", json={
         "udyam_number": "UDYAM-E2E-002",
         "consent_given": True,
         "name": "Multi-classify Test",
@@ -59,16 +68,17 @@ def test_pipeline_match_uses_latest_classification(mse_client, seed_snps, db_ses
         "language": "en",
     })
     mse_id = resp.json()["id"]
+    owner = as_owner(mse_id)
 
     # Classify twice
-    mse_client.post("/classify/", json={"mse_id": mse_id})
-    mse_client.post("/classify/", json={"mse_id": mse_id})
+    owner.post("/classify/", json={"mse_id": mse_id})
+    owner.post("/classify/", json={"mse_id": mse_id})
 
     # Match — should use latest classification
-    match_resp = mse_client.post("/match/", json={"mse_id": mse_id})
+    match_resp = owner.post("/match/", json={"mse_id": mse_id})
     assert match_resp.status_code == 200
     assert match_resp.json()["predicted_domain"] is not None
 
     # Verify history has 2 entries
-    history_resp = mse_client.get(f"/classify/history/{mse_id}")
+    history_resp = owner.get(f"/classify/history/{mse_id}")
     assert len(history_resp.json()) == 2

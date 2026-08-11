@@ -46,10 +46,14 @@ export const NotificationItemSchema = z.object({
   body_hi: z.string().nullish(),
   // In-app paths only. A notification is rendered as a click target, so an
   // absolute URL arriving here would be an open redirect on the user's behalf.
+  // `startsWith("/")` alone is not enough — "//host" also starts with a slash
+  // and browsers treat it as protocol-relative, navigating off-site.
   href: z
     .string()
     .nullish()
-    .refine((v) => !v || v.startsWith("/"), { message: "href must be in-app" }),
+    .refine((v) => !v || (v.startsWith("/") && !v.startsWith("//")), {
+      message: "href must be an in-app path",
+    }),
   is_read: z.boolean(),
   created_at: z.string().nullish(),
 });

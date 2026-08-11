@@ -130,7 +130,18 @@ class BroadcastRequest(BaseModel):
     body_hi: Optional[str] = Field(default=None, max_length=2000)
     # In-app destination only. An absolute URL here would turn an officer
     # broadcast into an open redirect delivered straight to owners' inboxes.
-    href: Optional[str] = Field(default=None, max_length=200, pattern=r"^/[A-Za-z0-9/_\-?=&]*$")
+    #
+    # The second character must not be another slash: "//host" also starts
+    # with "/", and browsers read it as protocol-relative and follow it
+    # off-site. Expressed as a character class rather than a `(?!/)`
+    # lookahead because Pydantic v2 compiles patterns with the Rust regex
+    # crate, which has no look-around at all — a lookahead here does not
+    # merely fail to match, it fails to build the model.
+    href: Optional[str] = Field(
+        default=None,
+        max_length=200,
+        pattern=r"^/([A-Za-z0-9_\-?=&][A-Za-z0-9/_\-?=&]*)?$",
+    )
     # Who hears it. "registered" = enterprises with a real sign-in account,
     # which is the only audience that can act on the news.
     audience: Literal["registered", "allocated"] = "registered"

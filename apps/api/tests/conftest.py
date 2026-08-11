@@ -87,7 +87,7 @@ def client(db_session):
 # so the gates themselves remain testable.
 
 
-def _authed_client(client, username, role):
+def _authed_client(client, username, role, mse_id=None):
     from main import app
     from database import User
     from services.auth import get_current_user, get_optional_user, require_admin
@@ -98,6 +98,10 @@ def _authed_client(client, username, role):
         role=role,
         hashed_password="not-used",
         is_active=True,
+        # Enterprise routes authorise on this: an mse-role caller may only act
+        # on their own enterprise. A test user with no mse_id would represent
+        # an account that owns nothing, which is not the case under test.
+        mse_id=mse_id,
     )
     app.dependency_overrides[get_current_user] = lambda: user
     app.dependency_overrides[get_optional_user] = lambda: user
@@ -113,9 +117,29 @@ def admin_client(client):
 
 
 @pytest.fixture
-def mse_client(client):
-    """Authenticated as an enterprise user (role=mse) — no admin routes."""
-    return _authed_client(client, "mse-test@msmemate.com", "mse")
+def as_owner(client):
+    """Authenticate as the owner of a specific enterprise, chosen per test.
+
+    Registration mints the account that owns the new enterprise, so a test
+    that registers and then acts on that enterprise must switch identity to
+    its owner — which is exactly what happens in production between the
+    registration response and the first sign-in.
+    """
+    def _make(mse_id):
+        return _authed_client(client, "owner-test@msmemate.com", "mse", mse_id=mse_id)
+
+    return _make
+
+
+@pytest.fixture
+def mse_client(client, seed_mse):
+    """Authenticated as the owner of `seed_mse` (role=mse) — no admin routes.
+
+    Linked to the seeded enterprise on purpose: /classify and /match authorise
+    an mse-role caller against their own `mse_id`, so an unlinked user would
+    be an owner of nothing and every enterprise call would 404.
+    """
+    return _authed_client(client, "mse-test@msmemate.com", "mse", mse_id=seed_mse.id)
 
 
 # ── Seed data fixtures ───────────────────────────────────────────────

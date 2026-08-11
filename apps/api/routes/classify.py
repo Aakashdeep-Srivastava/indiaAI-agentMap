@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from database import (MSE, AuditLog, ClassificationResult, OndcCategory,
                       OndcDomain, User, get_db)
-from services.auth import require_admin
+from services.auth import authorize_mse_access, get_current_user, require_admin
 from services.classifier import classify_mse_description_async, get_compliance_checklist
 from services.notifications import classification_complete, safe_notify
 
@@ -96,8 +96,18 @@ class ClassificationHistoryItem(BaseModel):
 
 
 @router.post("/", response_model=ClassifyResponse)
-async def classify(payload: ClassifyRequest, db: Session = Depends(get_db)):
+async def classify(
+    payload: ClassifyRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
     """Classify an MSE into ONDC domain(s) using VargBot LLM chain."""
+    # mse_id comes from the request body, so being authenticated is not enough
+    # — an mse-role caller may only classify their own enterprise. Without this
+    # anyone could self-register, then reclassify another enterprise's record
+    # and push a notification into that owner's feed.
+    authorize_mse_access(user, payload.mse_id)
+
     mse = db.query(MSE).get(payload.mse_id)
     if not mse:
         raise HTTPException(status_code=404, detail="MSE not found")
