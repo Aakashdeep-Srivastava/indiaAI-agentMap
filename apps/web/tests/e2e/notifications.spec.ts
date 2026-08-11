@@ -65,6 +65,11 @@ test('the notification endpoints are actually deployed', async ({ request }) => 
 
 test('the certificate page is behind the portal gate', async ({ page }) => {
   await page.goto('/certificate', { waitUntil: 'domcontentloaded' })
+  // Wait for the bundle before timing the redirect — the gate is client-side
+  // and cannot run until React hydrates. See portal-gate.spec.ts for why
+  // starting the clock at domcontentloaded made this intermittently red.
+  await page.waitForLoadState('load').catch(() => {})
+
   await page.waitForURL(/\/login/, { timeout: 15_000 })
   expect(new URL(page.url()).pathname).toBe('/login')
 })
