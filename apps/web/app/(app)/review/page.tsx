@@ -1,34 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { apiFetch } from "@/lib/auth";
-
-interface MSE {
-  id: number;
-  udyam_number: string;
-  name: string;
-  description: string;
-  state: string | null;
-  district: string | null;
-  pin_code?: string | null;
-  status?: string | null;
-  entrepreneur_name?: string | null;
-  email?: string | null;
-  mobile_number?: string | null;
-  address?: string | null;
-  org_type?: string | null;
-  major_activity?: string | null;
-  transaction_type?: string | null;
-  pan_number?: string | null;
-  gst_number?: string | null;
-  turnover_band?: string | null;
-  products?: string | null;
-  consent_at?: string | null;
-  reviewed_by?: string | null;
-  reviewed_at?: string | null;
-  review_note?: string | null;
-}
+import { useMSEList, useReviewMSE } from "@/lib/queries";
 
 const STATUS_STYLE: Record<string, string> = {
   pending_review: "bg-saffron-500/10 text-saffron-600 border-saffron-400/40",
@@ -37,18 +11,11 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 export default function ReviewPage() {
-  const [mses, setMses] = useState<MSE[]>([]);
-  const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<number | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
 
-  useEffect(() => {
-    apiFetch(`/mse/?limit=20`)
-      .then((r) => r.json())
-      .then(setMses)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: mses = [], isPending: loading } = useMSEList(20);
+  const reviewMSE = useReviewMSE();
 
   async function review(id: number, action: "approve" | "reject") {
     let note: string | null = null;
@@ -64,27 +31,12 @@ export default function ReviewPage() {
     }
     setActing(id);
     try {
-      const res = await apiFetch(`/mse/${id}/review`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, note }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setMses((prev) =>
-          prev.map((m) =>
-            m.id === id
-              ? {
-                  ...m,
-                  status: updated.status,
-                  reviewed_by: updated.reviewed_by,
-                  reviewed_at: updated.reviewed_at,
-                  review_note: updated.review_note,
-                }
-              : m,
-          ),
-        );
-      }
+      // The mutation invalidates the queue, so the row re-renders from the
+      // server's version of the decision rather than a locally patched copy.
+      // It also emits the notification that tells the applicant.
+      await reviewMSE.mutateAsync({ mseId: id, action, note: note ?? undefined });
+    } catch {
+      window.alert("The decision could not be saved. Please try again.");
     } finally {
       setActing(null);
     }

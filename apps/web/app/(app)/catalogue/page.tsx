@@ -8,6 +8,8 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { apiFetch } from "@/lib/auth";
+import { useCatalogueUpload } from "@/lib/queries";
+import type { UploadResult } from "@/lib/schemas";
 
 const MSEPicker = dynamic(() => import("@/components/MSEPicker"), { ssr: false });
 
@@ -22,22 +24,7 @@ const DOMAINS: { code: string; label: string; icon: string }[] = [
   { code: "RET18", label: "Health & Wellness", icon: "🌿" },
 ];
 
-interface CatalogueItem {
-  row: number;
-  product_name: string;
-  price_inr: number | null;
-  category_domain: string | null;
-  issues: string[];
-}
-
-interface UploadResult {
-  total_rows: number;
-  valid_rows: number;
-  items: CatalogueItem[];
-  errors: string[];
-  beckn_catalog: Record<string, unknown>;
-  profile_enriched: boolean;
-}
+/* Shape comes from lib/schemas.ts, which validates the upload response. */
 
 export default function CataloguePage() {
   const [mse, setMse] = useState<{ id: number; name: string } | null>(null);
@@ -47,6 +34,8 @@ export default function CataloguePage() {
   const [error, setError] = useState<string | null>(null);
   const [showJson, setShowJson] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const catalogueUpload = useCatalogueUpload();
 
   async function downloadTemplate(domain: string) {
     setDownloading(domain);
@@ -77,15 +66,7 @@ export default function CataloguePage() {
     setError(null);
     setResult(null);
     try {
-      const fd = new FormData();
-      fd.append("file", file, file.name);
-      fd.append("mse_id", String(mse.id));
-      const res = await apiFetch(`/catalogue/upload`, { method: "POST", body: fd }, 120000);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail ?? "Upload failed");
-      }
-      setResult(await res.json());
+      setResult(await catalogueUpload.mutateAsync({ file, mseId: mse.id }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
     } finally {

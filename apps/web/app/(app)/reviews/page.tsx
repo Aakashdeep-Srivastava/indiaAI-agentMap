@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Star, MessageSquare, RefreshCw } from "lucide-react";
-import { apiFetch } from "@/lib/auth";
+import { useAppReviews } from "@/lib/queries";
 
 interface Review {
   id: number;
@@ -51,27 +51,13 @@ function Stars({ n, size = "h-4 w-4" }: { n: number; size?: string }) {
 }
 
 export default function ReviewsPage() {
-  const [data, setData] = useState<Summary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchReviews = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiFetch(`/reviews/?limit=200`);
-      if (!res.ok) throw new Error("Failed to fetch reviews");
-      setData(await res.json());
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchReviews();
-  }, [fetchReviews]);
+  const {
+    data,
+    isPending: loading,
+    error: queryError,
+    refetch: fetchReviews,
+  } = useAppReviews(200);
+  const error = queryError ? "Failed to fetch reviews" : null;
 
   const maxBar = data ? Math.max(1, ...Object.values(data.distribution)) : 1;
 
@@ -94,7 +80,7 @@ export default function ReviewsPage() {
             <span className="font-mono text-xs">/feedback</span>).
           </p>
         </div>
-        <button onClick={fetchReviews} disabled={loading} className="btn-secondary !py-2 !text-xs">
+        <button onClick={() => fetchReviews()} disabled={loading} className="btn-secondary !py-2 !text-xs">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </button>

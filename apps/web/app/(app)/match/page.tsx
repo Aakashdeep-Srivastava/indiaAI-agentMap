@@ -23,47 +23,12 @@ const ClusterMap = dynamic(() => import("@/components/ClusterMap"), {
   ),
 });
 
-import { apiFetch } from "@/lib/auth";
+import { useClassify, useClusters, useMatch } from "@/lib/queries";
+import type { MatchResponse } from "@/lib/schemas";
 
-interface FactorBreakdown {
-  domain_score: number;
-  geo_score: number;
-  commission_score: number;
-  history_score: number;
-  sentiment_score: number;
-}
-
-interface MatchItem {
-  snp_id: number;
-  snp_name: string;
-  composite_score: number;
-  confidence_band: "green" | "yellow" | "red";
-  factor_bands: Record<string, "high" | "medium" | "low">;
-  fit_reasons?: string[];
-  factors?: FactorBreakdown; // NSIC admin sessions only
-  explainer_en: string;
-  explainer_hi: string;
-}
-
-interface MatchResponse {
-  mse_id: number;
-  mse_name: string;
-  predicted_domain: string | null;
-  matches: MatchItem[];
-  nudges?: string[];
-}
-
-interface ClusterData {
-  industry_label: string;
-  total_similar: number;
-  your_state: string | null;
-  your_district: string | null;
-  your_location: [number, number] | null;
-  by_state: { state: string; count: number; lat: number; lng: number }[];
-  by_district: { district: string; state: string; count: number; lat: number; lng: number }[];
-  top_districts: { district: string; state: string; count: number }[];
-  insights: string[];
-}
+/* Shapes come from lib/schemas.ts, which is what actually validates the
+ * response — a local interface would be a second, unenforced description of
+ * the same contract, free to drift from both the API and the parser. */
 
 const DOMAIN_LABELS: Record<string, { label: string; icon: string }> = {
   RET10: { label: "Grocery", icon: "\u{1F6D2}" },
@@ -77,10 +42,18 @@ export default function DashboardPage() {
   const searchParams = useSearchParams();
   const [mseId, setMseId] = useState("");
   const [result, setResult] = useState<MatchResponse | null>(null);
-  const [clusters, setClusters] = useState<ClusterData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [matchedId, setMatchedId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const autoTriggered = useRef(false);
+
+  const runMatch = useMatch();
+  const runClassify = useClassify();
+  const loading = runMatch.isPending || runClassify.isPending;
+
+  /* Cluster insights load in the background — the map appears when ready.
+   * Driven by the matched id rather than fired imperatively, so revisiting a
+   * business it has already mapped renders straight from cache. */
+  const { data: clusters = null } = useClusters(matchedId);
 
   useEffect(() => {
     const paramId = searchParams.get("mseId");
@@ -100,47 +73,19 @@ export default function DashboardPage() {
   async function handleMatch(idOverride?: number) {
     const id = idOverride ?? Number(mseId);
     if (!id) return;
-    setLoading(true);
     setError(null);
     try {
-      const runMatch = () =>
-        apiFetch(`/match/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mse_id: id, top_k: 5 }),
-        });
-
       // Lightning path: match directly using the stored classification.
       // Only classify first when this business has never been classified.
-      let res = await runMatch();
-      if (res.ok) {
-        let data: MatchResponse = await res.json();
-        if (!data.predicted_domain) {
-          await apiFetch(`/classify/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mse_id: id }),
-          });
-          res = await runMatch();
-          if (!res.ok) throw new Error("Match request failed");
-          data = await res.json();
-        }
-        setResult(data);
-      } else {
-        const err = await res.json();
-        throw new Error(err.detail ?? "Match request failed");
+      let data = await runMatch.mutateAsync({ mseId: id, topK: 5 });
+      if (!data.predicted_domain) {
+        await runClassify.mutateAsync({ mseId: id });
+        data = await runMatch.mutateAsync({ mseId: id, topK: 5 });
       }
-
-      // Cluster insights load in the background — the map appears when ready.
-      setClusters(null);
-      apiFetch(`/mse/${id}/clusters`)
-        .then((r) => (r.ok ? r.json() : null))
-        .then((c) => setClusters(c))
-        .catch(() => {});
+      setResult(data);
+      setMatchedId(id);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error");
-    } finally {
-      setLoading(false);
     }
   }
 

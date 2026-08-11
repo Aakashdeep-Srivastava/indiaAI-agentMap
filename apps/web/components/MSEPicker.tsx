@@ -5,12 +5,14 @@
  * - Otherwise, type-ahead search by business name or Udyam number. */
 
 import { useEffect, useRef, useState } from "react";
-import { apiFetch } from "@/lib/auth";
+import { useMSESearch, useMyMSE } from "@/lib/queries";
 
 export interface PickedMSE {
   id: number;
   name: string;
-  udyam_number: string;
+  // Nullable on purpose: Udyam became optional at registration because PS2
+  // reaches the informal long-tail, many of whom have no Udyam number yet.
+  udyam_number?: string | null;
   district?: string | null;
   state?: string | null;
 }
@@ -23,58 +25,45 @@ export default function MSEPicker({
   autoRun?: boolean;
 }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<PickedMSE[]>([]);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [picked, setPicked] = useState<PickedMSE | null>(null);
   const [isOwn, setIsOwn] = useState(false);
-  const [searching, setSearching] = useState(false);
   const [open, setOpen] = useState(false);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoLoaded = useRef(false);
 
-  /* Auto-load the account's linked enterprise */
+  /* The account's own enterprise, shared with the sidebar and the bell rather
+   * than fetched again here — one /auth/me + /mse/{id} pair per page. */
+  const { data: ownMSE } = useMyMSE();
+
+  /* Search is keyed on the debounced query, so the cache holds one entry per
+   * distinct search rather than one per keystroke, and revisiting a term is
+   * instant instead of another round trip. */
+  const { data: results = [], isFetching: searching } = useMSESearch(debouncedQuery);
+
   useEffect(() => {
-    if (autoLoaded.current) return;
+    if (autoLoaded.current || !ownMSE) return;
     autoLoaded.current = true;
-    (async () => {
-      try {
-        const me = await apiFetch(`/auth/me`).then((r) => (r.ok ? r.json() : null));
-        if (!me?.mse_id) return;
-        const mse = await apiFetch(`/mse/${me.mse_id}`).then((r) => (r.ok ? r.json() : null));
-        if (mse) {
-          const p: PickedMSE = {
-            id: mse.id, name: mse.name, udyam_number: mse.udyam_number,
-            district: mse.district, state: mse.state,
-          };
-          setPicked(p);
-          setIsOwn(true);
-          if (autoRun) onSelect(p);
-        }
-      } catch {
-        /* picker degrades to search-only */
-      }
-    })();
+    const p: PickedMSE = {
+      id: ownMSE.id,
+      name: ownMSE.name,
+      udyam_number: ownMSE.udyam_number ?? "",
+      district: ownMSE.district,
+      state: ownMSE.state,
+    };
+    setPicked(p);
+    setIsOwn(true);
+    if (autoRun) onSelect(p);
+    // onSelect is a fresh closure on every parent render; depending on it here
+    // would re-fire the auto-pick on each one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ownMSE, autoRun]);
 
   function search(q: string) {
     setQuery(q);
     setOpen(true);
     if (debounce.current) clearTimeout(debounce.current);
-    if (q.trim().length < 2) {
-      setResults([]);
-      return;
-    }
-    debounce.current = setTimeout(async () => {
-      setSearching(true);
-      try {
-        const r = await apiFetch(`/mse/search?q=${encodeURIComponent(q.trim())}`);
-        if (r.ok) setResults(await r.json());
-      } catch {
-        setResults([]);
-      } finally {
-        setSearching(false);
-      }
-    }, 300);
+    debounce.current = setTimeout(() => setDebouncedQuery(q), 300);
   }
 
   function pick(m: PickedMSE) {

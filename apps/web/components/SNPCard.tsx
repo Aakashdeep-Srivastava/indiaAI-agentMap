@@ -4,6 +4,15 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ConfidenceBadge } from "./ConfidenceBadge";
 
+/* The match shape is defined once, by the Zod schema that validates it on
+ * arrival. Re-declaring it here would be a second description of the same
+ * contract, free to drift from both the API and the parser.
+ *
+ * Note what the type now makes explicit: `factors` (raw sub-scores) is absent
+ * for MSE users and `factor_bands` (qualitative) is absent for admins — the
+ * server decides which one you get, and the render below handles both. */
+import type { MatchItem } from "@/lib/schemas";
+
 type FactorLevel = "high" | "medium" | "low";
 
 interface FactorBreakdown {
@@ -12,21 +21,6 @@ interface FactorBreakdown {
   commission_score: number;
   history_score: number;
   sentiment_score: number;
-}
-
-interface MatchItem {
-  snp_id: number;
-  snp_name: string;
-  composite_score: number;
-  confidence_band: "green" | "yellow" | "red";
-  /** Qualitative per-factor strength — the only per-factor signal for MSE users. */
-  factor_bands: Record<string, FactorLevel>;
-  /** Human-readable reasons this SNP fits (qualitative). */
-  fit_reasons?: string[];
-  /** Raw factor scores — present only for NSIC admin sessions. */
-  factors?: FactorBreakdown;
-  explainer_en: string;
-  explainer_hi: string;
 }
 
 const FACTORS: {

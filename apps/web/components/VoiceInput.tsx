@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch } from "@/lib/auth";
+import { TranscriptionSchema, safeParseOr } from "@/lib/schemas";
 
 type VoiceState = "idle" | "recording" | "processing";
 
@@ -95,7 +96,14 @@ export default function VoiceInput({
 
         if (!res.ok) throw new Error("Transcription failed");
 
-        const data = await res.json();
+        // Validated: `onTranscribe(undefined)` would silently write an empty
+        // value into whatever form field this is wired to.
+        const data = safeParseOr(
+          TranscriptionSchema,
+          await res.json(),
+          { text: "" },
+          "/stt/transcribe",
+        );
         onTranscribe(data.text);
       } catch {
         setError("Could not transcribe audio. Please try again.");

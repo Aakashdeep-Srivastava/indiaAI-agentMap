@@ -17,24 +17,10 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Check, CheckCheck, X } from "lucide-react";
-import { apiFetch, getSession } from "@/lib/auth";
+import { apiFetch } from "@/lib/auth";
 import { queryKeys } from "@/lib/query-provider";
-import {
-  NotificationFeedSchema,
-  safeParseOr,
-  type NotificationFeed,
-  type NotificationItem as Item,
-} from "@/lib/schemas";
-
-const EMPTY_FEED: NotificationFeed = { items: [], unread: 0 };
-
-async function fetchFeed(): Promise<NotificationFeed> {
-  const res = await apiFetch("/notifications/");
-  if (!res.ok) return EMPTY_FEED;
-  // Validated at the boundary: a malformed feed degrades to empty rather than
-  // rendering `undefined` into the panel. See lib/schemas.ts.
-  return safeParseOr(NotificationFeedSchema, await res.json(), EMPTY_FEED, "/notifications");
-}
+import { useNotifications } from "@/lib/queries";
+import type { NotificationFeed, NotificationItem as Item } from "@/lib/schemas";
 
 /* Colour carries meaning here: green = something was granted, red = something
  * needs the owner's attention, saffron = an action is required of them,
@@ -72,18 +58,7 @@ export default function NotificationBell() {
   const panelRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
-  const { data: feed, isSuccess } = useQuery({
-    queryKey: queryKeys.notifications,
-    queryFn: fetchFeed,
-    enabled: typeof window !== "undefined" && !!getSession(),
-    // Officer decisions land while the owner is already sitting on a page, so
-    // poll gently. 60s is well inside the per-minute rate-limit budget and
-    // still feels live for a decision that takes minutes to make. Unlike a
-    // bare setInterval, this pauses when the tab is hidden.
-    refetchInterval: 60_000,
-    refetchIntervalInBackground: false,
-    retry: false,
-  });
+  const { data: feed, isSuccess } = useNotifications();
 
   const items: Item[] = feed?.items ?? [];
   const unread = feed?.unread ?? 0;
@@ -136,7 +111,10 @@ export default function NotificationBell() {
   const hasAllocation = items.some((i) => i.event === "snp_allocated");
   useEffect(() => {
     if (hasAllocation) {
-      queryClient.invalidateQueries({ queryKey: queryKeys.myEnterprise });
+      // The sidebar reads the enterprise through useMyMSE, so invalidating
+      // identity cascades to the enterprise record it resolves to.
+      queryClient.invalidateQueries({ queryKey: queryKeys.me });
+      queryClient.invalidateQueries({ queryKey: ["mse"] });
     }
   }, [hasAllocation, queryClient]);
 

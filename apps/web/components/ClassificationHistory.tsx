@@ -2,13 +2,9 @@
 
 import { ConfidenceBadge } from "./ConfidenceBadge";
 
-interface HistoryItem {
-  id: number;
-  predicted_domain: string;
-  confidence: number;
-  model_version: string | null;
-  created_at: string;
-}
+/* Shape comes from lib/schemas.ts, which validates /classify/history on
+ * arrival — one description of the contract, not two. */
+import type { HistoryItem } from "@/lib/schemas";
 
 function confidenceBand(score: number): "green" | "yellow" | "red" {
   if (score >= 0.85) return "green";

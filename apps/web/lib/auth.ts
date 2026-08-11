@@ -2,6 +2,8 @@
  * The role stored locally is a UI hint only; every API call is authorized
  * server-side against the Bearer token, so editing localStorage grants nothing. */
 
+import { LoginResponseSchema } from "@/lib/schemas";
+
 export type Role = "mse" | "admin";
 
 export interface Session {
@@ -43,12 +45,24 @@ export async function login(userId: string, passcode: string): Promise<Session> 
     throw new Error("Cannot reach the server. Please check your connection and try again.");
   }
 
-  const data = await res.json().catch(() => ({}));
+  const raw = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error(
-      typeof data?.detail === "string" ? data.detail : "Sign-in failed. Please try again.",
+      typeof (raw as { detail?: unknown })?.detail === "string"
+        ? (raw as { detail: string }).detail
+        : "Sign-in failed. Please try again.",
     );
   }
+
+  // Validated, not trusted: a malformed success body would otherwise store a
+  // session with `token: undefined`, which then rides along as
+  // `Authorization: Bearer undefined` on every later call and fails as a
+  // confusing 401 far from the real cause.
+  const parsed = LoginResponseSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new Error("Sign-in failed: the server returned an unexpected response.");
+  }
+  const data = parsed.data;
 
   const session: Session = {
     token: data.access_token,

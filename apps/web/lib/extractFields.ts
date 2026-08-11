@@ -6,6 +6,7 @@
  */
 
 import { apiFetch } from "@/lib/auth";
+import { NerResultSchema, parseOrThrow } from "@/lib/schemas";
 
 export interface ExtractedFields {
   name?: string;
@@ -48,8 +49,11 @@ export async function extractFieldsFromAPI(
 
     if (!res.ok) throw new Error(`API error: ${res.status}`);
 
-    const data = await res.json();
-    return { fields: data.extracted, engine: data.engine };
+    // Throwing on a malformed body is the right move here: the catch below
+    // falls back to the client-side regex extractor, which is strictly better
+    // than writing `undefined` into the registration form.
+    const data = parseOrThrow(NerResultSchema, await res.json(), "/ner/extract");
+    return { fields: data.extracted as ExtractedFields, engine: data.engine };
   } catch {
     // Fallback to client-side regex
     const fields = extractFieldsFromText(text);

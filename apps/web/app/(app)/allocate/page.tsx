@@ -3,31 +3,9 @@
 /* Official SNP Allocation — the NSIC act of mapping an approved MSE to a
  * Seller Network Participant: confirm the AI recommendation or reassign. */
 
-import React, { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/auth";
-
-interface MSE {
-  id: number;
-  name: string;
-  udyam_number: string;
-  district: string | null;
-  state: string | null;
-  status?: string | null;
-  entrepreneur_name?: string | null;
-  assigned_snp_id?: number | null;
-  assigned_snp_name?: string | null;
-  assigned_by?: string | null;
-  assigned_at?: string | null;
-}
-
-interface MatchItem {
-  snp_id: number;
-  snp_name: string;
-  composite_score: number;
-  confidence_band: "green" | "yellow" | "red";
-  fit_reasons?: string[];
-  explainer_en: string;
-}
+import React, { useState } from "react";
+import { useAllocateSNP, useMSEList, useMatch } from "@/lib/queries";
+import type { MSE, MatchItem } from "@/lib/schemas";
 
 const BAND = {
   green: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -36,37 +14,25 @@ const BAND = {
 };
 
 export default function AllocatePage() {
-  const [mses, setMses] = useState<MSE[]>([]);
-  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<number | null>(null);
   const [matches, setMatches] = useState<Record<number, MatchItem[]>>({});
-  const [matchLoading, setMatchLoading] = useState(false);
   const [allocating, setAllocating] = useState<number | null>(null);
 
-  useEffect(() => {
-    apiFetch(`/mse/?limit=20`)
-      .then((r) => r.json())
-      .then((all: MSE[]) => setMses(all.filter((m) => m.status === "approved")))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: all = [], isPending: loading } = useMSEList(20);
+  const mses = all.filter((m) => m.status === "approved");
+
+  const runMatch = useMatch();
+  const allocateSNP = useAllocateSNP();
+  const matchLoading = runMatch.isPending;
 
   async function openMse(m: MSE) {
     setOpen(open === m.id ? null : m.id);
     if (!matches[m.id] && open !== m.id) {
-      setMatchLoading(true);
       try {
-        const res = await apiFetch(`/match/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mse_id: m.id, top_k: 3 }),
-        }, 90000);
-        if (res.ok) {
-          const d = await res.json();
-          setMatches((prev) => ({ ...prev, [m.id]: d.matches }));
-        }
-      } finally {
-        setMatchLoading(false);
+        const d = await runMatch.mutateAsync({ mseId: m.id, topK: 3 });
+        setMatches((prev) => ({ ...prev, [m.id]: d.matches }));
+      } catch {
+        /* the panel stays empty; the officer can retry by collapsing */
       }
     }
   }
@@ -78,27 +44,20 @@ export default function AllocatePage() {
     if (!isTop && !note.trim()) return;
     setAllocating(snp.snp_id);
     try {
-      const res = await apiFetch(`/mse/${mseId}/allocate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ snp_id: snp.snp_id, note }),
+      // Send what the AI actually had at the top of this officer's screen.
+      // The backend stores it as mses.recommended_snp_id, which is what turns
+      // "did the officer accept the recommendation?" into a recorded fact
+      // instead of something re-derived later from drifting match rows — the
+      // expert relevance label the ranking evaluation currently lacks.
+      const recommended = matches[mseId]?.[0]?.snp_id;
+      await allocateSNP.mutateAsync({
+        mseId,
+        snpId: snp.snp_id,
+        note,
+        recommendedSnpId: recommended,
       });
-      if (res.ok) {
-        const updated = await res.json();
-        setMses((prev) =>
-          prev.map((m) =>
-            m.id === mseId
-              ? {
-                  ...m,
-                  assigned_snp_id: updated.assigned_snp_id,
-                  assigned_snp_name: updated.assigned_snp_name,
-                  assigned_by: updated.assigned_by,
-                  assigned_at: updated.assigned_at,
-                }
-              : m,
-          ),
-        );
-      }
+    } catch {
+      window.alert("The allocation could not be saved. Please try again.");
     } finally {
       setAllocating(null);
     }

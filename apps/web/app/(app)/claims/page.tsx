@@ -1,47 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { apiFetch } from "@/lib/auth";
-
-/* ─── Types (mirror routes/claims.py) ─────────────────────────────── */
-
-interface RuleCheck {
-  rule: string;
-  label: string;
-  passed: boolean;
-  note: string;
-}
-
-interface Claim {
-  claim_id: string;
-  claim_type: string;
-  mse_id: number;
-  mse_name: string;
-  udyam_number: string;
-  state: string | null;
-  snp_name: string;
-  channel: string;
-  sku_count: number;
-  claimed_amount: number;
-  computed_amount: number;
-  checks: RuleCheck[];
-  passed_all: boolean;
-  risk_score: number;
-  risk_band: "green" | "yellow" | "red";
-  anomalies: string[];
-  decision: string | null;
-  decided_by: string | null;
-}
-
-interface QueueStats {
-  total: number;
-  pending: number;
-  auto_clearable: number;
-  flagged_red: number;
-  amount_pending: number;
-  amount_at_risk: number;
-}
+import { useClaimsQueue, useDecideClaim } from "@/lib/queries";
+// Types are inferred from the Zod schemas that validate the response, so the
+// shape the UI renders and the shape the API promised cannot drift apart.
+import type { Claim } from "@/lib/schemas";
 
 const BAND_STYLES: Record<string, string> = {
   green: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -54,53 +18,27 @@ const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 /* ─── Page ────────────────────────────────────────────────────────── */
 
 export default function ClaimsPage() {
-  const [claims, setClaims] = useState<Claim[]>([]);
-  const [stats, setStats] = useState<QueueStats | null>(null);
-  const [note, setNote] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [filter, setFilter] = useState<"pending" | "all">("pending");
 
-  async function load() {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiFetch("/claims/queue");
-      if (!res.ok) throw new Error("Could not load the claims queue");
-      const data = await res.json();
-      setClaims(data.claims);
-      setStats(data.stats);
-      setNote(data.note ?? "");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load claims");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const { data, isPending: loading, error: queryError, refetch: load } = useClaimsQueue();
+  const decideClaim = useDecideClaim();
 
-  useEffect(() => {
-    load();
-  }, []);
+  const claims = data?.claims ?? [];
+  const stats = data?.stats ?? null;
+  const note = data?.source ?? "";
+  const error = queryError ? "Could not load the claims queue" : null;
 
   async function decide(claim: Claim, decision: "approve" | "flag") {
     setBusy(claim.claim_id);
     try {
-      const res = await apiFetch("/claims/decide", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ claim_id: claim.claim_id, decision }),
-      });
-      if (res.ok) {
-        setClaims((cs) =>
-          cs.map((c) =>
-            c.claim_id === claim.claim_id
-              ? { ...c, decision, decided_by: "you" }
-              : c,
-          ),
-        );
-      }
+      // The mutation invalidates the queue on success, so the decided row
+      // comes back from the server rather than being patched in locally and
+      // drifting from what the officer would see on reload.
+      await decideClaim.mutateAsync({ claimId: claim.claim_id, decision });
+    } catch {
+      /* the row simply stays undecided; the queue is the source of truth */
     } finally {
       setBusy(null);
     }

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Store, ShieldCheck, LogIn, KeyRound, User } from "lucide-react";
 import { API, apiFetch, getSession, login, type Role } from "@/lib/auth";
+import { MeSchema, safeParseOr, type Me } from "@/lib/schemas";
 
 /** Demo usernames shown as a hint — passcodes are issued separately (never shipped in the bundle). */
 const DEMO_IDS: Record<Role, string> = { mse: "mse@msmemate.com", admin: "nsic@msmemate.com" };
@@ -64,9 +65,13 @@ export default function LoginPage() {
         router.replace("/review");
       } else {
         // Registered business? Continue the journey at Classify; else Register.
-        const me = await apiFetch(`/auth/me`)
+        // Validated rather than optional-chained: this decides where the user
+        // lands, and a silently-undefined mse_id would send an owner with a
+        // registered business back to the registration form.
+        const raw = await apiFetch(`/auth/me`)
           .then((r) => (r.ok ? r.json() : null))
           .catch(() => null);
+        const me = safeParseOr<Me | null>(MeSchema.nullable(), raw, null, "/auth/me");
         router.replace(me?.mse_id ? "/classify" : "/register");
       }
     } catch (err) {

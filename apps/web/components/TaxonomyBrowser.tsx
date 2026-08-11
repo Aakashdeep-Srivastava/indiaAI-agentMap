@@ -3,19 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface Category {
-  id: number;
-  code: string;
-  name: string;
-}
-
-interface Domain {
-  id: number;
-  code: string;
-  name: string;
-  description: string | null;
-  categories: Category[];
-}
+/* Shape comes from lib/schemas.ts, which validates /domains/ on arrival. */
+import type { Domain } from "@/lib/schemas";
 
 interface Props {
   domains: Domain[];

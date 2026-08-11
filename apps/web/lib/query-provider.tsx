@@ -27,8 +27,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 /** Query keys in one place so an invalidation cannot silently miss a cache
  *  because a key was retyped slightly differently at the call site. */
 export const queryKeys = {
-  notifications: ["notifications"] as const,
+  me: ["me"] as const,
   myEnterprise: ["my-enterprise"] as const,
+  mse: (id: number) => ["mse", id] as const,
+  mseList: ["mse-list"] as const,
+  mseSearch: (q: string) => ["mse-search", q] as const,
+  clusters: (id: number) => ["clusters", id] as const,
+  domains: ["domains"] as const,
+  classifyHistory: (id: number) => ["classify-history", id] as const,
+  audit: (params: string) => ["audit", params] as const,
+  claims: ["claims"] as const,
+  modelHealth: ["model-health"] as const,
+  appReviews: ["app-reviews"] as const,
+  notifications: ["notifications"] as const,
 };
 
 export default function QueryProvider({ children }: { children: React.ReactNode }) {

@@ -1,17 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { apiFetch } from "@/lib/auth";
-
-interface AuditEntry {
-  id: number;
-  action: string;
-  entity_type: string | null;
-  entity_id: number | null;
-  details: string | null;
-  performed_by: string | null;
-  created_at: string;
-}
+import { useState } from "react";
+import { useAudit } from "@/lib/queries";
 
 const ACTION_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
   mse_registered: { bg: "bg-saffron-50", text: "text-saffron-600", dot: "bg-saffron-400" },
@@ -35,31 +25,17 @@ function formatTime(iso: string) {
 }
 
 export default function AuditPage() {
-  const [logs, setLogs] = useState<AuditEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
 
-  const fetchLogs = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const url = filter
-        ? `/audit/?limit=50&action=${filter}`
-        : `/audit/?limit=50`;
-      const res = await apiFetch(url);
-      if (!res.ok) throw new Error("Failed to fetch audit logs");
-      setLogs(await res.json());
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }, [filter]);
-
-  useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+  // The filter is part of the query key, so switching back to a filter you
+  // already viewed is served from cache instead of re-hitting the API.
+  const {
+    data: logs = [],
+    isPending: loading,
+    error: queryError,
+    refetch: fetchLogs,
+  } = useAudit(filter ? `?limit=50&action=${filter}` : `?limit=50`);
+  const error = queryError ? "Failed to fetch audit logs" : null;
 
   return (
     <div className="space-y-6">
@@ -97,7 +73,9 @@ export default function AuditPage() {
             <option value="matched">Matched</option>
           </select>
           <button
-            onClick={fetchLogs}
+            // Wrapped: refetch takes RefetchOptions, and passing it directly
+            // would hand it the click event as its options object.
+            onClick={() => fetchLogs()}
             disabled={loading}
             className="btn-secondary !py-2 !text-xs"
           >

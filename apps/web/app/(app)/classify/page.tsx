@@ -32,6 +32,15 @@ const VoiceInput = dynamic(() => import("@/components/VoiceInput"), {
 const MSEPicker = dynamic(() => import("@/components/MSEPicker"), { ssr: false });
 
 import { apiFetch, getSession } from "@/lib/auth";
+import {
+  useCatalogueUpload,
+  useClassificationHistory,
+  useClassify,
+  useClassifyText,
+  useDomains,
+  useFetchMSE,
+} from "@/lib/queries";
+import type { ClassifyResult, HistoryItem, MSE, PredictionItem } from "@/lib/schemas";
 
 /* ─── Constants ───────────────────────────────────────────────────── */
 
@@ -141,56 +150,10 @@ const INPUT_MODES = [
 
 /* ─── Types ───────────────────────────────────────────────────────── */
 
-interface PredictionItem {
-  domain: string;
-  confidence: number;
-  category?: string;
-  category_name?: string;
-  explanation?: string;
-}
-
-interface ComplianceItem {
-  name: string;
-  note: string;
-  status: "done" | "action";
-}
-
-interface ClassifyResult {
-  mse_id: number;
-  top3: PredictionItem[];
-  selected_domain: string;
-  confidence: number;
-  selected_category?: string;
-  selected_category_name?: string;
-  explanation?: string;
-  engine?: string;
-  attributes?: Record<string, string>;
-  compliance?: ComplianceItem[];
-}
-
-interface MSEInfo {
-  id: number;
-  name: string;
-  udyam_number: string;
-  state: string | null;
-  description: string;
-}
-
-interface DomainData {
-  id: number;
-  code: string;
-  name: string;
-  description: string | null;
-  categories: { id: number; code: string; name: string }[];
-}
-
-interface HistoryItem {
-  id: number;
-  predicted_domain: string;
-  confidence: number;
-  model_version: string | null;
-  created_at: string;
-}
+/* Shapes come from lib/schemas.ts — the Zod schemas that validate these
+ * responses on arrival. A local interface here would be a second, unenforced
+ * description of the same contract. */
+type MSEInfo = MSE;
 
 type TabMode = "mse" | "text" | "import";
 
@@ -374,10 +337,9 @@ export default function ClassifyPage() {
 
   const [result, setResult] = useState<ClassifyResult | null>(null);
   const [mseInfo, setMseInfo] = useState<MSEInfo | null>(null);
-  const [domains, setDomains] = useState<DomainData[]>([]);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [lookupId, setLookupId] = useState<number | null>(null);
+  const [lookupPending, setLookupPending] = useState(false);
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [explainerLang, setExplainerLang] = useState<"en" | "hi">("en");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -406,12 +368,20 @@ export default function ClassifyPage() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    apiFetch(`/domains/`)
-      .then((r) => r.json())
-      .then(setDomains)
-      .catch(() => {});
-  }, []);
+  /* The ONDC taxonomy is shared with the browser panel and cached for the
+   * session — it changes on the order of releases, not page views. */
+  const { data: domains = [] } = useDomains();
+
+  /* Classification history is keyed on the business, so re-opening one the
+   * user already classified renders from cache instead of refetching. */
+  const classifiedId = mseInfo?.id ?? null;
+  const { data: history = [] } = useClassificationHistory(classifiedId);
+
+  const fetchMSE = useFetchMSE();
+  const catalogueUpload = useCatalogueUpload();
+  const classifyMSE = useClassify();
+  const classifyText = useClassifyText();
+  const loading = classifyMSE.isPending || classifyText.isPending || lookupPending;
 
   useEffect(() => {
     if (autoTriggered.current && mseId && !result && !loading) {
@@ -421,53 +391,38 @@ export default function ClassifyPage() {
   }, [mseId]);
 
   const classifyByMSE = async (idArg?: string) => {
-    const id = (idArg ?? mseId).trim();
+    const id = Number((idArg ?? mseId).trim());
     if (!id) return;
-    setLoading(true);
     setError(null);
     setResult(null);
     setMseInfo(null);
-    setHistory([]);
+    setLookupPending(true);
     try {
-      const mseRes = await apiFetch(`/mse/${id}`);
-      if (!mseRes.ok) throw new Error("Business not found");
-      const mse: MSEInfo = await mseRes.json();
+      // Fetch through the cache so the picker, the sidebar and this page all
+      // share one copy of the business record.
+      const mse = await fetchMSE(id);
+      if (!mse) throw new Error("Business not found");
       setMseInfo(mse);
-      const classifyRes = await apiFetch(`/classify/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mse_id: parseInt(id) }),
-      });
-      if (!classifyRes.ok) throw new Error("Classification failed");
-      setResult(await classifyRes.json());
-      const histRes = await apiFetch(`/classify/history/${id}`);
-      if (histRes.ok) setHistory(await histRes.json());
+      setLookupId(id);
+      // Invalidates its own history on success, so the panel below updates
+      // without a second explicit request here.
+      setResult(await classifyMSE.mutateAsync({ mseId: id }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Classification failed");
     } finally {
-      setLoading(false);
+      setLookupPending(false);
     }
   };
 
   const classifyByText = async () => {
     if (!description.trim()) return;
-    setLoading(true);
     setError(null);
     setResult(null);
     setMseInfo(null);
-    setHistory([]);
     try {
-      const res = await apiFetch(`/classify/text`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description, language }),
-      });
-      if (!res.ok) throw new Error("Classification failed");
-      setResult(await res.json());
+      setResult(await classifyText.mutateAsync({ description, language }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Classification failed");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -773,14 +728,13 @@ export default function ClassifyPage() {
                     setCatUploading(true);
                     setCatResult(null);
                     try {
-                      const fd = new FormData();
-                      fd.append("file", f, f.name);
-                      fd.append("mse_id", mseId.trim());
-                      const res = await apiFetch(`/catalogue/upload`, { method: "POST", body: fd }, 120000);
-                      if (res.ok) {
-                        const d = await res.json();
-                        setCatResult({ total: d.total_rows, valid: d.valid_rows });
-                      }
+                      const d = await catalogueUpload.mutateAsync({
+                        file: f,
+                        mseId: Number(mseId.trim()),
+                      });
+                      setCatResult({ total: d.total_rows, valid: d.valid_rows });
+                    } catch {
+                      /* the strip simply shows no result; the file can be re-picked */
                     } finally {
                       setCatUploading(false);
                     }
@@ -1545,7 +1499,7 @@ export default function ClassifyPage() {
                 <TaxonomyBrowser
                   domains={domains}
                   highlightedDomain={result.selected_domain}
-                  highlightedCategory={result.selected_category}
+                  highlightedCategory={result.selected_category ?? undefined}
                 />
               </motion.div>
             )}

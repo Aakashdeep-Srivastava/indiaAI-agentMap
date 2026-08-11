@@ -3,25 +3,10 @@
 /* Certificate of ONDC Onboarding Allocation — system-generated once an
  * enterprise is approved and officially allocated to an SNP. Print-ready. */
 
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { apiFetch } from "@/lib/auth";
-
-interface MSE {
-  id: number;
-  name: string;
-  udyam_number: string;
-  entrepreneur_name?: string | null;
-  district: string | null;
-  state: string | null;
-  status?: string | null;
-  reviewed_by?: string | null;
-  reviewed_at?: string | null;
-  assigned_snp_name?: string | null;
-  assigned_by?: string | null;
-  assigned_at?: string | null;
-}
+import { useMSE, useMe } from "@/lib/queries";
 
 function fmt(d?: string | null) {
   return d
@@ -32,53 +17,30 @@ function fmt(d?: string | null) {
 function CertificateInner() {
   const params = useSearchParams();
   const paramId = params.get("mseId");
-  const [mse, setMse] = useState<MSE | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [resolving, setResolving] = useState(true);
 
   /* An owner arriving from their own sidebar has no mseId to pass — only the
    * officer flows carry one. Fall back to the signed-in user's own enterprise
-   * (the same /auth/me -> mse_id resolution MSEPicker uses), so the
-   * certificate is reachable from the enterprise side at all. */
-  useEffect(() => {
-    let cancelled = false;
+   * so the certificate is reachable from the enterprise side at all. Both
+   * paths share the cache with the sidebar, so arriving here costs no extra
+   * request when the nav has already resolved the same record. */
+  const { data: me, isLoading: meLoading } = useMe();
+  const targetId = paramId ? Number(paramId) : (me?.mse_id ?? null);
+  const { data: mse, isLoading, isError } = useMSE(targetId);
 
-    async function load() {
-      try {
-        let id = paramId;
-        if (!id) {
-          const me = await apiFetch("/auth/me").then((r) => (r.ok ? r.json() : null));
-          id = me?.mse_id ? String(me.mse_id) : null;
-        }
-        if (!id) {
-          if (!cancelled) {
-            setError("No enterprise is linked to this account.");
-            setResolving(false);
-          }
-          return;
-        }
-        const data = await apiFetch(`/mse/${id}`).then((r) =>
-          r.ok ? r.json() : Promise.reject(new Error("load failed")),
-        );
-        if (!cancelled) {
-          setMse(data);
-          setResolving(false);
-        }
-      } catch {
-        if (!cancelled) {
-          setError("Could not load the enterprise record.");
-          setResolving(false);
-        }
-      }
-    }
+  const resolving = meLoading || (!!targetId && isLoading);
 
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [paramId]);
-
-  if (error) return <p className="py-16 text-center text-sm text-red-500">{error}</p>;
+  if (!resolving && !targetId)
+    return (
+      <p className="py-16 text-center text-sm text-surface-400">
+        No enterprise is linked to this account.
+      </p>
+    );
+  if (isError)
+    return (
+      <p className="py-16 text-center text-sm text-red-500">
+        Could not load the enterprise record.
+      </p>
+    );
   if (resolving || !mse) return (
     <div className="flex justify-center py-16">
       <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />

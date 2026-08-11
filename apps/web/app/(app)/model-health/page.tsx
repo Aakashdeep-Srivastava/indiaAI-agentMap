@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { apiFetch } from "@/lib/auth";
+import { useModelHealth } from "@/lib/queries";
 
 /* ── API response types (mirrors GET /model-health/) ─────────── */
 interface Alert {
@@ -289,27 +289,13 @@ function RateMeter({ rate, threshold, breach }: { rate: number; threshold: numbe
 }
 
 export default function ModelHealthPage() {
-  const [report, setReport] = useState<HealthReport | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchReport = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await apiFetch("/model-health/");
-      if (!res.ok) throw new Error("Failed to load model health report");
-      setReport(await res.json());
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchReport();
-  }, [fetchReport]);
+  const {
+    data: report,
+    isPending: loading,
+    error: queryError,
+    refetch: fetchReport,
+  } = useModelHealth();
+  const error = queryError ? "Failed to load model health report" : null;
 
   const banner = report ? STATUS_BANNER[report.status] : null;
 
@@ -334,7 +320,7 @@ export default function ModelHealthPage() {
             already records. No raw text leaves the audit trail.
           </p>
         </div>
-        <button onClick={fetchReport} disabled={loading} className="btn-secondary !py-2 !text-xs">
+        <button onClick={() => fetchReport()} disabled={loading} className="btn-secondary !py-2 !text-xs">
           {loading ? (
             <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

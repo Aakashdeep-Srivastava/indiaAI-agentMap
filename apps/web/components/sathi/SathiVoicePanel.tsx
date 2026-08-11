@@ -15,6 +15,12 @@ import {
   detectLanguage,
 } from "@/lib/extractFields";
 import { apiFetch } from "@/lib/auth";
+import {
+  OcrResultSchema,
+  TranscriptionSchema,
+  TtsResultSchema,
+  safeParseOr,
+} from "@/lib/schemas";
 
 /* ─── Types ─── */
 type OrbPhase = "idle" | "listening" | "processing" | "speaking";
@@ -288,7 +294,9 @@ export default function SathiVoicePanel({
         body: JSON.stringify({ text, language }),
       }, 60000);
       if (!res.ok) return;
-      const data = await res.json();
+      // On a mock or malformed TTS response there is simply no audio, and the
+      // caller falls back to the browser's speechSynthesis.
+      const data = safeParseOr(TtsResultSchema, await res.json(), {}, "/tts/synthesize");
       if (data.audio_base64 && data.content_type) {
         const sarvamGen = ++ttsGenRef.current;
         window.speechSynthesis.cancel();
@@ -684,7 +692,15 @@ export default function SathiVoicePanel({
         } catch { /* non-JSON error body */ }
         throw new Error(detail || `server responded ${res.status}`);
       }
-      const data = await res.json();
+      // Degrades to an empty transcription rather than throwing: the user is
+      // mid-conversation with a voice agent, and a schema surprise should
+      // read as "I didn't catch that", not a broken panel.
+      const data = safeParseOr(
+        TranscriptionSchema,
+        await res.json(),
+        { text: "" },
+        "/stt/transcribe",
+      );
       const text = (data.text || "").trim();
 
       if (data.detected_language && !langDetectedRef.current) {
@@ -741,7 +757,9 @@ export default function SathiVoicePanel({
       }, 180000);
 
       if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = safeParseOr(OcrResultSchema, await res.json(), {
+        extracted_fields: {},
+      }, "/ocr/extract");
       const msg =
         form.language === "hi" && data.message_hi
           ? data.message_hi
